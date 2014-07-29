@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:id="@+id/linear_left"
+        style="@style/wrapAll"
+        android:gravity="left"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/item_lat"
+            style="@style/wrapAll"
+            android:text="lat" />
+
+        <TextView
+            android:id="@+id/item_lon"
+            style="@style/wrapAll"
+            android:text="long" />
+
+        <TextView
+            android:id="@+id/item_radius"
+            style="@style/wrapAll"
+            android:text="radius" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linear_right"
+        style="@style/wrapAll"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/linear_left"
+        android:gravity="right"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/item_email"
+            style="@style/wrapAll"
+            android:text="email" />
+
+        <TextView
+            android:id="@+id/item_enter"
+            style="@style/wrapAll"
+            android:text="enter" />
+
+        <TextView
+            android:id="@+id/item_message"
+            style="@style/wrapAll"
+            android:text="message" />
+    </LinearLayout>
+
+</RelativeLayout>

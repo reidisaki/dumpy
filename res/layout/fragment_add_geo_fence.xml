@@ -1,0 +1,116 @@
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="fill_horizontal"
+    tools:context="com.yoneko.areyouthereyet.AddGeoFenceFragment" >
+
+    <TableRow style="@style/tableStyle" >
+
+        <TextView
+            android:id="@+id/lat_text"
+            style="@style/wrapAll"
+            android:text="@string/lat" />
+
+        <EditText
+            android:id="@+id/lat_edit"
+            style="@style/wrapAll"
+            android:inputType="numberDecimal"
+            android:nextFocusDown="@+id/lon_edit" />
+    </TableRow>
+
+    <TableRow style="@style/tableStyle" >
+
+        <TextView
+            android:id="@+id/lon_text"
+            style="@style/wrapAll"
+            android:text="@string/lon" />
+
+        <EditText
+            android:id="@+id/lon_edit"
+            style="@style/wrapAll"
+            android:inputType="numberDecimal"
+            android:nextFocusDown="@+id/radius_edit" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/map_button"
+            style="@style/wrapAll"
+            android:text="MAP" />
+    </TableRow>
+
+    <TableRow style="@style/tableStyle" >
+
+        <TextView
+            android:id="@+id/radius_text"
+            style="@style/wrapAll"
+            android:text="@string/radius" />
+
+        <EditText
+            android:id="@+id/radius_edit"
+            style="@style/wrapAll"
+            android:inputType="number"
+            android:nextFocusDown="@+id/email_edit" />
+    </TableRow>
+
+    <TableRow style="@style/tableStyle" >
+
+        <RadioGroup
+            android:id="@+id/enter_exit"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/radio_enter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enter" />
+
+            <RadioButton
+                android:id="@+id/radio_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/exit" />
+        </RadioGroup>
+    </TableRow>
+
+    <TableRow style="@style/tableStyle" >
+
+        <TextView
+            android:id="@+id/email_text"
+            style="@style/wrapAll"
+            android:text="@string/email_phone" />
+
+        <EditText
+            android:id="@+id/email_edit"
+            style="@style/wrapAll"
+            android:inputType="number"
+            android:nextFocusDown="@+id/message_edit" />
+    </TableRow>
+
+    <TableRow style="@style/tableStyle" >
+
+        <TextView
+            android:id="@+id/message_text"
+            style="@style/wrapAll"
+            android:text="@string/message" />
+
+        <EditText
+            android:id="@+id/message_edit"
+            style="@style/wrapAll"
+            android:inputType="textShortMessage"
+            android:lines="8" />
+    </TableRow>
+
+    <TableRow style="@style/tableStyle" >
+
+        <Button
+            android:id="@+id/save_button"
+            style="@style/wrapAll"
+            android:text="@string/save" />
+    </TableRow>
+
+</TableLayout>
