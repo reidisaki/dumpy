@@ -17,13 +17,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
@@ -34,7 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener {
+public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener {
 
 	GoogleMap mMap;
 	Circle myCircle;
@@ -42,7 +44,32 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	EditText searchEdit;
 	Button searchButton;
 	LatLng latLng;
+	int selectedRadius = 100;
+	Spinner spinner;     
+    public void onItemSelected(AdapterView<?> parent, View view, 
+            int pos, long id) {
+    	switch(pos) {
+    	case 1: 
+    		selectedRadius = 5;
+    		break;
+    	case 2: 
+    		selectedRadius = 10;
+    		break;
+    	case 3: 
+    		selectedRadius = 20;
+    		break;
+    	case 4: 
+    		selectedRadius = 100;
+    		break;
+    	case 5: 
+    		selectedRadius = 200;
+    		break;
+    	}
+    }
 
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
+	
 	public static String TAG = "yoneko";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +98,12 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	private void initViews() {
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
 		searchButton = (Button)findViewById(R.id.btn_find);
+		spinner = (Spinner) findViewById(R.id.radius_spinner);
+		
 
 	}
 	private void setListeners() {
+		spinner.setOnItemSelectedListener(this);
 		mMap.setOnMapLongClickListener(this);
 		mMap.setOnMarkerClickListener(this);
 		//		mMap.setOnMapClickListener(this);
@@ -144,7 +174,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		mMap.clear();
 		CircleOptions circleOptions = new CircleOptions()
 		.center(latLng)   //set center
-		.radius(130)   //set radius in meters  make this configurable
+		.radius(selectedRadius)   //set radius in meters  make this configurable
 		.fillColor(0x408A2BE2) 
 		.strokeColor(Color.MAGENTA)
 		.strokeWidth(5);
