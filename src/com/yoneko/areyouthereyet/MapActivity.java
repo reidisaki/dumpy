@@ -39,37 +39,56 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener {
 
 	GoogleMap mMap;
-	Circle myCircle;
+	Marker currentMarker = null;
+	Circle myCircle = null;
 	MarkerOptions markerOptions;
 	EditText searchEdit;
 	Button searchButton;
-	LatLng latLng;
+	LatLng latLng = null;
+	public static String tag = "Reid";
 	int selectedRadius = 100;
 	Spinner spinner;     
-    public void onItemSelected(AdapterView<?> parent, View view, 
-            int pos, long id) {
-    	switch(pos) {
-    	case 1: 
-    		selectedRadius = 5;
-    		break;
-    	case 2: 
-    		selectedRadius = 10;
-    		break;
-    	case 3: 
-    		selectedRadius = 20;
-    		break;
-    	case 4: 
-    		selectedRadius = 100;
-    		break;
-    	case 5: 
-    		selectedRadius = 200;
-    		break;
-    	}
-    }
+	public void onItemSelected(AdapterView<?> parent, View view, 
+			int pos, long id) {
+		switch(pos) {
+		case 1: 
+			selectedRadius = 5;
+			break;
+		case 2: 
+			selectedRadius = 20;
+			break;
+		case 3: 
+			selectedRadius = 50;
+			break;
+		case 4: 
+			selectedRadius = 100;
+			break;
+		case 5: 
+			selectedRadius = 150;
+			break;
+		case 6: 
+			selectedRadius = 200;
+			break;
+		case 7: 
+			selectedRadius = 500;
+			break;
+		default: 
+			selectedRadius = 100;
+			break;
+		}
+		o("selected radius: " + selectedRadius);
+		if(latLng != null) {
+			createRadiusCircle(latLng);
+		}
 
-    public void onNothingSelected(AdapterView<?> parent) {
-    }
-	
+	}
+
+	public void o (String s) {
+		Log.i(tag,"output s: " + s);
+	}
+	public void onNothingSelected(AdapterView<?> parent) {
+	}
+
 	public static String TAG = "yoneko";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +118,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
 		searchButton = (Button)findViewById(R.id.btn_find);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
-		
+
 
 	}
 	private void setListeners() {
@@ -123,8 +142,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			@Override
 			public void onInfoWindowClick(Marker marker) {
 				handlePoint(marker);
-
-
 			}
 		});
 
@@ -135,6 +152,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		Bundle b = new Bundle();
 		b.putDouble("lon", marker.getPosition().longitude);
 		b.putDouble("lat", marker.getPosition().latitude);
+		b.putInt("radius", selectedRadius);
 		resultIntent.putExtras(b);
 		setResult(AddGeoFenceFragment.MAP_RESULT_CODE, resultIntent);Log.i(TAG,"Handle this");
 		finish();
@@ -148,17 +166,30 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 	@Override    
 	public void onMapLongClick(LatLng point) {
+		latLng = point;
 		Log.i(TAG,"clearing marker");
 		createRadiusCircle(point);
-		MarkerOptions mo = new MarkerOptions()
-		.position(point)
-		.title( point.latitude + ", " + point.longitude)           
-		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
-		mMap.addMarker(mo).showInfoWindow();
-		mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
+		//		MarkerOptions mo = new MarkerOptions()
+		//		.position(point)
+		//		.title( point.latitude + ", " + point.longitude)           
+		//		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+		//		mMap.addMarker(mo).showInfoWindow();
+		//		mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
 		Log.i(TAG,"Location is here: " + point.latitude + ", " + point.longitude);
 	}
 
+	public void addMarker(LatLng latLng) {
+		MarkerOptions mo = new MarkerOptions()
+		.position(latLng)
+		.title( latLng.latitude + ", " + latLng.longitude)           
+		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+		if(currentMarker != null) {
+			currentMarker.remove();
+		}
+		currentMarker = mMap.addMarker(mo);
+		currentMarker.showInfoWindow();
+		mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+	}
 	//	@Override
 	//	public void onMapClick(LatLng point) {
 	//		CircleOptions circleOptions = new CircleOptions()
@@ -171,7 +202,13 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	//		myCircle = mMap.addCircle(circleOptions);
 	//	}
 	public void createRadiusCircle(LatLng latLng) {
-		mMap.clear();
+		if(myCircle != null) {
+			myCircle.remove();
+		}
+		//		mMap.clear();
+		addMarker(latLng);
+
+		o("selected radius in createRadiusCircle " + selectedRadius);
 		CircleOptions circleOptions = new CircleOptions()
 		.center(latLng)   //set center
 		.radius(selectedRadius)   //set radius in meters  make this configurable
@@ -222,7 +259,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				markerOptions.position(latLng);
 				markerOptions.title(addressText);
 				createRadiusCircle(latLng);
-				mMap.addMarker(markerOptions).showInfoWindow();
 				// Locate the first location
 				if(i==0) {
 					Log.i(TAG,"scrolling to first location");

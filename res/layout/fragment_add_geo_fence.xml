@@ -48,11 +48,11 @@
             style="@style/wrapAll"
             android:text="@string/radius" />
 
-        <EditText
+        <!-- <EditText
             android:id="@+id/radius_edit"
             style="@style/wrapAll"
             android:inputType="number"
-            android:nextFocusDown="@+id/email_edit" />
+            android:nextFocusDown="@+id/email_edit" /> -->
     </TableRow>
 
     <TableRow style="@style/tableStyle" >

@@ -12,7 +12,7 @@
     <string name="search_location">enter search location</string>
     <string name="lat">Latitude</string>
     <string name="lon">Longitude</string>
-    <string name="radius">Radius</string>
+    <string name="radius">Radius: 100m</string>
     <string name="enter">Enter</string>
     <string name="exit">Exit</string>
     <string name="email_phone">Email/phone</string>
@@ -22,10 +22,11 @@
     <string-array name="radius_array">
         <item>radius</item>
         <item>5 meters</item>
-        <item>10 meters</item>
         <item>20 meters</item>
+        <item>50 meters</item>
         <item>100 meters</item>
         <item>150 meters</item>
         <item>200 meters</item>
+        <item>500 meters</item>
     </string-array>
 </resources>

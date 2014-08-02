@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
+import android.widget.TextView;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass. Activities that
@@ -29,6 +30,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	EditText latEdit, lonEdit, radiusEdit,messageEdit;
 	RadioButton enter, exit;
 	RadioGroup enter_exit;
+	TextView radius_text;
+	int radius = 100;
 	public String TAG = "Reid";
 	public final static int MAP_RESULT_CODE  = 99;
 
@@ -76,7 +79,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			mParam1 = getArguments().getString(ARG_PARAM1);
 			mParam2 = getArguments().getString(ARG_PARAM2);
 		}
-
 	}
 
 	@Override
@@ -85,6 +87,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		TableLayout addGeoFenceView = (TableLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false); 
 		latEdit = (EditText)addGeoFenceView.findViewById(R.id.lat_edit);
 		lonEdit = (EditText)addGeoFenceView.findViewById(R.id.lon_edit);
+		radius_text = (TextView)addGeoFenceView.findViewById(R.id.radius_text);
 		enter_exit = (RadioGroup)addGeoFenceView.findViewById(R.id.enter_exit);
 		enter_exit.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -109,23 +112,42 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				mapButtonClicked(v);
 			}
 		});
-		//		addGeoFenceView.findViewById(addGeoFenceView.getId()).setOnClickListener(new View.OnClickListener() {
-		//
-		//			@Override
-		//			public void onClick(View view) {
-		//				Log.i("Reid","clicked: " + view.toString());
-		//				switch (view.getId()) {
-		//				case R.id.map_button:
-		//					Log.i("Reid","clicked maps button");
-		//					break;
-		//
-		//				default:
-		//					Log.i("Reid", "Unknown: " + view.getId());
-		//					break;
-		//				}
-		//			}
-		//		});
+		
+		((Button)addGeoFenceView.findViewById(R.id.save_button)).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				saveGeoFence(v);
+			}
+		});
+		
+//		Log.i("Reid","is add geofence view null " + String.valueOf(addGeoFenceView == null));
+//		addGeoFenceView.setOnClickListener(new View.OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				Log.i("Reid","view clicked");
+//				switch (v.getId()) {
+//				case R.id.map_button:
+//					mapButtonClicked(v);
+//					break;
+//				case R.id.save_button:
+//					saveGeoFence(v);
+//					break;
+//
+//				default:
+//					Log.i("Reid", "Unknown: " + v.getId());
+//					break;
+//				}
+//			}
+//		});
 		return addGeoFenceView;
+	}
+
+	protected void saveGeoFence(View v) {
+		// TODO Auto-generated method stub
+		Log.i("Reid","save thsi junks now");
+		
 	}
 
 	// TODO: Rename method, update argument and hook method into UI event
@@ -147,6 +169,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		case MAP_RESULT_CODE:
 			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
 			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
+			radius = data.getIntExtra("radius", 100);
+			radius_text.setText("Radius: " + radius + "meters");
 			break;
 		}
 		Log.i("Reid","onActivityForResult");

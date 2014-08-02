@@ -165,8 +165,6 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 	  
 	public SimpleGeofenceList retrieveJSON()
 	{
-		
-		
 	    SharedPreferences sp = getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 	    String jsonString = sp.getString(GEO_FENCE_KEY_LIST, null);
 	    if (jsonString == null)
