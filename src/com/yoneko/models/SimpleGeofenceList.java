@@ -1,12 +1,13 @@
 package com.yoneko.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.android.gms.location.Geofence;
 
 public class SimpleGeofenceList {
 	// Instance variables
-	private ArrayList<SimpleGeofence> mGeofences; 
+	private List<SimpleGeofence> mGeofences; 
 
 	/**
 	 * @param geofenceId The Geofence's request ID
@@ -16,14 +17,17 @@ public class SimpleGeofenceList {
 	 * @param expiration Geofence expiration duration
 	 * @param transition Type of Geofence transition.
 	 */
-	public SimpleGeofenceList(ArrayList<SimpleGeofence> geoFences) {
+	public SimpleGeofenceList(List<SimpleGeofence> geoFences) {
 		this.mGeofences = geoFences;
 	}
 	// Instance field getters
-	public ArrayList<SimpleGeofence> getGeoFences() {
+	public List<SimpleGeofence> getGeoFences() {
 		return this.mGeofences;
 	}
-	public void setGeofences(ArrayList<SimpleGeofence> geofences) {
+	public void setGeofences(List<SimpleGeofence> geofences) {
 		this.mGeofences = geofences;
+	}
+	public void add(SimpleGeofence g) {
+		this.mGeofences.add(g);
 	}
 }

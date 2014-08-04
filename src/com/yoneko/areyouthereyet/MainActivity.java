@@ -144,17 +144,22 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 			}
 		}
 	}
-	public void storeJSON(ArrayList<SimpleGeofence> gfl)
+	
+	public static String createGeoFenceId(double lat, double lon) {
+		return lat + "|" + lon;
+	}
+	
+	public static void storeJSON(SimpleGeofenceList list, Context context)
 	{
 		//clear out the stuff first
-		SharedPreferences sp = getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
+		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 	    SharedPreferences.Editor spe = sp.edit();
 	    spe.commit();
 	    
 //	    MainObject mo = MainObject.createTestMainObject();
 	    //
 	    Gson gson = new Gson();
-	    String jsonString = gson.toJson(gfl);
+	    String jsonString = gson.toJson(list);
 //	    Log.i(tag, jsonString);
 //	    MainObject mo1 = gson.fromJson(jsonString, MainObject.class);
 //	    Log.i(tag, jsonString);
@@ -163,9 +168,9 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 	    spe.commit();
 	}
 	  
-	public SimpleGeofenceList retrieveJSON()
+	public static SimpleGeofenceList retrieveJSON(Context context)
 	{
-	    SharedPreferences sp = getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
+	    SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 	    String jsonString = sp.getString(GEO_FENCE_KEY_LIST, null);
 	    if (jsonString == null)
 	    {
@@ -174,7 +179,6 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 	    }
 	    Gson gson = new Gson();
 	    SimpleGeofenceList gfl = gson.fromJson(jsonString, SimpleGeofenceList.class);
-
 	    return gfl;
 	}
 	@Override

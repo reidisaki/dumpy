@@ -1,5 +1,12 @@
 package com.yoneko.areyouthereyet;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.android.gms.location.Geofence;
+import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofenceList;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -16,6 +23,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass. Activities that
@@ -27,10 +35,11 @@ import android.widget.TextView;
  */
 public class AddGeoFenceFragment extends DialogFragment  {
 	Button mapButton, saveButton;
-	EditText latEdit, lonEdit, radiusEdit,messageEdit;
-	RadioButton enter, exit;
+	EditText latEdit, lonEdit, radiusEdit,messageEdit,emailEdit;
+
 	RadioGroup enter_exit;
 	TextView radius_text;
+	boolean enter = true;
 	int radius = 100;
 	public String TAG = "Reid";
 	public final static int MAP_RESULT_CODE  = 99;
@@ -84,21 +93,23 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		TableLayout addGeoFenceView = (TableLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false); 
+		TableLayout addGeoFenceView = (TableLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
+		emailEdit = (EditText)addGeoFenceView.findViewById(R.id.email_edit);
 		latEdit = (EditText)addGeoFenceView.findViewById(R.id.lat_edit);
 		lonEdit = (EditText)addGeoFenceView.findViewById(R.id.lon_edit);
 		radius_text = (TextView)addGeoFenceView.findViewById(R.id.radius_text);
 		enter_exit = (RadioGroup)addGeoFenceView.findViewById(R.id.enter_exit);
+		messageEdit = (EditText)addGeoFenceView.findViewById(R.id.message_edit);
 		enter_exit.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				switch(checkedId) {
 				case R.id.radio_enter:
-					Log.i(TAG,"Enter clicked ");
+					enter = true;
 					break;
 				case R.id.radio_exit:
-					Log.i(TAG,"Exit clicked");
+					enter = false;
 					break;
 
 				}
@@ -112,7 +123,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				mapButtonClicked(v);
 			}
 		});
-		
+
 		((Button)addGeoFenceView.findViewById(R.id.save_button)).setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -120,35 +131,63 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				saveGeoFence(v);
 			}
 		});
-		
-//		Log.i("Reid","is add geofence view null " + String.valueOf(addGeoFenceView == null));
-//		addGeoFenceView.setOnClickListener(new View.OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				Log.i("Reid","view clicked");
-//				switch (v.getId()) {
-//				case R.id.map_button:
-//					mapButtonClicked(v);
-//					break;
-//				case R.id.save_button:
-//					saveGeoFence(v);
-//					break;
-//
-//				default:
-//					Log.i("Reid", "Unknown: " + v.getId());
-//					break;
-//				}
-//			}
-//		});
+
+		//		Log.i("Reid","is add geofence view null " + String.valueOf(addGeoFenceView == null));
+		//		addGeoFenceView.setOnClickListener(new View.OnClickListener() {
+		//			
+		//			@Override
+		//			public void onClick(View v) {
+		//				Log.i("Reid","view clicked");
+		//				switch (v.getId()) {
+		//				case R.id.map_button:
+		//					mapButtonClicked(v);
+		//					break;
+		//				case R.id.save_button:
+		//					saveGeoFence(v);
+		//					break;
+		//
+		//				default:
+		//					Log.i("Reid", "Unknown: " + v.getId());
+		//					break;
+		//				}
+		//			}
+		//		});
 		return addGeoFenceView;
 	}
 
 	protected void saveGeoFence(View v) {
-		// TODO Auto-generated method stub
-		Log.i("Reid","save thsi junks now");
+		//save geoFence to mainActivity save json method
 		
+		SimpleGeofenceList cachedList = MainActivity.retrieveJSON(getActivity().getApplicationContext());
+
+		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
+		String geoFenceId,message,email;
+		double latitude, longitude;
+		float r;
+		long expiration;
+		int transition;
+		
+		latitude = Double.valueOf(latEdit.getText().toString());
+		longitude = Double.valueOf(lonEdit.getText().toString());
+		r = Float.valueOf(radius);
+		expiration = Geofence.NEVER_EXPIRE;
+		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
+		message =  messageEdit.getText().toString();
+		email =  emailEdit.getText().toString();
+		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latitude,longitude), latitude, longitude, r, expiration, transition, message, email);
+		
+		if(cachedList == null) {
+			Toast.makeText(getActivity().getApplicationContext(), "cached list was null" ,Toast.LENGTH_SHORT).show();
+			list.add(geofence); 
+			cachedList= new SimpleGeofenceList(list);
+		} else {
+			cachedList.add(geofence);
+		}
+		MainActivity.storeJSON(cachedList, getActivity().getApplicationContext());
+		
+		Toast.makeText(getActivity().getApplicationContext(), "Size of cache : " + MainActivity.retrieveJSON(getActivity().getApplicationContext()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
 	}
+
 
 	// TODO: Rename method, update argument and hook method into UI event
 	public void onButtonPressed(Uri uri) {

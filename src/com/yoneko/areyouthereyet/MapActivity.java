@@ -89,7 +89,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	public void onNothingSelected(AdapterView<?> parent) {
 	}
 
-	public static String TAG = "yoneko";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -101,7 +100,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		String bestProvider = locationManager.getBestProvider(criteria, false);
 		Location location = locationManager.getLastKnownLocation(bestProvider);
 		if( location != null) {
-			Log.i(TAG, "Its not NULL!");
 			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
 		}
 		initViews();
@@ -141,6 +139,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 			@Override
 			public void onInfoWindowClick(Marker marker) {
+				o("Clicked the info window");
 				handlePoint(marker);
 			}
 		});
@@ -154,12 +153,13 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		b.putDouble("lat", marker.getPosition().latitude);
 		b.putInt("radius", selectedRadius);
 		resultIntent.putExtras(b);
-		setResult(AddGeoFenceFragment.MAP_RESULT_CODE, resultIntent);Log.i(TAG,"Handle this");
+		setResult(AddGeoFenceFragment.MAP_RESULT_CODE, resultIntent);
 		finish();
 	}
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		o("Clicked marker");
 		handlePoint(marker);
 		return false;
 	}
@@ -167,7 +167,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	@Override    
 	public void onMapLongClick(LatLng point) {
 		latLng = point;
-		Log.i(TAG,"clearing marker");
 		createRadiusCircle(point);
 		//		MarkerOptions mo = new MarkerOptions()
 		//		.position(point)
@@ -175,7 +174,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		//		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
 		//		mMap.addMarker(mo).showInfoWindow();
 		//		mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
-		Log.i(TAG,"Location is here: " + point.latitude + ", " + point.longitude);
 	}
 
 	public void addMarker(LatLng latLng) {
@@ -187,7 +185,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			currentMarker.remove();
 		}
 		currentMarker = mMap.addMarker(mo);
-		currentMarker.showInfoWindow();
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 	}
 	//	@Override
@@ -207,7 +204,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		}
 		//		mMap.clear();
 		addMarker(latLng);
-
+		currentMarker.showInfoWindow();
 		o("selected radius in createRadiusCircle " + selectedRadius);
 		CircleOptions circleOptions = new CircleOptions()
 		.center(latLng)   //set center
@@ -215,6 +212,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		.fillColor(0x408A2BE2) 
 		.strokeColor(Color.MAGENTA)
 		.strokeWidth(5);
+		
 		myCircle = mMap.addCircle(circleOptions);
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
@@ -242,7 +240,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			}
 
 			// Clears all the existing markers on the map
-			Log.i(TAG,"Clearing all markers on post execute");
 
 			// Adding Markers on Google Map for each matching address
 			for(int i=0;i<addresses.size();i++){
@@ -261,7 +258,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				createRadiusCircle(latLng);
 				// Locate the first location
 				if(i==0) {
-					Log.i(TAG,"scrolling to first location");
 					mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 				}
 			}
