@@ -17,7 +17,6 @@ import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,6 +24,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,23 +40,24 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationStatusCodes;
 import com.google.gson.Gson;
-import com.yoneko.areyouthereyet.AddGeoFenceFragment.OnFragmentInteractionListener;
+import com.yoneko.areyouthereyet.AddGeoFenceFragment.onDialogDismissed;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
 
 public class MainActivity extends Activity implements  ConnectionCallbacks,
 OnConnectionFailedListener,
-OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
+OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
 	private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
 	public static  String GEO_FENCES = "geofences";
+	public static final int DIALOG_FRAGMENT = 100;
 	public static String GEO_FENCE_KEY_LIST = "geoFenceList";
 	private IntentFilter mIntentFilter;
 	public static final float RADIUS_METER = 130;
-	private static String TAG = "yoneko";
+	private static String TAG = "Reid";
 	private static final long GEOFENCE_EXPIRATION_TIME =
 			GEOFENCE_EXPIRATION_IN_HOURS *
 			SECONDS_PER_HOUR *
@@ -75,7 +78,9 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 	private Intent pendingIntent;
 	private LocationRequest mLocationRequest;
 	private SharedPreferences prefs;
-
+	private ListView mainListView;
+	private GeofenceAdapter adapter;
+	private List<SimpleGeofence> geoList;
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");
@@ -103,15 +108,28 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 		mBroadcastReceiver = new GeofenceSampleReceiver();
 		mIntentFilter = new IntentFilter();
 		setContentView(R.layout.activity_main);
-		pendingIntent = new Intent(this, 
-				ReceiveTransitionsIntentService.class);	
+		pendingIntent = new Intent(this,ReceiveTransitionsIntentService.class);	
 		mLocationRequest = LocationRequest.create();
 		// Use high accuracy
-		mLocationRequest.setPriority(
-				LocationRequest.PRIORITY_HIGH_ACCURACY);
+		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		// Set the update interval to 5 seconds
 		mLocationRequest.setInterval(1000);
+		
+		mainListView = (ListView)findViewById(R.id.mainListView);
+		mainListView.setOnItemClickListener(new OnItemClickListener() {
 
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Toast.makeText(getApplicationContext(), "lattitude:" + String.valueOf(geoList.get(position).getLatitude()), Toast.LENGTH_SHORT).show();
+				//Launch maps activity to the location of the pin. pass the geofence data object so they can see it.  after the click the pin make them go back to the main activity
+				
+			}
+		});
+		geoList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
+		adapter = new GeofenceAdapter(this, R.layout.list_geofence_row, geoList);
+		
+		mainListView.setAdapter(adapter);
 		// Set the fastest update interval to 1 second
 		//        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 //				LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -155,27 +173,32 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 	    SharedPreferences.Editor spe = sp.edit();
 	    spe.commit();
-	    
-//	    MainObject mo = MainObject.createTestMainObject();
-	    //
 	    Gson gson = new Gson();
 	    String jsonString = gson.toJson(list);
-//	    Log.i(tag, jsonString);
-//	    MainObject mo1 = gson.fromJson(jsonString, MainObject.class);
-//	    Log.i(tag, jsonString);
-	     
 	    spe.putString(GEO_FENCE_KEY_LIST, jsonString);
 	    spe.commit();
 	}
 	  
-	public static SimpleGeofenceList retrieveJSON(Context context)
+	
+	/*
+	 * 
+	 * TODO: 	 need to list the saved geo fences
+	 * 			 need to delete saved geoFences
+	 * 			 need to be able to click on the listView to see the geofence on a map
+	 * 			 need to create an alarm manager to be able to enable /disable when the geo fences are being sent (every friday at 4pm - 10 pm
+	 */
+	
+	
+	
+	
+	
+	public static SimpleGeofenceList getGeoFenceFromCache(Context context)
 	{
 	    SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 	    String jsonString = sp.getString(GEO_FENCE_KEY_LIST, null);
 	    if (jsonString == null)
 	    {
-	        Log.i(TAG,"Not able to read the preference");
-	        return null;
+	        return new SimpleGeofenceList(new ArrayList<SimpleGeofence>());
 	    }
 	    Gson gson = new Gson();
 	    SimpleGeofenceList gfl = gson.fromJson(jsonString, SimpleGeofenceList.class);
@@ -188,8 +211,18 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 	public void addGeoFenceClicked(View v) {
 		FragmentManager manager = getFragmentManager();
 		AddGeoFenceFragment agf = new AddGeoFenceFragment();
-		agf.show(manager, "AddGeoFenceDialog");
-
+		agf.show(manager.beginTransaction(), "AddGeoFenceDialog");
+	}
+	
+	public void clearGeoFenceClicked(View v) {
+		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
+	    SharedPreferences.Editor spe = sp.edit();
+	    spe.clear();
+	    spe.commit();
+	    Log.i("Reid", "clearing list");
+	    geoList = new ArrayList<SimpleGeofence>();
+	    adapter.clear();
+	    adapter.notifyDataSetChanged();
 	}
 	public void startMapsClicked(View v) {
 		Intent intent = new Intent(this, MapActivity.class);
@@ -514,8 +547,12 @@ OnAddGeofencesResultListener, LocationListener, OnFragmentInteractionListener {
 		}
 	}
 	@Override
-	public void onFragmentInteraction(Uri uri) {
-		// TODO Auto-generated method stub
-
+	public void dialogDismissed() {
+		Log.i(TAG,"Dialog dismissed called");
+		geoList = getGeoFenceFromCache(this).getGeoFences();
+		adapter.clear();
+		adapter.addAll(geoList);
+		adapter.notifyDataSetChanged();
+//		adapter.notifyDataSetChanged();
 	}
 }

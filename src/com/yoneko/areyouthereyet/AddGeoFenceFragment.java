@@ -28,7 +28,7 @@ import android.widget.Toast;
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass. Activities that
  * contain this fragment must implement the
- * {@link AddGeoFenceFragment.OnFragmentInteractionListener} interface to handle
+ * {@link AddGeoFenceFragment.onDialogDismissed} interface to handle
  * interaction events. Use the {@link AddGeoFenceFragment#newInstance} factory
  * method to create an instance of this fragment.
  * 
@@ -54,7 +54,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	private String mParam1;
 	private String mParam2;
 
-	private OnFragmentInteractionListener mListener;
+	private onDialogDismissed mListener;
 
 	/**
 	 * Use this factory method to create a new instance of this fragment using
@@ -158,7 +158,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	protected void saveGeoFence(View v) {
 		//save geoFence to mainActivity save json method
 		
-		SimpleGeofenceList cachedList = MainActivity.retrieveJSON(getActivity().getApplicationContext());
+		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
 		String geoFenceId,message,email;
@@ -185,14 +185,16 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 		MainActivity.storeJSON(cachedList, getActivity().getApplicationContext());
 		
-		Toast.makeText(getActivity().getApplicationContext(), "Size of cache : " + MainActivity.retrieveJSON(getActivity().getApplicationContext()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
+		Toast.makeText(getActivity().getApplicationContext(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
+		this.dismiss();
+		mListener.dialogDismissed();
 	}
 
 
 	// TODO: Rename method, update argument and hook method into UI event
 	public void onButtonPressed(Uri uri) {
 		if (mListener != null) {
-			mListener.onFragmentInteraction(uri);
+			mListener.dialogDismissed();
 		}
 	}
 
@@ -218,7 +220,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		try {
-			mListener = (OnFragmentInteractionListener) activity;
+			mListener = (onDialogDismissed) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement OnFragmentInteractionListener");
@@ -243,9 +245,9 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	 * "http://developer.android.com/training/basics/fragments/communicating.html"
 	 * >Communicating with Other Fragments</a> for more information.
 	 */
-	public interface OnFragmentInteractionListener {
+	public interface onDialogDismissed {
 		// TODO: Update argument type and name
-		public void onFragmentInteraction(Uri uri);
+		public void dialogDismissed();
 	}
 
 }
