@@ -8,6 +8,19 @@
     <TableRow style="@style/tableStyle" >
 
         <TextView
+            android:id="@+id/nickname_text"
+            style="@style/wrapAll"
+            android:text="@string/nickname_text" />
+
+        <EditText
+            android:id="@+id/nickname_edit"
+            style="@style/wrapAll"
+            android:nextFocusDown="@+id/lat_edit" />
+    </TableRow>
+
+    <TableRow style="@style/tableStyle" >
+
+        <TextView
             android:id="@+id/lat_text"
             style="@style/wrapAll"
             android:text="@string/lat" />
@@ -15,7 +28,7 @@
         <EditText
             android:id="@+id/lat_edit"
             style="@style/wrapAll"
-            android:inputType="numberDecimal"
+            android:inputType="numberSigned|numberDecimal"
             android:nextFocusDown="@+id/lon_edit" />
     </TableRow>
 
@@ -29,7 +42,7 @@
         <EditText
             android:id="@+id/lon_edit"
             style="@style/wrapAll"
-            android:inputType="numberDecimal"
+            android:inputType="numberSigned|numberDecimal"
             android:nextFocusDown="@+id/radius_edit" />
     </TableRow>
 
@@ -48,11 +61,13 @@
             style="@style/wrapAll"
             android:text="@string/radius" />
 
-        <!-- <EditText
+        <!--
+             <EditText
             android:id="@+id/radius_edit"
             style="@style/wrapAll"
             android:inputType="number"
-            android:nextFocusDown="@+id/email_edit" /> -->
+            android:nextFocusDown="@+id/email_edit" />
+        -->
     </TableRow>
 
     <TableRow style="@style/tableStyle" >
@@ -65,9 +80,9 @@
 
             <RadioButton
                 android:id="@+id/radio_enter"
-                android:checked="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="@string/enter" />
 
             <RadioButton

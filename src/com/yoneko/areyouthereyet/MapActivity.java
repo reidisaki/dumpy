@@ -45,6 +45,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	EditText searchEdit;
 	Button searchButton;
 	LatLng latLng = null;
+	boolean editable = true;
 	public static String tag = "Reid";
 	int selectedRadius = 100;
 	Spinner spinner;     
@@ -80,7 +81,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		if(latLng != null) {
 			createRadiusCircle(latLng);
 		}
-
 	}
 
 	public void o (String s) {
@@ -89,10 +89,43 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	public void onNothingSelected(AdapterView<?> parent) {
 	}
 
+	public int getSelectedPositionInSpinnerByValue(int selectedValue) {
+		int retvalue;
+		switch(selectedValue) {
+		case 5: 
+			retvalue = 1;
+			break;
+		case 20: 
+			retvalue = 2;
+			break;
+		case 50: 
+			retvalue = 3;
+			break;
+		case 100: 
+			retvalue = 4;
+			break;
+		case 150: 
+			retvalue = 5;
+			break;
+		case 200: 
+			retvalue = 6;
+			break;
+		case 500: 
+			retvalue = 7;
+			break;
+		default: 
+			retvalue = 4;
+			break;
+		}
+		return retvalue;
+
+	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fragment_map);
+
+
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.setMyLocationEnabled(true);
 		Criteria criteria = new Criteria();
@@ -101,6 +134,15 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		Location location = locationManager.getLastKnownLocation(bestProvider);
 		if( location != null) {
 			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
+		}
+		Bundle b = getIntent().getExtras();
+		if(b != null){
+			editable = b.getBoolean("editable",true);
+			if(!editable) {
+				selectedRadius = (int) b.getFloat("radius");
+				LatLng p = new LatLng(b.getDouble("lat"),b.getDouble("lon"));
+				onMapLongClick(p);
+			}
 		}
 		initViews();
 		setListeners();
@@ -117,33 +159,46 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		searchButton = (Button)findViewById(R.id.btn_find);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
 
+		if(!editable) {
+			searchEdit.setFocusable(false); searchEdit.setClickable(false);
+			searchButton.setFocusable(false); searchButton.setClickable(false);
+			spinner.setFocusable(false); spinner.setClickable(false);
+			spinner.setSelection(getSelectedPositionInSpinnerByValue(selectedRadius));
+		}
+
 
 	}
 	private void setListeners() {
-		spinner.setOnItemSelectedListener(this);
-		mMap.setOnMapLongClickListener(this);
-		mMap.setOnMarkerClickListener(this);
-		//		mMap.setOnMapClickListener(this);
-		searchButton.setOnClickListener(new OnClickListener() {
+		if(editable) {
+			spinner.setOnItemSelectedListener(this);
+			mMap.setOnMapLongClickListener(this);
+			mMap.setOnMarkerClickListener(this);
+			//		mMap.setOnMapClickListener(this);
 
-			@Override
-			public void onClick(View v) {
-				// Getting user input location
-				String location = searchEdit.getText().toString();
+			searchButton.setOnClickListener(new OnClickListener() {
 
-				if(location!=null && !location.equals("")){
-					new GeocoderTask().execute(location);
-				}				
-			}
-		});
+				@Override
+				public void onClick(View v) {
+					// Getting user input location
+					String location = searchEdit.getText().toString();
+
+					if(location!=null && !location.equals("")){
+						new GeocoderTask().execute(location);
+					}				
+				}
+			});
+		}
 		mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 			@Override
 			public void onInfoWindowClick(Marker marker) {
 				o("Clicked the info window");
-				handlePoint(marker);
+				if(!editable) {
+					finish();
+				} else {
+					handlePoint(marker);
+				}
 			}
 		});
-
 	}
 
 	public void handlePoint(Marker marker) {
@@ -212,7 +267,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		.fillColor(0x408A2BE2) 
 		.strokeColor(Color.MAGENTA)
 		.strokeWidth(5);
-		
+
 		myCircle = mMap.addCircle(circleOptions);
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{

@@ -12,7 +12,14 @@ public class SimpleGeofence {
     private int mTransitionType;
     private String message;
     private String email;
+    private String title;
 
+public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
 /**
  * @param geofenceId The Geofence's request ID
  * @param latitude Latitude of the Geofence's center.
@@ -29,7 +36,8 @@ public SimpleGeofence(
         long expiration,
         int transition,
         String message,
-        String email) {
+        String email,
+        String title) {
     // Set the instance fields from the constructor
     this.mId = geofenceId;
     this.mLatitude = latitude;
@@ -39,6 +47,7 @@ public SimpleGeofence(
     this.mTransitionType = transition;
     this.message = message;
     this.email = email;
+    this.title = title;
 }
 // Instance field getters
 public String getId() {

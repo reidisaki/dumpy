@@ -35,7 +35,7 @@ import android.widget.Toast;
  */
 public class AddGeoFenceFragment extends DialogFragment  {
 	Button mapButton, saveButton;
-	EditText latEdit, lonEdit, radiusEdit,messageEdit,emailEdit;
+	EditText latEdit, lonEdit, radiusEdit,messageEdit,emailEdit,nicknameEdit;
 
 	RadioGroup enter_exit;
 	TextView radius_text;
@@ -100,6 +100,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		radius_text = (TextView)addGeoFenceView.findViewById(R.id.radius_text);
 		enter_exit = (RadioGroup)addGeoFenceView.findViewById(R.id.enter_exit);
 		messageEdit = (EditText)addGeoFenceView.findViewById(R.id.message_edit);
+		nicknameEdit= (EditText)addGeoFenceView.findViewById(R.id.nickname_edit);
 		enter_exit.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
 			@Override
@@ -161,7 +162,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
-		String geoFenceId,message,email;
+		String geoFenceId,message,email,nickname;
 		double latitude, longitude;
 		float r;
 		long expiration;
@@ -174,7 +175,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
 		message =  messageEdit.getText().toString();
 		email =  emailEdit.getText().toString();
-		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latitude,longitude), latitude, longitude, r, expiration, transition, message, email);
+		nickname = nicknameEdit.getText().toString();
+		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latitude,longitude), latitude, longitude, r, expiration, transition, message, email, nickname);
 		
 		if(cachedList == null) {
 			Toast.makeText(getActivity().getApplicationContext(), "cached list was null" ,Toast.LENGTH_SHORT).show();

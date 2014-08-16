@@ -121,9 +121,13 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				Toast.makeText(getApplicationContext(), "lattitude:" + String.valueOf(geoList.get(position).getLatitude()), Toast.LENGTH_SHORT).show();
 				//Launch maps activity to the location of the pin. pass the geofence data object so they can see it.  after the click the pin make them go back to the main activity
-				
+				Intent i = new Intent(MainActivity.this, MapActivity.class);
+				i.putExtra("lon", geoList.get(position).getLongitude());
+				i.putExtra("lat", geoList.get(position).getLatitude());
+				i.putExtra("radius", geoList.get(position).getRadius());
+				i.putExtra("editable", false);
+				startActivity(i);
 			}
 		});
 		geoList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
@@ -352,10 +356,10 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 			//1 is enter 2 == exit
 			//Crystal house = 33.885987,-118.310208
 			//Reid house = 34.054840,-118.342908
-			SimpleGeofence enter = new SimpleGeofence("1", 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER, "","");
-			SimpleGeofence exit = new SimpleGeofence("2", 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_EXIT,"","");
-			SimpleGeofence enterReid = new SimpleGeofence("3", 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER,"","");
-			SimpleGeofence exitReid = new SimpleGeofence("4", 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_EXIT,"","");
+			SimpleGeofence enter = new SimpleGeofence("1", 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER, "","", "");
+			SimpleGeofence exit = new SimpleGeofence("2", 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_EXIT,"","", "");
+			SimpleGeofence enterReid = new SimpleGeofence("3", 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER,"","", "");
+			SimpleGeofence exitReid = new SimpleGeofence("4", 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_EXIT,"","", "");
 			mGeofenceStorage.setGeofence("1",enter);
 			mGeofenceStorage.setGeofence("2",exit);
 			mGeofenceStorage.setGeofence("3",enterReid);

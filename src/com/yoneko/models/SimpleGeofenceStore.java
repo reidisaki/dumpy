@@ -22,6 +22,9 @@ public class SimpleGeofenceStore {
 			"com.example.android.geofence.KEY_EMAIL";
 	public static final String KEY_MESSAGE =
 			"com.example.android.geofence.KEY_MESSAGE";
+	public static final String KEY_NICKNAME =
+			"com.example.android.geofence.KEY_NICKNAME";
+
 	// The prefix for flattened geofence keys
 	public static final String KEY_PREFIX =
 			"com.example.android.geofence.KEY";
@@ -90,6 +93,7 @@ public class SimpleGeofenceStore {
 				INVALID_INT_VALUE);
 		
 		String email = mPrefs.getString(getGeofenceFieldKey(id, KEY_EMAIL),"NOT FOUND");
+		String nickname = mPrefs.getString(getGeofenceFieldKey(id, KEY_NICKNAME),"NOT FOUND");
 		String message = mPrefs.getString(getGeofenceFieldKey(id,KEY_MESSAGE), "NOT FOUND");
 		// If none of the values is incorrect, return the object
 //		if (				
@@ -103,7 +107,7 @@ public class SimpleGeofenceStore {
 			// Return a true Geofence object
 			return new SimpleGeofence(
 					id, lat, lng, radius, expirationDuration,
-					transitionType, message, email);
+					transitionType, message, email, nickname);
 			// Otherwise, return null.
 //		} else {
 //			return null;
