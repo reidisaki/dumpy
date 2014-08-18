@@ -14,11 +14,12 @@
 
         <EditText
             android:id="@+id/nickname_edit"
-            style="@style/wrapAll"
-            android:nextFocusDown="@+id/lat_edit" />
+            android:layout_width="200dip"
+            android:layout_height="wrap_content"
+            android:nextFocusDown="@+id/radius_edit" />
     </TableRow>
 
-    <TableRow style="@style/tableStyle" >
+    <TableRow style="@style/tableStyle" android:visibility="gone">
 
         <TextView
             android:id="@+id/lat_text"
@@ -32,7 +33,7 @@
             android:nextFocusDown="@+id/lon_edit" />
     </TableRow>
 
-    <TableRow style="@style/tableStyle" >
+    <TableRow style="@style/tableStyle" android:visibility="gone">
 
         <TextView
             android:id="@+id/lon_text"

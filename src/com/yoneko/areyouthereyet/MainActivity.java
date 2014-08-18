@@ -113,6 +113,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mInProgress = false;
+		mGeofencesToRemove = new ArrayList<String>();
 		mBroadcastReceiver = new GeofenceSampleReceiver();
 		mIntentFilter = new IntentFilter();
 		setContentView(R.layout.activity_main);
@@ -174,9 +175,8 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		mainListView.setLongClickable(true);
 		mainListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> adapterView, View v,
-					int pos, long id) {
-
-				final SimpleGeofence s = adapter.getItem(pos);
+					final int pos, long id) {
+				
 				final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
 				b.setIcon(android.R.drawable.ic_dialog_alert);
 				b.setMessage("Are you sure?");
@@ -188,8 +188,11 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 				});
 				b.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-
+						
+						final SimpleGeofence s = adapter.getItem(pos);
+						mGeofencesToRemove.add(s.getId());
 						adapter.remove(s);
+						removeGeofences(mGeofencesToRemove);
 						MainActivity.storeJSON(new SimpleGeofenceList(adapter.data), getApplicationContext());
 						adapter.notifyDataSetChanged();
 					}
@@ -238,16 +241,12 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		spe.commit();
 	}
 
-
 	/*
 	 * 
-	 * TODO: 	 
-	 * 			 need to create an alarm manager to be able to enable /disable when the geo fences are being sent (every friday at 4pm - 10 pm
+	 * TODO:
+	 * 	Do we even need to show Long/lat editable fields? just hide it completely. 	 
+	 * 	 need to create an alarm manager to be able to enable /disable when the geo fences are being sent (every friday at 4pm - 10 pm
 	 */
-
-
-
-
 
 	public static SimpleGeofenceList getGeoFenceFromCache(Context context)
 	{
@@ -279,6 +278,8 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		Log.i("Reid", "clearing list");
 		geoList = new ArrayList<SimpleGeofence>();
 		adapter.clear();
+		//remove geo fences
+		removeGeofences(mTransitionPendingIntent);
 		adapter.notifyDataSetChanged();
 	}
 	public void startMapsClicked(View v) {
@@ -374,7 +375,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 			mInProgress = true;
 			//If a request is not already underway        
 			mLocationClient.connect();
-
+			Log.v(TAG,"Add geo fence connected");
 
 		} else {
 			/*
@@ -397,7 +398,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		new GetAddressTask(this).execute(mLocationClient.getLastLocation());
 		switch (mRequestType) {
 		case ADD :
-			Log.v(TAG,"Added GEOFENCE");
+			
 			// Get the PendingIntent for the request
 			mTransitionPendingIntent =
 					getTransitionPendingIntent();
@@ -407,7 +408,12 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 
 			for(int i=0; i<geoFenceList.getGeoFences().size();i++) {
 				//add items to geoFences;
+				Log.v(TAG,"Added GEOFENCE");
+				try {
 				geoFences.add(geoFenceList.getGeoFences().get(i).toGeofence());
+				} catch (IllegalArgumentException e) {
+					Log.v(TAG,"illegal long/ lat combination not found...");	
+				}
 			}
 
 
@@ -435,10 +441,12 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 			//		    startService(svc);
 			break;
 		case REMOVE_INTENT :
+			Log.i(TAG,"Removing all geo fences for reals on google");
 			mLocationClient.removeGeofences(
 					mTransitionPendingIntent, this);
 			break;
 		case REMOVE_LIST :
+			Log.i(TAG,"Removing CERTAIN not all. geo fences for reals on google");
 			mLocationClient.removeGeofences(
 					mGeofencesToRemove, this);
 			break;

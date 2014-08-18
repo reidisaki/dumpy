@@ -49,7 +49,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 	private static final String ARG_PARAM1 = "param1";
 	private static final String ARG_PARAM2 = "param2";
-
+	double latitude, longitude;
 	// TODO: Rename and change types of parameters
 	private String mParam1;
 	private String mParam2;
@@ -94,6 +94,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		TableLayout addGeoFenceView = (TableLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
+		getDialog().setTitle("Add Geofence");
 		emailEdit = (EditText)addGeoFenceView.findViewById(R.id.email_edit);
 		latEdit = (EditText)addGeoFenceView.findViewById(R.id.lat_edit);
 		lonEdit = (EditText)addGeoFenceView.findViewById(R.id.lon_edit);
@@ -163,19 +164,22 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
 		String geoFenceId,message,email,nickname;
-		double latitude, longitude;
+		
 		float r;
 		long expiration;
 		int transition;
 		
-		latitude = Double.valueOf(latEdit.getText().toString());
-		longitude = Double.valueOf(lonEdit.getText().toString());
+		
 		r = Float.valueOf(radius);
 		expiration = Geofence.NEVER_EXPIRE;
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
 		message =  messageEdit.getText().toString();
 		email =  emailEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
+		if(latitude == 0 || longitude == 0) {
+			Toast.makeText(getActivity().getApplicationContext(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
+			return;
+		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latitude,longitude), latitude, longitude, r, expiration, transition, message, email, nickname);
 		
 		if(cachedList == null) {
@@ -210,8 +214,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch(resultCode) {
 		case MAP_RESULT_CODE:
-			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
-			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
+			latitude = data.getDoubleExtra("lat", 0.0);
+			longitude = data.getDoubleExtra("lon", 0.0);
+//			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
+//			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
 			radius = data.getIntExtra("radius", 100);
 			radius_text.setText("Radius: " + radius + "meters");
 			break;
