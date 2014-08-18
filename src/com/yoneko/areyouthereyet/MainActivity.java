@@ -7,10 +7,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -19,6 +21,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -27,6 +30,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -80,6 +84,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 	private SharedPreferences prefs;
 	private ListView mainListView;
 	private GeofenceAdapter adapter;
+	private RelativeLayout loading_screen,main_screen;
 	private List<SimpleGeofence> geoList;
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
@@ -92,12 +97,12 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 			 * the argument is "this".
 			 */
 			//dont need
-//			mLocationClient.removeLocationUpdates(this);
-//			mLocationClient.disconnect();
+			//			mLocationClient.removeLocationUpdates(this);
+			//			mLocationClient.disconnect();
 		} else {
 			Log.i(TAG,"client is not connected()");
 		}
-		
+
 		super.onStop();
 	}
 
@@ -113,9 +118,40 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 		// Use high accuracy
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		// Set the update interval to 5 seconds
-		mLocationRequest.setInterval(1000);
-		
+		mLocationRequest.setInterval(5000);
+		loading_screen = (RelativeLayout)findViewById(R.id.loading_screen);
+		main_screen = (RelativeLayout)findViewById(R.id.main_screen);
+
 		mainListView = (ListView)findViewById(R.id.mainListView);
+		mainListView.setLongClickable(true);
+		mainListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> adapterView, View v,
+					int pos, long id) {
+
+				final SimpleGeofence s = adapter.getItem(pos);
+				final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
+				b.setIcon(android.R.drawable.ic_dialog_alert);
+				b.setMessage("Are you sure?");
+				//I want to use the right side button , which is the positive button apparently
+				b.setPositiveButton("No", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.dismiss();
+					}
+				});
+				b.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+
+						adapter.remove(s);
+						MainActivity.storeJSON(new SimpleGeofenceList(adapter.data), getApplicationContext());
+						adapter.notifyDataSetChanged();
+					}
+				});
+
+				b.show();
+				return true;
+			}
+
+		});
 		mainListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -132,11 +168,11 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 		});
 		geoList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		adapter = new GeofenceAdapter(this, R.layout.list_geofence_row, geoList);
-		
+
 		mainListView.setAdapter(adapter);
 		// Set the fastest update interval to 1 second
 		//        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-//				LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		//				LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 		//		Location l = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		//		lm.addProximityAlert(34.054932 , -118.342929, 10, -1, getProximityPendingIntent("1"));
 		//		lm.addProximityAlert(34.054932 , -118.342929, 10, -1, getProximityPendingIntent("2"));
@@ -165,25 +201,36 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 						entry.getValue().toString());            
 			}
 		}
+
+		
+		//show loading screen 2 seconds if its the initial launch 
+		Handler handler = new Handler(); 
+		handler.postDelayed(new Runnable() { 
+			public void run() { 
+				loading_screen.setVisibility(View.GONE);
+				main_screen.setVisibility(View.VISIBLE); 
+			} 
+		}, 2000); 
+
 	}
-	
+
 	public static String createGeoFenceId(double lat, double lon) {
 		return lat + "|" + lon;
 	}
-	
+
 	public static void storeJSON(SimpleGeofenceList list, Context context)
 	{
 		//clear out the stuff first
 		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
-	    SharedPreferences.Editor spe = sp.edit();
-	    spe.commit();
-	    Gson gson = new Gson();
-	    String jsonString = gson.toJson(list);
-	    spe.putString(GEO_FENCE_KEY_LIST, jsonString);
-	    spe.commit();
+		SharedPreferences.Editor spe = sp.edit();
+		spe.commit();
+		Gson gson = new Gson();
+		String jsonString = gson.toJson(list);
+		spe.putString(GEO_FENCE_KEY_LIST, jsonString);
+		spe.commit();
 	}
-	  
-	
+
+
 	/*
 	 * 
 	 * TODO: 	 need to list the saved geo fences
@@ -191,22 +238,22 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 	 * 			 need to be able to click on the listView to see the geofence on a map
 	 * 			 need to create an alarm manager to be able to enable /disable when the geo fences are being sent (every friday at 4pm - 10 pm
 	 */
-	
-	
-	
-	
-	
+
+
+
+
+
 	public static SimpleGeofenceList getGeoFenceFromCache(Context context)
 	{
-	    SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
-	    String jsonString = sp.getString(GEO_FENCE_KEY_LIST, null);
-	    if (jsonString == null)
-	    {
-	        return new SimpleGeofenceList(new ArrayList<SimpleGeofence>());
-	    }
-	    Gson gson = new Gson();
-	    SimpleGeofenceList gfl = gson.fromJson(jsonString, SimpleGeofenceList.class);
-	    return gfl;
+		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
+		String jsonString = sp.getString(GEO_FENCE_KEY_LIST, null);
+		if (jsonString == null)
+		{
+			return new SimpleGeofenceList(new ArrayList<SimpleGeofence>());
+		}
+		Gson gson = new Gson();
+		SimpleGeofenceList gfl = gson.fromJson(jsonString, SimpleGeofenceList.class);
+		return gfl;
 	}
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -217,16 +264,16 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 		AddGeoFenceFragment agf = new AddGeoFenceFragment();
 		agf.show(manager.beginTransaction(), "AddGeoFenceDialog");
 	}
-	
+
 	public void clearGeoFenceClicked(View v) {
 		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
-	    SharedPreferences.Editor spe = sp.edit();
-	    spe.clear();
-	    spe.commit();
-	    Log.i("Reid", "clearing list");
-	    geoList = new ArrayList<SimpleGeofence>();
-	    adapter.clear();
-	    adapter.notifyDataSetChanged();
+		SharedPreferences.Editor spe = sp.edit();
+		spe.clear();
+		spe.commit();
+		Log.i("Reid", "clearing list");
+		geoList = new ArrayList<SimpleGeofence>();
+		adapter.clear();
+		adapter.notifyDataSetChanged();
 	}
 	public void startMapsClicked(View v) {
 		Intent intent = new Intent(this, MapActivity.class);
@@ -256,42 +303,42 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 		/*
 		 * Return the PendingIntent 
 		 */
-		
-          
-//           If the PendingIntent already exists
-          if (null != mTransitionPendingIntent) {
 
-        	  Log.i(TAG, "Transition already exists");
-              // Return the existing intent
-              return mTransitionPendingIntent;
 
-          // If no PendingIntent exists
-          } else {
+		//           If the PendingIntent already exists
+		if (null != mTransitionPendingIntent) {
 
-              // Create an Intent pointing to the IntentService
-              
-//              Intent intent = new Intent(context, ReceiveTransitionsIntentService.class);
-              /*
-               * Return a PendingIntent to start the IntentService.
-               * Always create a PendingIntent sent to Location Services
-               * with FLAG_UPDATE_CURRENT, so that sending the PendingIntent
-               * again updates the original. Otherwise, Location Services
-               * can't match the PendingIntent to requests made with it.
-               */
-        	  Intent intent = new Intent("com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE");
-              return PendingIntent.getBroadcast(
-                      this,
-                      0,
-                      intent,
-                      PendingIntent.FLAG_CANCEL_CURRENT);
-          }
-          
-          //this currently works.. don't fuck i tup.
-//		return PendingIntent.getService(
-//				this,
-//				0,
-//				pendingIntent,
-//				PendingIntent.FLAG_CANCEL_CURRENT);
+			Log.i(TAG, "Transition already exists");
+			// Return the existing intent
+			return mTransitionPendingIntent;
+
+			// If no PendingIntent exists
+		} else {
+
+			// Create an Intent pointing to the IntentService
+
+			//              Intent intent = new Intent(context, ReceiveTransitionsIntentService.class);
+			/*
+			 * Return a PendingIntent to start the IntentService.
+			 * Always create a PendingIntent sent to Location Services
+			 * with FLAG_UPDATE_CURRENT, so that sending the PendingIntent
+			 * again updates the original. Otherwise, Location Services
+			 * can't match the PendingIntent to requests made with it.
+			 */
+			Intent intent = new Intent("com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE");
+			return PendingIntent.getBroadcast(
+					this,
+					0,
+					intent,
+					PendingIntent.FLAG_CANCEL_CURRENT);
+		}
+
+		//this currently works.. don't fuck i tup.
+		//		return PendingIntent.getService(
+		//				this,
+		//				0,
+		//				pendingIntent,
+		//				PendingIntent.FLAG_CANCEL_CURRENT);
 	}
 	/**
 	 * Start a request for geofence monitoring by calling
@@ -338,7 +385,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 	public void onConnected(Bundle arg0) {
 		// Request a connection from the client to Location Services
 		Log.v(TAG,"connected");
-		
+
 		mLocationClient.requestLocationUpdates(mLocationRequest,getTransitionPendingIntent());
 		Log.v(TAG,"Called get address task Request type: " + mRequestType);
 		new GetAddressTask(this).execute(mLocationClient.getLastLocation());
@@ -426,7 +473,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 
 			Log.v(TAG,"received");
 			// Intent contains information about errors in adding or removing geofences
-			Toast.makeText(context, "something triggered" + action, Toast.LENGTH_LONG);
+			Toast.makeText(context, "something triggered" + action, Toast.LENGTH_LONG).show();
 		}
 
 		/**
@@ -452,7 +499,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 			 * user that a transition has occurred.
 			 */
 			Log.v(TAG,"geofence transitioned");
-			Toast.makeText(context, "something transitioned!!", Toast.LENGTH_LONG);
+			Toast.makeText(context, "something transitioned!!", Toast.LENGTH_LONG).show();
 		}
 
 		/**
@@ -503,7 +550,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 				 */
 				if(loc != null) {
 					addresses = geocoder.getFromLocation(loc.getLatitude(),
-						loc.getLongitude(), 1);
+							loc.getLongitude(), 1);
 				}
 			} catch (IOException e1) {
 				Log.e("LocationSampleActivity",
@@ -557,6 +604,6 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed {
 		adapter.clear();
 		adapter.addAll(geoList);
 		adapter.notifyDataSetChanged();
-//		adapter.notifyDataSetChanged();
+		//		adapter.notifyDataSetChanged();
 	}
 }

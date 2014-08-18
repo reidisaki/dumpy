@@ -20,6 +20,8 @@
     <string name="save">Save</string>
     <string name="Radius">radius</string>
     <string name="nickname_text">Name</string>
+    <string name="positive_text">Yes</string>
+    <string name="negative_text">Cancel</string>
     <string-array name="radius_array">
         <item>radius</item>
         <item>5 meters</item>
