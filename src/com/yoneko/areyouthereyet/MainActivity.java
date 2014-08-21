@@ -176,7 +176,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		mainListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> adapterView, View v,
 					final int pos, long id) {
-				
+
 				final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
 				b.setIcon(android.R.drawable.ic_dialog_alert);
 				b.setMessage("Are you sure?");
@@ -188,7 +188,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 				});
 				b.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						
+
 						final SimpleGeofence s = adapter.getItem(pos);
 						mGeofencesToRemove.add(s.getId());
 						adapter.remove(s);
@@ -398,10 +398,10 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		new GetAddressTask(this).execute(mLocationClient.getLastLocation());
 		switch (mRequestType) {
 		case ADD :
-			
+
 			// Get the PendingIntent for the request
 			mTransitionPendingIntent =
-					getTransitionPendingIntent();
+			getTransitionPendingIntent();
 			// Send a request to add the current geofences
 			ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
 			SimpleGeofenceList geoFenceList = MainActivity.getGeoFenceFromCache(getApplicationContext());
@@ -410,7 +410,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 				//add items to geoFences;
 				Log.v(TAG,"Added GEOFENCE");
 				try {
-				geoFences.add(geoFenceList.getGeoFences().get(i).toGeofence());
+					geoFences.add(geoFenceList.getGeoFences().get(i).toGeofence());
 				} catch (IllegalArgumentException e) {
 					Log.v(TAG,"illegal long/ lat combination not found...");	
 				}
@@ -433,8 +433,10 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 			//			geoFences.add(exit.toGeofence());
 			//			geoFences.add(enterReid.toGeofence());
 			//			geoFences.add(exitReid.toGeofence());
-			mLocationClient.addGeofences(
-					geoFences, mTransitionPendingIntent, this);   
+			if(geoFences.size() > 0) {
+				mLocationClient.addGeofences(
+						geoFences, mTransitionPendingIntent, this);
+			}
 
 			//			Log.i(TAG,"Starting service");
 			//			Intent svc = new Intent(this, ProximityService.class);
@@ -791,26 +793,26 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 	}
 
 	@Override
-    public void onRemoveGeofencesByRequestIdsResult(
-            int statusCode, String[] geofenceRequestIds) {
-        // If removing the geocodes was successful
-        if (LocationStatusCodes.SUCCESS == statusCode) {
-            /*
-             * Handle successful removal of geofences here.
-             * You can send out a broadcast intent or update the UI.
-             * geofences into the Intent's extended data.
-             */
-        } else {
-        // If removing the geofences failed
-            /*
-             * Report errors here.
-             * You can log the error using Log.e() or update
-             * the UI.
-             */
-        }
-        // Indicate that a request is no longer in progress
-        mInProgress = false;
-        // Disconnect the location client
-        mLocationClient.disconnect();
-    }
+	public void onRemoveGeofencesByRequestIdsResult(
+			int statusCode, String[] geofenceRequestIds) {
+		// If removing the geocodes was successful
+		if (LocationStatusCodes.SUCCESS == statusCode) {
+			/*
+			 * Handle successful removal of geofences here.
+			 * You can send out a broadcast intent or update the UI.
+			 * geofences into the Intent's extended data.
+			 */
+		} else {
+			// If removing the geofences failed
+			/*
+			 * Report errors here.
+			 * You can log the error using Log.e() or update
+			 * the UI.
+			 */
+		}
+		// Indicate that a request is no longer in progress
+		mInProgress = false;
+		// Disconnect the location client
+		mLocationClient.disconnect();
+	}
 }
