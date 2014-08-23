@@ -179,7 +179,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 
 				final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
 				b.setIcon(android.R.drawable.ic_dialog_alert);
-				b.setMessage("Are you sure?");
+				b.setMessage("Are you sure you want to delete?");
 				//I want to use the right side button , which is the positive button apparently
 				b.setPositiveButton("No", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {

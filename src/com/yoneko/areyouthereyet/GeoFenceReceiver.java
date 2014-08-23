@@ -44,6 +44,10 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
 
 		Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if(location == null) {
+			return;
+			//disabled gps.
+		}
 		double longitude = location.getLongitude();
 		double latitude = location.getLatitude();
 		String locationString =  "http://maps.google.com/?q=" + String.valueOf(latitude) + "," +String.valueOf(longitude) ;
