@@ -45,6 +45,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationStatusCodes;
 import com.google.gson.Gson;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.AddGeoFenceFragment.onDialogDismissed;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
@@ -89,6 +91,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 	private GeofenceAdapter adapter;
 	private RelativeLayout loading_screen,main_screen;
 	private List<SimpleGeofence> geoList;
+	private SlidingUpPanelLayout slide;
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");
@@ -223,6 +226,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		loading_screen = (RelativeLayout)findViewById(R.id.loading_screen);
 		main_screen = (RelativeLayout)findViewById(R.id.main_screen);
 		mainListView = (ListView)findViewById(R.id.mainListView);
+		slide = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
 	}
 
 	public static String createGeoFenceId(double lat, double lon) {
@@ -271,16 +275,18 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 	}
 
 	public void clearGeoFenceClicked(View v) {
-		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
-		SharedPreferences.Editor spe = sp.edit();
-		spe.clear();
-		spe.commit();
-		Log.i("Reid", "clearing list");
-		geoList = new ArrayList<SimpleGeofence>();
-		adapter.clear();
-		//remove geo fences
-		removeGeofences(mTransitionPendingIntent);
-		adapter.notifyDataSetChanged();
+		
+		slide.expandPanel(.5f);
+//		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
+//		SharedPreferences.Editor spe = sp.edit();
+//		spe.clear();
+//		spe.commit();
+//		Log.i("Reid", "clearing list");
+//		geoList = new ArrayList<SimpleGeofence>();
+//		adapter.clear();
+//		//remove geo fences
+//		removeGeofences(mTransitionPendingIntent);
+//		adapter.notifyDataSetChanged();
 	}
 	public void startMapsClicked(View v) {
 		Intent intent = new Intent(this, MapActivity.class);
@@ -815,4 +821,5 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		// Disconnect the location client
 		mLocationClient.disconnect();
 	}
+
 }
