@@ -11,7 +11,7 @@ public class SimpleGeofence {
     private long mExpirationDuration;
     private int mTransitionType;
     private String message;
-    private String email;
+    private String emailPhone;
     private String title;
 
 public String getTitle() {
@@ -46,15 +46,15 @@ public SimpleGeofence(
     this.mExpirationDuration = expiration;
     this.mTransitionType = transition;
     this.message = message;
-    this.email = email;
+    this.emailPhone = email;
     this.title = title;
 }
 // Instance field getters
 public String getId() {
     return mId;
 }
-public String getEmail() {
-    return email;
+public String getEmailPhone() {
+    return emailPhone;
 }
 public String getMessage() {
     return message;

@@ -82,7 +82,7 @@
             android:paddingTop="@dimen/top_margin_slide_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Bunch of crap here..."
+            android:text="Slide down to close.. or save"
             android:textSize="16sp" />
     </RelativeLayout>
 

@@ -137,7 +137,7 @@ public class SimpleGeofenceStore {
 				geofence.getRadius());
 		editor.putString(
 				getGeofenceFieldKey(id, KEY_EMAIL),
-				geofence.getEmail());
+				geofence.getEmailPhone());
 		editor.putString(
 				getGeofenceFieldKey(id, KEY_MESSAGE),
 				geofence.getMessage());

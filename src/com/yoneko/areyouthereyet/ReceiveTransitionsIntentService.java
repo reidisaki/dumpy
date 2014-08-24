@@ -17,7 +17,7 @@ import com.google.android.gms.location.LocationClient;
 import com.google.gson.Gson;
 
 public class ReceiveTransitionsIntentService extends IntentService {
-	public static String TAG = "yoneko";
+	public static String TAG = "Reid";
 	public static String SMS_SENT = "ConfirmSentActivity";
 	public static String SMS_DELIVERED = "DevliveredActivty";
 	public static int MAX_SMS_MESSAGE_LENGTH = 160;

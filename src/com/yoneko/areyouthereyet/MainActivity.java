@@ -276,17 +276,17 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 
 	public void clearGeoFenceClicked(View v) {
 		
-		slide.expandPanel(.5f);
-//		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
-//		SharedPreferences.Editor spe = sp.edit();
-//		spe.clear();
-//		spe.commit();
-//		Log.i("Reid", "clearing list");
-//		geoList = new ArrayList<SimpleGeofence>();
-//		adapter.clear();
-//		//remove geo fences
-//		removeGeofences(mTransitionPendingIntent);
-//		adapter.notifyDataSetChanged();
+//		slide.expandPanel(.5f);
+		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
+		SharedPreferences.Editor spe = sp.edit();
+		spe.clear();
+		spe.commit();
+		Log.i("Reid", "clearing list");
+		geoList = new ArrayList<SimpleGeofence>();
+		adapter.clear();
+		//remove geo fences
+		removeGeofences(mTransitionPendingIntent);
+		adapter.notifyDataSetChanged();
 	}
 	public void startMapsClicked(View v) {
 		Intent intent = new Intent(this, MapActivity.class);

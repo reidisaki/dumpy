@@ -3,9 +3,6 @@ package com.yoneko.areyouthereyet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.LocationClient;
-
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,10 +11,15 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.telephony.SmsManager;
 import android.util.Log;
+
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.LocationClient;
+import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofenceList;
 public class GeoFenceReceiver extends BroadcastReceiver {
 	Context context;
 	Intent broadcastIntent = new Intent();
-	public static String TAG = "yoneko";
+	public static String TAG = "Reid";
 	public static String SMS_SENT = "ConfirmSentActivity";
 	public static String SMS_DELIVERED = "DevliveredActivty";
 	public static int MAX_SMS_MESSAGE_LENGTH = 160;
@@ -31,7 +33,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		this.context = context;
 
 		Log.i("yoneko","in on Receive");
-		
+
 		//		broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
 		//		if (LocationClient.hasError(intent)) {
@@ -52,7 +54,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		double latitude = location.getLatitude();
 		String locationString =  "http://maps.google.com/?q=" + String.valueOf(latitude) + "," +String.valueOf(longitude) ;
 
-//		Log.v(TAG,"handling intent");
+		//		Log.v(TAG,"handling intent");
 		//		if(intent.getExtras().getString("transitionType").equals("1")) {
 		//			sendSms("3233098967",SMS_MESSAGE_TEXT + locationString + "  http://maps.google.com/?q=34.054932,-118.342929", false);
 		//				
@@ -77,27 +79,35 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			 * of the geofence or geofences that triggered the transition
 			 */
 		} else {
-//			Log.v(TAG,"on handle intent");
+			//			Log.v(TAG,"on handle intent");
 			// Get the type of transition (entry or exit)
 			int transitionType =
 					LocationClient.getGeofenceTransition(intent);
-//			Log.v(TAG,"Transition type = " + String.valueOf(transitionType));
+			//			Log.v(TAG,"Transition type = " + String.valueOf(transitionType));
 			// Test that a valid transition was reported
 			if (
 					(transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
 					||
 					(transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)
 					) {
-				Log.i(TAG,"Inside if statement");
+//				Log.i(TAG,"Inside if statement");
 				//getListOfGeoFences here
 				List <Geofence> triggerList = //new ArrayList<Geofence>(); 
 						LocationClient.getTriggeringGeofences(intent);
 
 				String[] triggerIds = new String[triggerList.size()];
+				SimpleGeofenceList geoFenceList = MainActivity.getGeoFenceFromCache(context);
+				List<SimpleGeofence>  simpleList = geoFenceList.getGeoFences();
 
 				for (int i = 0; i < triggerIds.length; i++) {
+					//TODO: test reid
+					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
+					sendSms(g.getEmailPhone(),g.getMessage(), false);
+//					Log.v(TAG,"Success sending in");
+					
+					//END TEST REID
 					// Store the Id of each geofence
-					Log.i(TAG,"on trigger Ids");
+//					Log.i(TAG,"on trigger Ids");
 					if(triggerList.get(i).getRequestId().equals("1")) {
 						sendSms(SMS_NUMBER,SMS_MESSAGE_TEXT, false);
 						Log.v(TAG,"Success sending in");		
@@ -108,7 +118,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 					}
 					if(triggerList.get(i).getRequestId().equals("3")) {
 						sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!", false);
-						
+
 						Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");		
 					}				
 					if(triggerList.get(i).getRequestId().equals("4")) {
@@ -160,9 +170,21 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			}
 			else
 			{
-				Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "  + phonenumber);
-//				manager.sendTextMessage(phonenumber, null, message, null, null);
+//				Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "  + phonenumber);
+				Log.i(TAG,"Sending texts are SSENDING!!:  "  + phonenumber);
+				if(phonenumber != null ) {
+					manager.sendTextMessage(phonenumber, null, message, null, null);
+				}
 			}
 		}
+	}
+	private SimpleGeofence getSimpleGeofence (List<SimpleGeofence> list, Geofence g) {
+		SimpleGeofence retFence = null;
+		for(SimpleGeofence geo : list) {
+			if(geo.getId().equals(g.getRequestId())) {
+				retFence = geo;
+			}
+		}
+		return retFence;		
 	}
 }
