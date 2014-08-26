@@ -14,12 +14,13 @@
 
         <EditText
             android:id="@+id/nickname_edit"
-            android:layout_width="200dip"
-            android:layout_height="wrap_content"
+            style="@style/wrapAll"
             android:nextFocusDown="@+id/radius_edit" />
     </TableRow>
 
-    <TableRow style="@style/tableStyle" android:visibility="gone">
+    <TableRow
+        style="@style/tableStyle"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/lat_text"
@@ -33,7 +34,9 @@
             android:nextFocusDown="@+id/lon_edit" />
     </TableRow>
 
-    <TableRow style="@style/tableStyle" android:visibility="gone">
+    <TableRow
+        style="@style/tableStyle"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/lon_text"
@@ -118,8 +121,9 @@
         <EditText
             android:id="@+id/message_edit"
             style="@style/wrapAll"
-            android:inputType="textShortMessage"
-            android:lines="8" />
+            android:inputType="textMultiLine"
+            android:isScrollContainer="true"
+            />
     </TableRow>
 
     <TableRow style="@style/tableStyle" >

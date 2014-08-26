@@ -103,12 +103,12 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 			 * the argument is "this".
 			 */
 			//dont need
-			//			mLocationClient.removeLocationUpdates(this);
-			//			mLocationClient.disconnect();
+			mLocationClient.removeLocationUpdates(this);	
+			
 		} else {
 			Log.i(TAG,"client is not connected()");
 		}
-
+		mLocationClient.disconnect();
 		super.onStop();
 	}
 
@@ -124,8 +124,10 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		mLocationRequest = LocationRequest.create();
 		// Use high accuracy
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-		// Set the update interval to 5 seconds
-		mLocationRequest.setInterval(5000);
+		//try using this:
+		mLocationRequest.setFastestInterval(50000);
+		// Set the update interval to 50 seconds
+//		mLocationRequest.setInterval(50000);
 		initViews();
 		attachHandlers();
 		geoList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
@@ -275,8 +277,8 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 	}
 
 	public void clearGeoFenceClicked(View v) {
-		
-//		slide.expandPanel(.5f);
+
+		//		slide.expandPanel(.5f);
 		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 		SharedPreferences.Editor spe = sp.edit();
 		spe.clear();
@@ -390,7 +392,9 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 			 * re-setting the flag, and then re-trying the
 			 * request.
 			 */
-			Log.v(TAG,"tryign to connect");
+			mLocationClient.disconnect();
+			mLocationClient.connect();
+			Log.v(TAG,"tryign to reconnect");
 		}
 	}
 
@@ -489,7 +493,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 			 */
 		}
 		// Turn off the in progress flag and disconnect the client
-
+		mLocationClient.disconnect();
 		mInProgress = false;
 
 	}
@@ -762,11 +766,12 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 	}
 	@Override
 	public void dialogDismissed() {
-		Log.i(TAG,"Dialog dismissed called");
 		geoList = getGeoFenceFromCache(this).getGeoFences();
 		adapter.clear();
 		adapter.addAll(geoList);
 		adapter.notifyDataSetChanged();
+		Log.i(TAG, "adding geo fences");
+		addGeofences();
 		//		adapter.notifyDataSetChanged();
 	}
 
