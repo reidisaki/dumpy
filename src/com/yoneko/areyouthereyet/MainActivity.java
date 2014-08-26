@@ -125,9 +125,9 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		// Use high accuracy
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		//try using this:
-		mLocationRequest.setFastestInterval(50000);
+		mLocationRequest.setFastestInterval(1);
 		// Set the update interval to 50 seconds
-//		mLocationRequest.setInterval(50000);
+		mLocationRequest.setInterval(60);
 		initViews();
 		attachHandlers();
 		geoList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
@@ -403,7 +403,7 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		// Request a connection from the client to Location Services
 		Log.v(TAG,"connected");
 
-		mLocationClient.requestLocationUpdates(mLocationRequest,getTransitionPendingIntent());
+		mLocationClient.requestLocationUpdates(mLocationRequest,this);
 		Log.v(TAG,"Called get address task Request type: " + mRequestType);
 		new GetAddressTask(this).execute(mLocationClient.getLastLocation());
 		switch (mRequestType) {
