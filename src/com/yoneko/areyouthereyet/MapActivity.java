@@ -221,7 +221,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				public void onPanelExpanded(View panel) {
 					Log.i("Reid","panel is expanded");
 					if(latLng != null) {
-						mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .007, latLng.longitude)));
+						mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)));
 					}
 					fm.beginTransaction()
 			        .show(addGeofenceFragment)
@@ -332,7 +332,10 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			List<Address> addressList = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
 			if(addressList.size() > 0) {
 				Address address = addressList.get(0);
-				title = address.getFeatureName() == null ? address.getAddressLine(0) + " \n" + address.getLocality() + "," + address.getPostalCode() : address.getFeatureName();
+				Log.i("Reid","thoroughfare: " + address.getThoroughfare());
+				Log.i("Reid","premises:" + address.getPremises());
+				Log.i("Reid","locality:" + address.getLocality());
+				title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -346,7 +349,11 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			currentMarker.remove();
 		}
 		currentMarker = mMap.addMarker(mo);
-		mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+		if(slidePanelLayout.isPanelExpanded()) {
+			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)));
+		} else {
+			mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+		}
 	}
 	//	@Override
 	//	public void onMapClick(LatLng point) {
