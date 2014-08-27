@@ -7,7 +7,8 @@
     <string name="title_activity_map">MapActivity</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     
-    
+
+    <string name="admob_id">ca-app-pub-5747146577301976/8656866842</string>
     <string name="button_find">find</string>
     <string name="search_location">enter search location</string>
     <string name="lat">Latitude</string>

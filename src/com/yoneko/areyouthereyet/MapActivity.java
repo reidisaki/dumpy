@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -21,9 +23,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
@@ -35,16 +40,25 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
+import com.yoneko.areyouthereyet.AddGeoFenceFragment.onDialogDismissed;
 
-public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener {
+public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener, onDialogDismissed {
 
 	GoogleMap mMap;
 	Marker currentMarker = null;
 	Circle myCircle = null;
 	MarkerOptions markerOptions;
+	AdView adView;
 	EditText searchEdit;
 	Button searchButton;
+	FragmentManager fm;
+	Fragment addGeofenceFragment;
+	RelativeLayout map_detail_layout;
+	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
+	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true;
 	public static String tag = "Reid";
 	int selectedRadius = 100;
@@ -124,9 +138,16 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fragment_map);
-
+		AdRequest adRequest = new AdRequest.Builder()
+		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+		.addTestDevice("deviceid")
+		.build();
+		adView = (AdView)findViewById(R.id.adView);
+		// Start loading the ad in the background.
+		adView.loadAd(adRequest);
 
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		
 		mMap.setMyLocationEnabled(true);
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -144,9 +165,15 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				onMapLongClick(p);
 			}
 		}
+		fm = getFragmentManager();
+		
 		initViews();
 		setListeners();
-
+		
+		
+		fm.beginTransaction()
+        .hide(addGeofenceFragment)
+        .commit();
 		//		CameraPosition cameraPosition = new CameraPosition.Builder().target(
 		//                new LatLng(-118.256, 33.5847)).zoom(15).build();
 		//
@@ -158,6 +185,10 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
 		searchButton = (Button)findViewById(R.id.btn_find);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
+		slidePanelLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
+		
+		addGeofenceFragment = (Fragment)getFragmentManager().findFragmentById(R.id.fragement_add_geo_fence);
+		
 
 		if(!editable) {
 			searchEdit.setFocusable(false); searchEdit.setClickable(false);
@@ -174,7 +205,45 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			mMap.setOnMapLongClickListener(this);
 			mMap.setOnMarkerClickListener(this);
 			//		mMap.setOnMapClickListener(this);
-
+			slidePanelLayout.setPanelSlideListener(new PanelSlideListener() {
+				
+				@Override
+				public void onPanelSlide(View panel, float slideOffset) {
+					Log.i("Reid","panel is sliding"); 
+				}
+				
+				@Override
+				public void onPanelHidden(View panel) {
+					Log.i("Reid","panel is hidden");
+				}
+				
+				@Override
+				public void onPanelExpanded(View panel) {
+					Log.i("Reid","panel is expanded");
+					if(latLng != null) {
+						mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .007, latLng.longitude)));
+					}
+					fm.beginTransaction()
+			        .show(addGeofenceFragment)
+			        .commit();
+				}
+				
+				@Override
+				public void onPanelCollapsed(View panel) {
+					Log.i("Reid","panel is collapsed");
+					if(latLng != null) {
+						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+					}
+					fm.beginTransaction()
+			        .hide(addGeofenceFragment)
+			        .commit();
+				}
+				
+				@Override
+				public void onPanelAnchored(View panel) {
+					Log.i("Reid","panel is anchored");
+				}
+			});
 			searchButton.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -200,7 +269,31 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			}
 		});
 	}
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (adView != null) {
+			adView.resume();
+		}
+	}
 
+	@Override
+	public void onPause() {
+		if (adView != null) {
+			adView.pause();
+		}
+		super.onPause();
+	}
+
+	/** Called before the activity is destroyed. */
+	@Override
+	public void onDestroy() {
+		// Destroy the AdView.
+		if (adView != null) {
+			adView.destroy();
+		}
+		super.onDestroy();
+	}
 	public void handlePoint(Marker marker) {
 		Intent resultIntent = new Intent();
 		Bundle b = new Bundle();
@@ -232,9 +325,22 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 
 	public void addMarker(LatLng latLng) {
+		
+		String title ="not set yet";
+		Geocoder geo = new Geocoder(getApplicationContext());
+		try {
+			List<Address> addressList = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
+			if(addressList.size() > 0) {
+				Address address = addressList.get(0);
+				title = address.getFeatureName() == null ? address.getAddressLine(0) + " \n" + address.getLocality() + "," + address.getPostalCode() : address.getFeatureName();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		MarkerOptions mo = new MarkerOptions()
 		.position(latLng)
-		.title( latLng.latitude + ", " + latLng.longitude)           
+		.title(title)//latLng.latitude + ", " + latLng.longitude)           
 		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
 		if(currentMarker != null) {
 			currentMarker.remove();
@@ -281,6 +387,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			try {
 				// Getting a maximum of 3 Address that matches the input text
 				addresses = geocoder.getFromLocationName(locationName[0], 3);
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -317,5 +424,9 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				}
 			}
 		}
+	}
+	@Override
+	public void dialogDismissed() {
+		
 	}
 }

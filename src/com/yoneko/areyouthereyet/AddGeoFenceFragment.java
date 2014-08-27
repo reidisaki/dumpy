@@ -94,7 +94,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		TableLayout addGeoFenceView = (TableLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
-		getDialog().setTitle("Add Geofence");
+//		getDialog().setTitle("Add Geofence");
 		emailEdit = (EditText)addGeoFenceView.findViewById(R.id.email_edit);
 		latEdit = (EditText)addGeoFenceView.findViewById(R.id.lat_edit);
 		lonEdit = (EditText)addGeoFenceView.findViewById(R.id.lon_edit);
