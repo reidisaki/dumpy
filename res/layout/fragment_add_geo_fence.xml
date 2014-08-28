@@ -13,7 +13,7 @@
 
         <EditText
             android:id="@+id/nickname_edit"
-            style="@style/wrapAll"
+            style="@style/fillWidth"
             android:nextFocusDown="@+id/radius_edit" />
     </TableRow>
 
@@ -44,17 +44,9 @@
 
         <EditText
             android:id="@+id/lon_edit"
-            style="@style/wrapAll"
+            style="@style/fillWidth"
             android:inputType="numberSigned|numberDecimal"
             android:nextFocusDown="@+id/radius_edit" />
-    </TableRow>
-
-    <TableRow>
-
-        <Button
-            android:id="@+id/map_button"
-            style="@style/wrapAll"
-            android:text="MAP" />
     </TableRow>
 
     <TableRow style="@style/tableStyle" >
@@ -105,7 +97,7 @@
 
         <EditText
             android:id="@+id/email_edit"
-            style="@style/wrapAll"
+            style="@style/fillWidth"
             android:inputType="number"
             android:nextFocusDown="@+id/message_edit" />
     </TableRow>
@@ -119,7 +111,7 @@
 
         <EditText
             android:id="@+id/message_edit"
-            style="@style/wrapAll"
+            style="@style/fillWidth"
             android:inputType="textMultiLine"
             android:isScrollContainer="true"
             />

@@ -65,14 +65,17 @@
 
     <RelativeLayout
         android:id="@+id/map_detail_layout"
+        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="350dip" >
+        android:layout_height="325dip" >
 
         <TextView
+            android:id="@+id/slide_tab_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center|top"
             android:text="Slide up to add GeoFence"
+            android:paddingBottom="10dip"
             android:textSize="16sp" />
 
         <fragment

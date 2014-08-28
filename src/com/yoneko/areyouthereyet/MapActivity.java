@@ -25,12 +25,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
@@ -51,11 +53,13 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	Circle myCircle = null;
 	MarkerOptions markerOptions;
 	AdView adView;
+	TextView slide_tab_text;
 	EditText searchEdit;
 	Button searchButton;
 	FragmentManager fm;
 	Fragment addGeofenceFragment;
 	RelativeLayout map_detail_layout;
+	int animateSpeed = 800, animateFast = 200;
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
@@ -147,7 +151,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		adView.loadAd(adRequest);
 
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		
+
 		mMap.setMyLocationEnabled(true);
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -166,14 +170,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			}
 		}
 		fm = getFragmentManager();
-		
+
 		initViews();
 		setListeners();
-		
-		
+
+
 		fm.beginTransaction()
-        .hide(addGeofenceFragment)
-        .commit();
+		.hide(addGeofenceFragment)
+		.commit();
 		//		CameraPosition cameraPosition = new CameraPosition.Builder().target(
 		//                new LatLng(-118.256, 33.5847)).zoom(15).build();
 		//
@@ -182,13 +186,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 
 	private void initViews() {
+		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
 		searchButton = (Button)findViewById(R.id.btn_find);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
 		slidePanelLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
-		
+		map_detail_layout = (RelativeLayout)findViewById(R.id.map_detail_layout);
 		addGeofenceFragment = (Fragment)getFragmentManager().findFragmentById(R.id.fragement_add_geo_fence);
-		
+
 
 		if(!editable) {
 			searchEdit.setFocusable(false); searchEdit.setClickable(false);
@@ -196,8 +201,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			spinner.setFocusable(false); spinner.setClickable(false);
 			spinner.setSelection(getSelectedPositionInSpinnerByValue(selectedRadius));
 		}
-
-
+	}
+	@Override
+	public void onBackPressed() {
+		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded()) {
+			slidePanelLayout.collapsePanel();
+		} else {
+			super.onBackPressed();
+		}
 	}
 	private void setListeners() {
 		if(editable) {
@@ -206,39 +217,44 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			mMap.setOnMarkerClickListener(this);
 			//		mMap.setOnMapClickListener(this);
 			slidePanelLayout.setPanelSlideListener(new PanelSlideListener() {
-				
+
 				@Override
 				public void onPanelSlide(View panel, float slideOffset) {
-					Log.i("Reid","panel is sliding"); 
+					Log.i("Reid","panel is sliding");
+					slide_tab_text.setText("");
 				}
-				
+
 				@Override
 				public void onPanelHidden(View panel) {
 					Log.i("Reid","panel is hidden");
 				}
-				
+
 				@Override
 				public void onPanelExpanded(View panel) {
 					Log.i("Reid","panel is expanded");
 					if(latLng != null) {
-						mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)));
+						mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
 					}
+					slide_tab_text.setText("");
 					fm.beginTransaction()
-			        .show(addGeofenceFragment)
-			        .commit();
+					.show(addGeofenceFragment)
+					.commit();
 				}
-				
+
 				@Override
 				public void onPanelCollapsed(View panel) {
 					Log.i("Reid","panel is collapsed");
+					fm.beginTransaction()
+					.hide(addGeofenceFragment)
+					.commit();
+					slide_tab_text.setText("Slide up to add a Geofence");
 					if(latLng != null) {
 						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 					}
-					fm.beginTransaction()
-			        .hide(addGeofenceFragment)
-			        .commit();
+					
+					
 				}
-				
+
 				@Override
 				public void onPanelAnchored(View panel) {
 					Log.i("Reid","panel is anchored");
@@ -285,6 +301,21 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		super.onPause();
 	}
 
+	public CancelableCallback cameraCallBack = new CancelableCallback() {
+
+		@Override
+		public void onFinish() {
+			if(!slidePanelLayout.isPanelExpanded()) {
+				map_detail_layout.setVisibility(View.VISIBLE);
+				slidePanelLayout.expandPanel();
+			}
+		}
+
+		@Override
+		public void onCancel() {
+
+		}
+	};
 	/** Called before the activity is destroyed. */
 	@Override
 	public void onDestroy() {
@@ -295,14 +326,15 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		super.onDestroy();
 	}
 	public void handlePoint(Marker marker) {
-		Intent resultIntent = new Intent();
-		Bundle b = new Bundle();
-		b.putDouble("lon", marker.getPosition().longitude);
-		b.putDouble("lat", marker.getPosition().latitude);
-		b.putInt("radius", selectedRadius);
-		resultIntent.putExtras(b);
-		setResult(AddGeoFenceFragment.MAP_RESULT_CODE, resultIntent);
-		finish();
+		slidePanelLayout.expandPanel();
+//		Intent resultIntent = new Intent();
+//		Bundle b = new Bundle();
+//		b.putDouble("lon", marker.getPosition().longitude);
+//		b.putDouble("lat", marker.getPosition().latitude);
+//		b.putInt("radius", selectedRadius);
+//		resultIntent.putExtras(b);
+//		setResult(AddGeoFenceFragment.MAP_RESULT_CODE, resultIntent);
+//		finish();
 	}
 
 	@Override
@@ -322,10 +354,11 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		//		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
 		//		mMap.addMarker(mo).showInfoWindow();
 		//		mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
+
 	}
 
 	public void addMarker(LatLng latLng) {
-		
+
 		String title ="not set yet";
 		Geocoder geo = new Geocoder(getApplicationContext());
 		try {
@@ -349,11 +382,12 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			currentMarker.remove();
 		}
 		currentMarker = mMap.addMarker(mo);
-		if(slidePanelLayout.isPanelExpanded()) {
-			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)));
-		} else {
-			mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-		}
+		mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateSpeed,cameraCallBack);
+//		if(slidePanelLayout.isPanelExpanded()) {
+//			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
+//		} else {
+//			mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng),animateSpeed, cameraCallBack);
+//		}
 	}
 	//	@Override
 	//	public void onMapClick(LatLng point) {
@@ -394,7 +428,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			try {
 				// Getting a maximum of 3 Address that matches the input text
 				addresses = geocoder.getFromLocationName(locationName[0], 3);
-				
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -427,13 +461,13 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				createRadiusCircle(latLng);
 				// Locate the first location
 				if(i==0) {
-					mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+					mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), animateSpeed, cameraCallBack);
 				}
 			}
 		}
 	}
 	@Override
 	public void dialogDismissed() {
-		
+
 	}
 }

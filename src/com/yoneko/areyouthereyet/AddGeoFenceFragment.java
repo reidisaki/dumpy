@@ -118,13 +118,13 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			}
 		});
 		// Inflate the layout for this fragment
-		((Button)addGeoFenceView.findViewById(R.id.map_button)).setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				mapButtonClicked(v);
-			}
-		});
+//		((Button)addGeoFenceView.findViewById(R.id.map_button)).setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				mapButtonClicked(v);
+//			}
+//		});
 
 		((Button)addGeoFenceView.findViewById(R.id.save_button)).setOnClickListener(new OnClickListener() {
 
