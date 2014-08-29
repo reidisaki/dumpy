@@ -16,14 +16,19 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -37,10 +42,11 @@ import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -49,6 +55,12 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.AddGeoFenceFragment.onDialogDismissed;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener, onDialogDismissed {
+
+
+	private String[] mPlanetTitles;
+	private DrawerLayout mDrawerLayout;
+	private ListView mDrawerList;
+	private ActionBarDrawerToggle mDrawerToggle;
 
 	GoogleMap mMap;
 	Marker currentMarker = null;
@@ -154,7 +166,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		adView.loadAd(adRequest);
 
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-
+		mMap.getUiSettings().setRotateGesturesEnabled(false);
 		mMap.setMyLocationEnabled(true);
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -189,6 +201,44 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 
 	private void initViews() {
+		//		BitmapDescriptor image = BitmapDescriptorFactory.fromResource(R.drawable.ic_drawer);
+		//		GroundOverlayOptions groundOverlay = new GroundOverlayOptions()
+		//        .image(image)
+		//        .position(new LatLng(40.714086, -74.228697), 500f)
+		//        .transparency(0.5f);
+
+
+
+		//        mMap.addGroundOverlay(groundOverlay);
+		mPlanetTitles = getResources().getStringArray(R.array.planets_array);
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+		// Set the adapter for the list view
+		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+				R.layout.drawer_list_item, mPlanetTitles));
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+				R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+
+			/** Called when a drawer has settled in a completely closed state. */
+			public void onDrawerClosed(View view) {
+				super.onDrawerClosed(view);
+				getActionBar().setTitle("areyou there yet clsoed");
+				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+			}
+
+			/** Called when a drawer has settled in a completely open state. */
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+				getActionBar().setTitle("are you ther eyet open");
+				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+			}
+		};
+
+		// Set the drawer toggle as the DrawerListener
+		mDrawerLayout.openDrawer(mDrawerList);
+		// Set the list's click listener
+		//		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
 		nickname_edit = (EditText)findViewById(R.id.nickname_edit);
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
@@ -216,14 +266,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 	private void setListeners() {
 		searchEdit.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				if(slidePanelLayout.isPanelExpanded()) {
 					Log.i("Reid","collapsing panel closing keyboard");
 					slidePanelLayout.collapsePanel();
 				}
-				
+
 			}
 		});
 		if(editable) {
@@ -263,13 +313,13 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 					fm.beginTransaction()
 					.hide(addGeofenceFragment)
 					.commit();
-					
+
 					slide_tab_text.setText("Slide up to add a Geofence");
 					if(latLng != null) {
 						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 					}
-					
-					
+
+
 				}
 
 				@Override
@@ -333,7 +383,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 		}
 	};
-	
+
 	/** Called before the activity is destroyed. */
 	@Override
 	public void onDestroy() {
@@ -345,14 +395,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 	public void handlePoint(Marker marker) {
 		slidePanelLayout.expandPanel();
-//		Intent resultIntent = new Intent();
-//		Bundle b = new Bundle();
-//		b.putDouble("lon", marker.getPosition().longitude);
-//		b.putDouble("lat", marker.getPosition().latitude);
-//		b.putInt("radius", selectedRadius);
-//		resultIntent.putExtras(b);
-//		setResult(AddGeoFenceFragment.MAP_RESULT_CODE, resultIntent);
-//		finish();
+		//		Intent resultIntent = new Intent();
+		//		Bundle b = new Bundle();
+		//		b.putDouble("lon", marker.getPosition().longitude);
+		//		b.putDouble("lat", marker.getPosition().latitude);
+		//		b.putInt("radius", selectedRadius);
+		//		resultIntent.putExtras(b);
+		//		setResult(AddGeoFenceFragment.MAP_RESULT_CODE, resultIntent);
+		//		finish();
 	}
 
 	@Override
@@ -366,7 +416,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	public void onMapLongClick(LatLng point) {
 		latLng = point;
 		createRadiusCircle(point);
-		
+
 		//		MarkerOptions mo = new MarkerOptions()
 		//		.position(point)
 		//		.title( point.latitude + ", " + point.longitude)           
@@ -406,11 +456,11 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		currentMarker = mMap.addMarker(mo);
 		boolean panelWillExpand = true;
 		animateToLocation(panelWillExpand);
-//		if(slidePanelLayout.isPanelExpanded()) {
-//			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
-//		} else {
-//			mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng),animateSpeed, cameraCallBack);
-//		}
+		//		if(slidePanelLayout.isPanelExpanded()) {
+		//			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
+		//		} else {
+		//			mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng),animateSpeed, cameraCallBack);
+		//		}
 	}
 	//	@Override
 	//	public void onMapClick(LatLng point) {
@@ -440,11 +490,11 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 		myCircle = mMap.addCircle(circleOptions);
 	}
-	
+
 	public void animateToLocation(boolean panelExpanded) {
 		Point p = mMap.getProjection().toScreenLocation(latLng);
 		if(panelExpanded) {
-			 p.set(p.x, p.y+mapOffset);
+			p.set(p.x, p.y+mapOffset);
 		} 
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)), animateSpeed, cameraCallBack);
 	}
@@ -492,16 +542,23 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				markerOptions.title(addressText);
 				createRadiusCircle(latLng);
 				// Locate the first location
-//				if(i==0) {
-//					boolean panelWillExpand = true;
-//					animateToLocation(panelWillExpand);
-//					
-//				}
+				//				if(i==0) {
+				//					boolean panelWillExpand = true;
+				//					animateToLocation(panelWillExpand);
+				//					
+				//				}
 			}
 		}
 	}
 	@Override
 	public void dialogDismissed() {
 
+	}
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// If the nav drawer is open, hide action items related to the content view
+		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+		menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
+		return super.onPrepareOptionsMenu(menu);
 	}
 }

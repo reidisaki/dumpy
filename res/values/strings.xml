@@ -6,8 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_map">MapActivity</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    
-
     <string name="admob_id">ca-app-pub-5747146577301976/8656866842</string>
     <string name="button_find">find</string>
     <string name="search_location">enter search location</string>
@@ -23,6 +21,7 @@
     <string name="nickname_text">Name</string>
     <string name="positive_text">Yes</string>
     <string name="negative_text">Cancel</string>
+
     <string-array name="radius_array">
         <item>radius</item>
         <item>5 meters</item>
@@ -33,4 +32,20 @@
         <item>200 meters</item>
         <item>500 meters</item>
     </string-array>
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_websearch">Web search</string>
+    <string name="app_not_available">Sorry, there\'s no web browser available</string>
+
 </resources>

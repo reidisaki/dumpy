@@ -104,6 +104,7 @@
             style="@style/wrapAll"
             android:layout_weight=".9"
             android:inputType="number"
+            
             android:hint="415-260-1125"
             android:nextFocusDown="@+id/message_edit" />
     </TableRow>
@@ -135,3 +136,4 @@
     </TableRow>
 
 </TableLayout>
+
