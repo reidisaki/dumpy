@@ -8,6 +8,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -65,8 +67,9 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true;
 	public static String tag = "Reid";
-	int selectedRadius = 100;
-	Spinner spinner;     
+	int selectedRadius = 100, mapOffset = 170;
+	Spinner spinner;
+	protected boolean isPanelExpanded;     
 	public void onItemSelected(AdapterView<?> parent, View view, 
 			int pos, long id) {
 		switch(pos) {
@@ -212,6 +215,17 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		}
 	}
 	private void setListeners() {
+		searchEdit.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(slidePanelLayout.isPanelExpanded()) {
+					Log.i("Reid","collapsing panel closing keyboard");
+					slidePanelLayout.collapsePanel();
+				}
+				
+			}
+		});
 		if(editable) {
 			spinner.setOnItemSelectedListener(this);
 			mMap.setOnMapLongClickListener(this);
@@ -221,7 +235,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 				@Override
 				public void onPanelSlide(View panel, float slideOffset) {
-					Log.i("Reid","panel is sliding");
 					slide_tab_text.setText("");
 				}
 
@@ -234,12 +247,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				public void onPanelExpanded(View panel) {
 					Log.i("Reid","panel is expanded");
 					if(latLng != null) {
-						mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
+						boolean panelWillExpand = true;
+						animateToLocation(panelWillExpand);
 					}
 					slide_tab_text.setText("");
 					fm.beginTransaction()
 					.show(addGeofenceFragment)
 					.commit();
+					isPanelExpanded = true;
 				}
 
 				@Override
@@ -248,6 +263,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 					fm.beginTransaction()
 					.hide(addGeofenceFragment)
 					.commit();
+					
 					slide_tab_text.setText("Slide up to add a Geofence");
 					if(latLng != null) {
 						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -306,7 +322,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 		@Override
 		public void onFinish() {
-			if(!slidePanelLayout.isPanelExpanded()) {
+			if(!slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelHidden()) {
 				map_detail_layout.setVisibility(View.VISIBLE);
 				slidePanelLayout.expandPanel();
 			}
@@ -317,6 +333,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 		}
 	};
+	
 	/** Called before the activity is destroyed. */
 	@Override
 	public void onDestroy() {
@@ -387,7 +404,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			currentMarker.remove();
 		}
 		currentMarker = mMap.addMarker(mo);
-		mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .007, latLng.longitude)),animateSpeed,cameraCallBack);
+		boolean panelWillExpand = true;
+		animateToLocation(panelWillExpand);
 //		if(slidePanelLayout.isPanelExpanded()) {
 //			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
 //		} else {
@@ -421,6 +439,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		.strokeWidth(5);
 
 		myCircle = mMap.addCircle(circleOptions);
+	}
+	
+	public void animateToLocation(boolean panelExpanded) {
+		Point p = mMap.getProjection().toScreenLocation(latLng);
+		if(panelExpanded) {
+			 p.set(p.x, p.y+mapOffset);
+		} 
+		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)), animateSpeed, cameraCallBack);
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
 
@@ -466,9 +492,11 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				markerOptions.title(addressText);
 				createRadiusCircle(latLng);
 				// Locate the first location
-				if(i==0) {
-					mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), animateSpeed, cameraCallBack);
-				}
+//				if(i==0) {
+//					boolean panelWillExpand = true;
+//					animateToLocation(panelWillExpand);
+//					
+//				}
 			}
 		}
 	}
