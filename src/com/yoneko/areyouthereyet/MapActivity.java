@@ -28,6 +28,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -42,11 +43,9 @@ import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -69,6 +68,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	AdView adView;
 	TextView slide_tab_text;
 	EditText searchEdit,nickname_edit;
+	ImageView ic_drawer;
 	Button searchButton;
 	FragmentManager fm;
 	Fragment addGeofenceFragment;
@@ -235,8 +235,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			}
 		};
 
-		// Set the drawer toggle as the DrawerListener
-		mDrawerLayout.openDrawer(mDrawerList);
+		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
+
 		// Set the list's click listener
 		//		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
@@ -265,6 +265,18 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		}
 	}
 	private void setListeners() {
+		ic_drawer.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(mDrawerLayout.isDrawerOpen(mDrawerList)){
+					mDrawerLayout.closeDrawer(mDrawerList);
+				} else {
+					mDrawerLayout.openDrawer(mDrawerList);
+				}
+				
+			}
+		});
 		searchEdit.setOnClickListener(new OnClickListener() {
 
 			@Override
