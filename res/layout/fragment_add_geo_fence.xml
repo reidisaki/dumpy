@@ -104,6 +104,7 @@
             style="@style/wrapAll"
             android:layout_weight=".9"
             android:inputType="number"
+            android:hint="415-260-1125"
             android:nextFocusDown="@+id/message_edit" />
     </TableRow>
 
@@ -118,6 +119,7 @@
         <EditText
             android:id="@+id/message_edit"
             style="@style/wrapAll"
+            android:hint="Hi! I made it home safely!"
             android:layout_weight=".9"
             android:inputType="textMultiLine"
             android:isScrollContainer="true"

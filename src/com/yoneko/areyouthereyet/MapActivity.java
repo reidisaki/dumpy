@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Criteria;
@@ -19,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
@@ -54,7 +54,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	MarkerOptions markerOptions;
 	AdView adView;
 	TextView slide_tab_text;
-	EditText searchEdit;
+	EditText searchEdit,nickname_edit;
 	Button searchButton;
 	FragmentManager fm;
 	Fragment addGeofenceFragment;
@@ -187,6 +187,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 	private void initViews() {
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
+		nickname_edit = (EditText)findViewById(R.id.nickname_edit);
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
 		searchButton = (Button)findViewById(R.id.btn_find);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
@@ -348,6 +349,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	public void onMapLongClick(LatLng point) {
 		latLng = point;
 		createRadiusCircle(point);
+		
 		//		MarkerOptions mo = new MarkerOptions()
 		//		.position(point)
 		//		.title( point.latitude + ", " + point.longitude)           
@@ -369,6 +371,9 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				Log.i("Reid","premises:" + address.getPremises());
 				Log.i("Reid","locality:" + address.getLocality());
 				title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
+				if(nickname_edit.getText().toString().equals("")) {
+					nickname_edit.setText(title);
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -382,7 +387,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			currentMarker.remove();
 		}
 		currentMarker = mMap.addMarker(mo);
-		mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateSpeed,cameraCallBack);
+		mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .007, latLng.longitude)),animateSpeed,cameraCallBack);
 //		if(slidePanelLayout.isPanelExpanded()) {
 //			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
 //		} else {
@@ -441,7 +446,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			if(addresses==null || addresses.size()==0){
 				Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
 			}
-
+			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(searchEdit.getWindowToken(), 0);
 			// Clears all the existing markers on the map
 
 			// Adding Markers on Google Map for each matching address
