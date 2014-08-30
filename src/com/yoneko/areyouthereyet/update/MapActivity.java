@@ -187,7 +187,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		}
 		fm = getFragmentManager();
 
-		
+
 		//default display size width for device
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
@@ -268,13 +268,13 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 	@Override
 	public void onBackPressed() {
-		
+
 		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelAnchored()) {
-////			slidePanelLayout.expandPanel(.5f);
-//			slidePanelLayout.setAnchorPoint(.5f);
-//			slidePanelLayout.anchorPanel();
-//			Log.i("Reid","half expand");
-//		} else if (slidePanelLayout.isPanelAnchored()) {
+			////			slidePanelLayout.expandPanel(.5f);
+			//			slidePanelLayout.setAnchorPoint(.5f);
+			//			slidePanelLayout.anchorPanel();
+			//			Log.i("Reid","half expand");
+			//		} else if (slidePanelLayout.isPanelAnchored()) {
 			slidePanelLayout.collapsePanel();
 			Log.i("Reid","closed");
 		}
@@ -282,7 +282,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			super.onBackPressed();
 		}
 	}
-	
+
 	private void showAddGeoFenceFragment() {
 		if(latLng != null) {
 			boolean panelWillExpand = true;
@@ -323,7 +323,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			mMap.setOnMapLongClickListener(this);
 			mMap.setOnMarkerClickListener(this);
 			//		mMap.setOnMapClickListener(this);
-			
+
 			slidePanelLayout.setAnchorPoint(.5f);
 			slidePanelLayout.setPanelSlideListener(new PanelSlideListener() {
 
@@ -347,7 +347,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				@Override
 				public void onPanelCollapsed(View panel) {
 					Log.i("Reid","panel is collapsed");
-					
+
 					fm.beginTransaction()
 					.hide(addGeofenceFragment)
 					.commit();
@@ -418,7 +418,10 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 		@Override
 		public void onCancel() {
-
+			if(!slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelHidden()) {
+				map_detail_layout.setVisibility(View.VISIBLE);
+				slidePanelLayout.expandPanel(.5f);
+			}
 		}
 	};
 
@@ -432,7 +435,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		super.onDestroy();
 	}
 	public void handlePoint(Marker marker) {
-		
+
 		slidePanelLayout.expandPanel(.5f);
 		//		Intent resultIntent = new Intent();
 		//		Bundle b = new Bundle();
