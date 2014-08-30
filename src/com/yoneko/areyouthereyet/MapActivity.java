@@ -28,6 +28,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout.LayoutParams;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -72,7 +74,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	Button searchButton;
 	FragmentManager fm;
 	Fragment addGeofenceFragment;
-	RelativeLayout map_detail_layout;
+	RelativeLayout map_detail_layout,drawer_icon_layout;
 	int animateSpeed = 800, animateFast = 200;
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
@@ -246,6 +248,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
 		slidePanelLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
 		map_detail_layout = (RelativeLayout)findViewById(R.id.map_detail_layout);
+		drawer_icon_layout = (RelativeLayout)findViewById(R.id.drawer_icon_layout);
 		addGeofenceFragment = (Fragment)getFragmentManager().findFragmentById(R.id.fragement_add_geo_fence);
 
 
@@ -330,7 +333,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 					if(latLng != null) {
 						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 					}
-
 
 				}
 

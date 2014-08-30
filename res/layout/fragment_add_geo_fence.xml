@@ -130,10 +130,11 @@
     <TableRow style="@style/tableStyle" >
 
         <Button
+            
             android:id="@+id/save_button"
             style="@style/wrapAll"
             android:text="@string/save" />
     </TableRow>
 
 </TableLayout>
-
+<!-- <RelativeLayout android:layout_gravity="bottom" android: -->
