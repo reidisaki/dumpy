@@ -1,4 +1,4 @@
-package com.yoneko.areyouthereyet;
+package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,9 +53,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import com.yoneko.areyouthereyet.AddGeoFenceFragment.onDialogDismissed;
+import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.R;
 
-public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener, onDialogDismissed {
+public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener, onEditTextClicked {
 
 
 	private String[] mPlanetTitles;
@@ -249,7 +250,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		slidePanelLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
 		map_detail_layout = (RelativeLayout)findViewById(R.id.map_detail_layout);
 		drawer_icon_layout = (RelativeLayout)findViewById(R.id.drawer_icon_layout);
-		addGeofenceFragment = (Fragment)getFragmentManager().findFragmentById(R.id.fragement_add_geo_fence);
+		addGeofenceFragment = (Fragment)getFragmentManager().findFragmentById(R.id.fragment_add_geo_fence);
 
 
 		if(!editable) {
@@ -262,14 +263,34 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	@Override
 	public void onBackPressed() {
 		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded()) {
+////			slidePanelLayout.expandPanel(.5f);
+//			slidePanelLayout.setAnchorPoint(.5f);
+//			slidePanelLayout.anchorPanel();
+//			Log.i("Reid","half expand");
+//		} else if (slidePanelLayout.isPanelAnchored()) {
 			slidePanelLayout.collapsePanel();
-		} else {
+			Log.i("Reid","closed");
+		}
+		else {
 			super.onBackPressed();
 		}
 	}
+	
+	private void showAddGeoFenceFragment() {
+		Log.i("Reid","panel is expanded");
+		if(latLng != null) {
+			boolean panelWillExpand = true;
+			animateToLocation(panelWillExpand);
+		}
+		slide_tab_text.setText("");
+		fm.beginTransaction()
+		.show(addGeofenceFragment)
+		.commit();
+		isPanelExpanded = true;
+	}
 	private void setListeners() {
 		ic_drawer.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				if(mDrawerLayout.isDrawerOpen(mDrawerList)){
@@ -277,7 +298,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				} else {
 					mDrawerLayout.openDrawer(mDrawerList);
 				}
-				
+
 			}
 		});
 		searchEdit.setOnClickListener(new OnClickListener() {
@@ -296,11 +317,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			mMap.setOnMapLongClickListener(this);
 			mMap.setOnMarkerClickListener(this);
 			//		mMap.setOnMapClickListener(this);
+			
+			slidePanelLayout.setAnchorPoint(.5f);
 			slidePanelLayout.setPanelSlideListener(new PanelSlideListener() {
 
 				@Override
 				public void onPanelSlide(View panel, float slideOffset) {
 					slide_tab_text.setText("");
+					Log.i("Reid","onPanelSlide: " + slideOffset);
 				}
 
 				@Override
@@ -310,21 +334,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 				@Override
 				public void onPanelExpanded(View panel) {
-					Log.i("Reid","panel is expanded");
-					if(latLng != null) {
-						boolean panelWillExpand = true;
-						animateToLocation(panelWillExpand);
-					}
-					slide_tab_text.setText("");
-					fm.beginTransaction()
-					.show(addGeofenceFragment)
-					.commit();
-					isPanelExpanded = true;
+					Log.i("Reid","onPanelExpanded 332");
+					showAddGeoFenceFragment();
 				}
 
 				@Override
 				public void onPanelCollapsed(View panel) {
 					Log.i("Reid","panel is collapsed");
+					
 					fm.beginTransaction()
 					.hide(addGeofenceFragment)
 					.commit();
@@ -338,7 +355,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 				@Override
 				public void onPanelAnchored(View panel) {
-					Log.i("Reid","panel is anchored");
+					Log.i("Reid","onPanelAnchored 352");
+					showAddGeoFenceFragment();
 				}
 			});
 			searchButton.setOnClickListener(new OnClickListener() {
@@ -388,7 +406,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		public void onFinish() {
 			if(!slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelHidden()) {
 				map_detail_layout.setVisibility(View.VISIBLE);
-				slidePanelLayout.expandPanel();
+				slidePanelLayout.expandPanel(.5f);
 			}
 		}
 
@@ -408,7 +426,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		super.onDestroy();
 	}
 	public void handlePoint(Marker marker) {
-		slidePanelLayout.expandPanel();
+		
+		slidePanelLayout.expandPanel(.5f);
 		//		Intent resultIntent = new Intent();
 		//		Bundle b = new Bundle();
 		//		b.putDouble("lon", marker.getPosition().longitude);
@@ -452,9 +471,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				Log.i("Reid","premises:" + address.getPremises());
 				Log.i("Reid","locality:" + address.getLocality());
 				title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
-				if(nickname_edit.getText().toString().equals("")) {
-					nickname_edit.setText(title);
-				}
+				nickname_edit.setText(title);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -541,7 +558,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			// Clears all the existing markers on the map
 
 			// Adding Markers on Google Map for each matching address
-			for(int i=0;i<addresses.size();i++){
+			for(int i=0;i<addresses.size() && addresses != null;i++){
 
 				Address address = (Address) addresses.get(i);
 
@@ -565,14 +582,15 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		}
 	}
 	@Override
-	public void dialogDismissed() {
-
+	public void editTextClicked() {
+		Log.i("Reid","expand panel all the way ");
+		slidePanelLayout.expandPanel(1f);
 	}
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// If the nav drawer is open, hide action items related to the content view
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-		menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
+		//		menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 }

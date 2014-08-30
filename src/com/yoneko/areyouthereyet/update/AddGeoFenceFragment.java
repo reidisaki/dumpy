@@ -1,11 +1,7 @@
-package com.yoneko.areyouthereyet;
+package com.yoneko.areyouthereyet.update;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.android.gms.location.Geofence;
-import com.yoneko.models.SimpleGeofence;
-import com.yoneko.models.SimpleGeofenceList;
 
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -16,14 +12,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TableLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.location.Geofence;
+import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofenceList;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass. Activities that
@@ -54,7 +54,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	private String mParam1;
 	private String mParam2;
 
-	private onDialogDismissed mListener;
+	private onEditTextClicked mListener;
 
 	/**
 	 * Use this factory method to create a new instance of this fragment using
@@ -93,8 +93,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		TableLayout addGeoFenceView = (TableLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
-//		getDialog().setTitle("Add Geofence");
+		ScrollView addGeoFenceView = (ScrollView)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
+		//		getDialog().setTitle("Add Geofence");
 		emailEdit = (EditText)addGeoFenceView.findViewById(R.id.email_edit);
 		latEdit = (EditText)addGeoFenceView.findViewById(R.id.lat_edit);
 		lonEdit = (EditText)addGeoFenceView.findViewById(R.id.lon_edit);
@@ -117,14 +117,25 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				}
 			}
 		});
+		nicknameEdit.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(hasFocus)
+				{
+					mListener.editTextClicked();
+
+				}
+			}
+		});
 		// Inflate the layout for this fragment
-//		((Button)addGeoFenceView.findViewById(R.id.map_button)).setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				mapButtonClicked(v);
-//			}
-//		});
+		//		((Button)addGeoFenceView.findViewById(R.id.map_button)).setOnClickListener(new OnClickListener() {
+		//
+		//			@Override
+		//			public void onClick(View v) {
+		//				mapButtonClicked(v);
+		//			}
+		//		});
 
 		((Button)addGeoFenceView.findViewById(R.id.save_button)).setOnClickListener(new OnClickListener() {
 
@@ -159,29 +170,30 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	protected void saveGeoFence(View v) {
 		//save geoFence to mainActivity save json method
-		
+
 		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
 		String geoFenceId,message,email,nickname;
-		
+
 		float r;
 		long expiration;
 		int transition;
-		
-		
+
+
 		r = Float.valueOf(radius);
 		expiration = Geofence.NEVER_EXPIRE;
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
 		message =  messageEdit.getText().toString();
 		email =  emailEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
+		Log.i("Reid","Nickname is: " + nickname);
 		if(latitude == 0 || longitude == 0) {
 			Toast.makeText(getActivity().getApplicationContext(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latitude,longitude), latitude, longitude, r, expiration, transition, message, email, nickname);
-		
+
 		if(cachedList == null) {
 			Toast.makeText(getActivity().getApplicationContext(), "cached list was null" ,Toast.LENGTH_SHORT).show();
 			list.add(geofence); 
@@ -190,17 +202,17 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			cachedList.add(geofence);
 		}
 		MainActivity.storeJSON(cachedList, getActivity().getApplicationContext());
-		
+
 		Toast.makeText(getActivity().getApplicationContext(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
 		this.dismiss();
-		mListener.dialogDismissed();
+		//		mListener.dialogDismissed();
 	}
 
 
 	// TODO: Rename method, update argument and hook method into UI event
 	public void onButtonPressed(Uri uri) {
 		if (mListener != null) {
-			mListener.dialogDismissed();
+			//			mListener.dialogDismissed();
 		}
 	}
 
@@ -216,8 +228,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		case MAP_RESULT_CODE:
 			latitude = data.getDoubleExtra("lat", 0.0);
 			longitude = data.getDoubleExtra("lon", 0.0);
-//			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
-//			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
+			//			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
+			//			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
 			radius = data.getIntExtra("radius", 100);
 			radius_text.setText("Radius: " + radius + "meters");
 			break;
@@ -228,7 +240,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		try {
-			mListener = (onDialogDismissed) activity;
+			mListener = (onEditTextClicked) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement OnFragmentInteractionListener");
@@ -253,9 +265,9 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	 * "http://developer.android.com/training/basics/fragments/communicating.html"
 	 * >Communicating with Other Fragments</a> for more information.
 	 */
-	public interface onDialogDismissed {
+	public interface onEditTextClicked {
 		// TODO: Update argument type and name
-		public void dialogDismissed();
+		public void editTextClicked();
 	}
 
 }

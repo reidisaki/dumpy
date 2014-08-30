@@ -1,4 +1,4 @@
-package com.yoneko.areyouthereyet;
+package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,14 +47,14 @@ import com.google.android.gms.location.LocationStatusCodes;
 import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import com.yoneko.areyouthereyet.AddGeoFenceFragment.onDialogDismissed;
+import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
 
 public class MainActivity extends Activity implements  ConnectionCallbacks,
 OnConnectionFailedListener,
-OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofencesResultListener {
+OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofencesResultListener {
 
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
@@ -764,16 +764,16 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 			Toast.makeText(getApplicationContext(), address, Toast.LENGTH_LONG);
 		}
 	}
-	@Override
-	public void dialogDismissed() {
-		geoList = getGeoFenceFromCache(this).getGeoFences();
-		adapter.clear();
-		adapter.addAll(geoList);
-		adapter.notifyDataSetChanged();
-		Log.i(TAG, "adding geo fences");
-		addGeofences();
-		//		adapter.notifyDataSetChanged();
-	}
+//	@Override
+//	public void dialogDismissed() {
+//		geoList = getGeoFenceFromCache(this).getGeoFences();
+//		adapter.clear();
+//		adapter.addAll(geoList);
+//		adapter.notifyDataSetChanged();
+//		Log.i(TAG, "adding geo fences");
+//		addGeofences();
+//		//		adapter.notifyDataSetChanged();
+//	}
 
 	@Override
 	public void onRemoveGeofencesByPendingIntentResult(int statusCode,
@@ -825,6 +825,12 @@ OnAddGeofencesResultListener, LocationListener, onDialogDismissed, OnRemoveGeofe
 		mInProgress = false;
 		// Disconnect the location client
 		mLocationClient.disconnect();
+	}
+
+	@Override
+	public void editTextClicked() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

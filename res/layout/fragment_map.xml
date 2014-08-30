@@ -15,43 +15,20 @@
             xmlns:sothree="http://schemas.android.com/apk/res-auto"
             android:id="@+id/sliding_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="fill_parent"
             android:gravity="bottom"
             sothree:fadeColor="@android:color/transparent"
             sothree:panelHeight="@dimen/top_margin_slide_menu"
             sothree:shadowHeight="4dp" >
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="top"
-                android:orientation="vertical"
-                tools:context=".MainActivity" >
-
-                <fragment
-                    android:id="@+id/map"
-                    android:name="com.google.android.gms.maps.MapFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <RelativeLayout
-                    android:id="@+id/drawer_icon_layout"
-                    style="@style/wrapAll"
-                    android:layout_gravity="bottom"
-                    android:paddingBottom="30dip" >
-
-                    <ImageView
-                        android:id="@+id/ic_drawer"
-                        style="@style/wrapAll"
-                        android:background="@color/common_signin_btn_dark_text_disabled"
-                        android:paddingBottom="10dip"
-                        android:paddingLeft="5dip"
-                        android:paddingTop="10dip"
-                        android:src="@drawable/ic_drawer" />
-                </RelativeLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" >
 
                 <LinearLayout
                     android:layout_width="fill_parent"
+                    android:gravity="center"
                     android:layout_height="wrap_content" >
 
                     <com.google.android.gms.ads.AdView
@@ -59,13 +36,15 @@
                         android:id="@+id/adView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="top"
                         ads:adSize="BANNER"
                         ads:adUnitId="@string/admob_id" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content"
+                    android:background="#00ffffff" >
 
                     <EditText
                         android:id="@+id/location_edit"
@@ -92,71 +71,57 @@
                         android:prompt="@string/Radius"
                         android:spinnerMode="dropdown" />
                 </LinearLayout>
-                <!--
-                    <RelativeLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
-                -->
-
-
-                <!-- </RelativeLayout> -->
 
                 <FrameLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" >
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="top"
+                    android:orientation="vertical"
+                    tools:context=".MainActivity" >
 
-                    <!--
-                         <fragment
+                    <fragment
                         android:id="@+id/map"
                         android:name="com.google.android.gms.maps.MapFragment"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
-                    -->
 
+                    <RelativeLayout
+                        android:id="@+id/drawer_icon_layout"
+                        style="@style/wrapAll"
+                        android:layout_gravity="bottom"
+                        android:paddingBottom="30dip" >
+
+                        <ImageView
+                            android:id="@+id/ic_drawer"
+                            style="@style/wrapAll"
+                            android:background="@color/common_signin_btn_dark_text_disabled"
+                            android:paddingBottom="10dip"
+                            android:paddingLeft="5dip"
+                            android:paddingTop="10dip"
+                            android:src="@drawable/ic_drawer" />
+                    </RelativeLayout>
 
                     <!--
-                         <RelativeLayout
-                        android:id="@+id/topButtonLayout"
-                        style="@style/wrapAll"
-                        android:layout_alignParentTop="true"
-                        android:layout_below="@+id/adView"
-                        android:layout_gravity="" >
-
-                    <EditText
-                        android:id="@+id/location_edit"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/search_location"
-                        android:inputType="text"
-                        android:text="9453 vollmerhausen drive, 21046" />
-
-                    <Button
-                        android:id="@+id/btn_find"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/button_find" />
-
-                    <Spinner
-                        android:id="@+id/radius_spinner"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:entries="@array/radius_array"
-                        android:prompt="@string/Radius"
-                        android:spinnerMode="dropdown" />
+                    <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
                     -->
+
+
                     <!--
 map:uiTiltGestures="false"
 xmlns:android="http://schemas.android.com/apk/res/android"
                         xmlns:map="http://schemas.android.com/apk/res-auto"
                     -->
+
                 </FrameLayout>
-            </FrameLayout>
+            </LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/map_detail_layout"
                 android:layout_width="match_parent"
-                android:layout_height="325dip"
+                android:layout_height="match_parent"
                 android:visibility="gone" >
 
                 <TextView
@@ -169,10 +134,11 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:textSize="16sp" />
 
                 <fragment
-                    android:id="@+id/fragement_add_geo_fence"
+                    android:id="@+id/fragment_add_geo_fence"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    class="com.yoneko.areyouthereyet.AddGeoFenceFragment" >
+                    class="com.yoneko.areyouthereyet.update.AddGeoFenceFragment"
+                    android:windowSoftInputMode="adjustPan" >
                 </fragment>
             </RelativeLayout>
         </com.sothree.slidinguppanel.SlidingUpPanelLayout>
