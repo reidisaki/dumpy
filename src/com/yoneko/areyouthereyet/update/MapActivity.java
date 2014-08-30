@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,8 +29,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout.LayoutParams;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -54,7 +53,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
-import com.yoneko.areyouthereyet.update.R;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener, onEditTextClicked {
 
@@ -82,7 +80,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true;
 	public static String tag = "Reid";
-	int selectedRadius = 100, mapOffset = 170;
+	int selectedRadius = 100, mapOffset;;
 	Spinner spinner;
 	protected boolean isPanelExpanded;     
 	public void onItemSelected(AdapterView<?> parent, View view, 
@@ -189,6 +187,14 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		}
 		fm = getFragmentManager();
 
+		
+		//default display size width for device
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		int width = size.x;
+		int height = size.y;
+		mapOffset = (int)(height * -.25f) + 75;
 		initViews();
 		setListeners();
 
@@ -262,7 +268,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 	@Override
 	public void onBackPressed() {
-		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded()) {
+		
+		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelAnchored()) {
 ////			slidePanelLayout.expandPanel(.5f);
 //			slidePanelLayout.setAnchorPoint(.5f);
 //			slidePanelLayout.anchorPanel();
@@ -277,7 +284,6 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	}
 	
 	private void showAddGeoFenceFragment() {
-		Log.i("Reid","panel is expanded");
 		if(latLng != null) {
 			boolean panelWillExpand = true;
 			animateToLocation(panelWillExpand);
@@ -525,7 +531,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	public void animateToLocation(boolean panelExpanded) {
 		Point p = mMap.getProjection().toScreenLocation(latLng);
 		if(panelExpanded) {
-			p.set(p.x, p.y+mapOffset);
+			p.set(p.x, p.y-mapOffset);
 		} 
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)), animateSpeed, cameraCallBack);
 	}
