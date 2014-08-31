@@ -37,7 +37,6 @@ import com.yoneko.models.SimpleGeofenceList;
 public class AddGeoFenceFragment extends DialogFragment  {
 	Button mapButton, saveButton;
 	EditText latEdit, lonEdit, radiusEdit,messageEdit,emailEdit,nicknameEdit;
-
 	RadioGroup enter_exit;
 	TextView radius_text;
 	boolean enter = true;
@@ -118,7 +117,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				}
 			}
 		});
-		nicknameEdit.setOnFocusChangeListener(new OnFocusChangeListener() {
+		OnFocusChangeListener expandPanelListener = new OnFocusChangeListener() {
 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
@@ -128,7 +127,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 				}
 			}
-		});
+		};
+		nicknameEdit.setOnFocusChangeListener(expandPanelListener);
+		messageEdit.setOnFocusChangeListener(expandPanelListener);
+		emailEdit.setOnFocusChangeListener(expandPanelListener);
 		// Inflate the layout for this fragment
 		//		((Button)addGeoFenceView.findViewById(R.id.map_button)).setOnClickListener(new OnClickListener() {
 		//
@@ -169,6 +171,33 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		return addGeoFenceView;
 	}
 
+	protected SimpleGeofence getItemInGeoFenceListByLatLng(LatLng _latLng) {
+		SimpleGeofence returnItem = null;
+		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
+		
+		for( SimpleGeofence i :  cachedList.getGeoFences()) {
+			if(i.getLatitude() == _latLng.latitude && i.getLongitude() == _latLng.longitude) {
+				returnItem = i;
+				break;
+			}
+		}
+		return returnItem;
+	}
+	
+	protected SimpleGeofence getItemInGeoFenceList(SimpleGeofence item) {
+		SimpleGeofence returnItem = null;
+		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
+		for( SimpleGeofence i :  cachedList.getGeoFences()) {
+			if(item.getLatitude() == i.getLatitude() && item.getLongitude() == i.getLongitude()) {
+				returnItem = item;
+				break;
+			}
+		}
+		return returnItem;
+	}
+	//need to update item in the list and save it.
+	//populate the item if there is a simpleGeoFence.
+	
 	protected void saveGeoFence(View v) {
 		//save geoFence to mainActivity save json method
 
@@ -196,19 +225,23 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, email, nickname);
 
-		if(cachedList == null) {
-			Toast.makeText(getActivity().getApplicationContext(), "cached list was null" ,Toast.LENGTH_SHORT).show();
-			list.add(geofence); 
-			cachedList= new SimpleGeofenceList(list);
+		//item doesn't exist yet
+		if(getItemInGeoFenceList(geofence) == null) {
+			if(cachedList == null) {
+				Toast.makeText(getActivity().getApplicationContext(), "cached list was null" ,Toast.LENGTH_SHORT).show();
+				list.add(geofence); 
+				cachedList= new SimpleGeofenceList(list);
+			} else {
+				cachedList.add(geofence);
+			}
 		} else {
-			cachedList.add(geofence);
+			Toast.makeText(getActivity().getApplicationContext(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
 		}
 		MainActivity.storeJSON(cachedList, getActivity().getApplicationContext());
 
 		Toast.makeText(getActivity().getApplicationContext(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
 		//		mListener.dialogDismissed();
-		
-		Toast.makeText(getActivity().getApplicationContext(), "SAVED!! " ,Toast.LENGTH_SHORT).show();
+
 		mListener.onItemSaved();
 	}
 

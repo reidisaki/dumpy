@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
@@ -45,6 +46,7 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -70,11 +72,11 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	MarkerOptions markerOptions;
 	AdView adView;
 	TextView slide_tab_text;
-	EditText searchEdit,nickname_edit;
+	EditText searchEdit;
 	ImageView ic_drawer;
 	Button searchButton;
 	FragmentManager fm;
-	Fragment addGeofenceFragment;
+	AddGeoFenceFragment addGeofenceFragment;
 	RelativeLayout map_detail_layout,drawer_icon_layout;
 	int animateSpeed = 800, animateFast = 200;
 	SlidingUpPanelLayout slidePanelLayout;
@@ -84,7 +86,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	public static String tag = "Reid";
 	int selectedRadius = 100, mapOffset;;
 	Spinner spinner;
-	protected boolean isPanelExpanded;     
+	protected boolean isPanelExpanded;
+	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public void onItemSelected(AdapterView<?> parent, View view, 
 			int pos, long id) {
 		switch(pos) {
@@ -196,7 +199,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		display.getSize(size);
 		int width = size.x;
 		int height = size.y;
-		mapOffset = (int)(height * -.25f) + 75;
+		mapOffset = (int)(height * -.25f) + 60;
 		initLeftDrawer();
 		initViews();
 		setListeners();
@@ -212,21 +215,22 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		//		
 	}
 
-	
+
 	private void initLeftDrawer() {
 		SimpleGeofenceList listObj  = MainActivity.getGeoFenceFromCache(getApplicationContext());
-		List<SimpleGeofence> list = listObj.getGeoFences();
-		String[] drawerStringArray = new String[list.size()];
-		for(int i=0; i < list.size(); i++) {
-			drawerStringArray[i] = list.get(i).getTitle();
+		mSimpleGeoFenceList = listObj.getGeoFences();
+		int geoFenceSize = mSimpleGeoFenceList.size();
+		String[] drawerStringArray = new String[geoFenceSize];
+		for(int i=0; i < geoFenceSize; i++) {
+			drawerStringArray[i] = mSimpleGeoFenceList.get(i).getTitle();
 		}
-		
+
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
 		// Set the adapter for the list view
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				R.layout.drawer_list_item, drawerStringArray));
+		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 
@@ -245,7 +249,20 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			}
 		};		
 	}
+	private  class DrawerItemClickListener implements ListView.OnItemClickListener {
 
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View view, int position,
+				long arg3) {
+			//check the View if they clicked hte text item or if they clicked the X icon.
+			mDrawerLayout.closeDrawers();
+			latLng = new LatLng(mSimpleGeoFenceList.get(position).getLatitude(),
+					mSimpleGeoFenceList.get(position).getLongitude());
+			createRadiusCircle(latLng);
+
+		}
+
+	}
 	private void initViews() {
 		//		BitmapDescriptor image = BitmapDescriptorFactory.fromResource(R.drawable.ic_drawer);
 		//		GroundOverlayOptions groundOverlay = new GroundOverlayOptions()
@@ -256,22 +273,20 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 
 		//        mMap.addGroundOverlay(groundOverlay);
-		
+
 
 
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
 
 		// Set the list's click listener
-		//		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
-		nickname_edit = (EditText)findViewById(R.id.nickname_edit);
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
 		searchButton = (Button)findViewById(R.id.btn_find);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
 		slidePanelLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
 		map_detail_layout = (RelativeLayout)findViewById(R.id.map_detail_layout);
 		drawer_icon_layout = (RelativeLayout)findViewById(R.id.drawer_icon_layout);
-		addGeofenceFragment = (Fragment)getFragmentManager().findFragmentById(R.id.fragment_add_geo_fence);
+		addGeofenceFragment = (AddGeoFenceFragment)getFragmentManager().findFragmentById(R.id.fragment_add_geo_fence);
 
 
 		if(!editable) {
@@ -427,6 +442,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 		@Override
 		public void onFinish() {
+			
 			if(!slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelHidden()) {
 				map_detail_layout.setVisibility(View.VISIBLE);
 				slidePanelLayout.expandPanel(.5f);
@@ -497,7 +513,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				Log.i("Reid","premises:" + address.getPremises());
 				Log.i("Reid","locality:" + address.getLocality());
 				title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
-				nickname_edit.setText(title);
+				addGeofenceFragment.nicknameEdit.setText(title);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -510,14 +526,25 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		if(currentMarker != null) {
 			currentMarker.remove();
 		}
+
+		//Check if the geofence item is in the cache/saved list by latLng, if it is populate the fragment_add_geo_fence
+		SimpleGeofence fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
+		//populate data drawer
+		if(fence != null) {
+			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
+			addGeofenceFragment.messageEdit.setText(fence.getMessage());
+			addGeofenceFragment.emailEdit.setText(fence.getEmailPhone());
+			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_enter);
+			
+		} else {
+			//clear the drawer data to be empty except the title
+			addGeofenceFragment.messageEdit.setText("");
+			addGeofenceFragment.emailEdit.setText("");
+		}
+		
 		currentMarker = mMap.addMarker(mo);
 		boolean panelWillExpand = true;
 		animateToLocation(panelWillExpand);
-		//		if(slidePanelLayout.isPanelExpanded()) {
-		//			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(latLng.latitude - .006, latLng.longitude)),animateFast,cameraCallBack);
-		//		} else {
-		//			mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng),animateSpeed, cameraCallBack);
-		//		}
 	}
 	//	@Override
 	//	public void onMapClick(LatLng point) {
@@ -553,6 +580,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
 		} 
+
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)), animateSpeed, cameraCallBack);
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
@@ -622,7 +650,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 	@Override
 	public void onItemSaved() {
-		
+
 		slidePanelLayout.collapsePanel();
 	}
 }
