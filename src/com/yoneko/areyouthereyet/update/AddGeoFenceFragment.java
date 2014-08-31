@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.maps.model.LatLng;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 
@@ -188,11 +189,12 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		email =  emailEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
 		Log.i("Reid","Nickname is: " + nickname);
-		if(latitude == 0 || longitude == 0) {
+		LatLng latLng = ((MapActivity)getActivity()).getLatLng();
+		if(latLng == null) {
 			Toast.makeText(getActivity().getApplicationContext(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latitude,longitude), latitude, longitude, r, expiration, transition, message, email, nickname);
+		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, email, nickname);
 
 		if(cachedList == null) {
 			Toast.makeText(getActivity().getApplicationContext(), "cached list was null" ,Toast.LENGTH_SHORT).show();
@@ -204,8 +206,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		MainActivity.storeJSON(cachedList, getActivity().getApplicationContext());
 
 		Toast.makeText(getActivity().getApplicationContext(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
-		this.dismiss();
 		//		mListener.dialogDismissed();
+		
+		Toast.makeText(getActivity().getApplicationContext(), "SAVED!! " ,Toast.LENGTH_SHORT).show();
+		mListener.onItemSaved();
 	}
 
 
@@ -268,6 +272,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public interface onEditTextClicked {
 		// TODO: Update argument type and name
 		public void editTextClicked();
+		public void onItemSaved();
 	}
 
 }

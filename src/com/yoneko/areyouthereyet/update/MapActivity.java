@@ -53,6 +53,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofenceList;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, OnItemSelectedListener, onEditTextClicked {
 
@@ -195,6 +197,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		int width = size.x;
 		int height = size.y;
 		mapOffset = (int)(height * -.25f) + 75;
+		initLeftDrawer();
 		initViews();
 		setListeners();
 
@@ -209,23 +212,21 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		//		
 	}
 
-	private void initViews() {
-		//		BitmapDescriptor image = BitmapDescriptorFactory.fromResource(R.drawable.ic_drawer);
-		//		GroundOverlayOptions groundOverlay = new GroundOverlayOptions()
-		//        .image(image)
-		//        .position(new LatLng(40.714086, -74.228697), 500f)
-		//        .transparency(0.5f);
-
-
-
-		//        mMap.addGroundOverlay(groundOverlay);
-		mPlanetTitles = getResources().getStringArray(R.array.planets_array);
+	
+	private void initLeftDrawer() {
+		SimpleGeofenceList listObj  = MainActivity.getGeoFenceFromCache(getApplicationContext());
+		List<SimpleGeofence> list = listObj.getGeoFences();
+		String[] drawerStringArray = new String[list.size()];
+		for(int i=0; i < list.size(); i++) {
+			drawerStringArray[i] = list.get(i).getTitle();
+		}
+		
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
 		// Set the adapter for the list view
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.drawer_list_item, mPlanetTitles));
+				R.layout.drawer_list_item, drawerStringArray));
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 
@@ -242,7 +243,21 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				getActionBar().setTitle("are you ther eyet open");
 				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
-		};
+		};		
+	}
+
+	private void initViews() {
+		//		BitmapDescriptor image = BitmapDescriptorFactory.fromResource(R.drawable.ic_drawer);
+		//		GroundOverlayOptions groundOverlay = new GroundOverlayOptions()
+		//        .image(image)
+		//        .position(new LatLng(40.714086, -74.228697), 500f)
+		//        .transparency(0.5f);
+
+
+
+		//        mMap.addGroundOverlay(groundOverlay);
+		
+
 
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
 
@@ -282,7 +297,9 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 			super.onBackPressed();
 		}
 	}
-
+	public LatLng getLatLng() {
+		return latLng;
+	}
 	private void showAddGeoFenceFragment() {
 		if(latLng != null) {
 			boolean panelWillExpand = true;
@@ -601,5 +618,11 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		//		menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public void onItemSaved() {
+		
+		slidePanelLayout.collapsePanel();
 	}
 }
