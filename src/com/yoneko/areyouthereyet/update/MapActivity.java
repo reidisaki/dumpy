@@ -379,7 +379,12 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				@Override
 				public void onPanelCollapsed(View panel) {
 					Log.i("Reid","panel is collapsed");
-
+					  
+					InputMethodManager imm = (InputMethodManager)getSystemService(
+					      Context.INPUT_METHOD_SERVICE);
+					
+					imm.hideSoftInputFromWindow(slidePanelLayout.getWindowToken(), 0);
+					
 					fm.beginTransaction()
 					.hide(addGeofenceFragment)
 					.commit();
