@@ -50,19 +50,20 @@
                         android:id="@+id/location_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".5"
-                        android:hint="@string/search_location"
+                        android:layout_weight=".85"
                         android:inputType="text"
-                        android:text="9453 vollmerhausen drive, 21046" />
+                        android:hint="ie: 9453 vollmerhausen drive, 21046"
+                        android:text="" />
 
                     <Button
                         android:id="@+id/btn_find"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".25"
+                        android:layout_weight=".15"
                         android:text="@string/button_find" />
 
                     <Spinner
+                        android:visibility="gone"
                         android:id="@+id/radius_spinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

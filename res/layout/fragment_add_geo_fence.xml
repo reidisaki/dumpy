@@ -62,8 +62,15 @@
             <TextView
                 android:id="@+id/radius_text"
                 style="@style/wrapAll"
+                android:layout_gravity="left"
                 android:text="@string/radius" />
 
+            <SeekBar
+                android:id="@+id/radius_seekBar"
+                android:layout_width="wrap_content"
+               	android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:max="500" />
             <!--
              <EditText
             android:id="@+id/radius_edit"
@@ -77,7 +84,7 @@
 
             <RadioGroup
                 android:id="@+id/enter_exit"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" >
 
@@ -127,8 +134,8 @@
                 android:layout_weight=".9"
                 android:hint="Hi! I made it home safely!"
                 android:inputType="textMultiLine"
-                android:nextFocusDown="@+id/save_button"
-                android:isScrollContainer="true" />
+                android:isScrollContainer="true"
+                android:nextFocusDown="@+id/save_button" />
         </TableRow>
 
         <TableRow style="@style/tableStyle" >

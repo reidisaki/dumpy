@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.Color;
@@ -32,13 +31,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
@@ -46,7 +46,6 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -68,7 +67,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 
 	GoogleMap mMap;
 	Marker currentMarker = null;
-	Circle myCircle = null;
+	Circle myCircle = null, newCircle =null;
 	MarkerOptions markerOptions;
 	AdView adView;
 	TextView slide_tab_text;
@@ -78,7 +77,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	FragmentManager fm;
 	AddGeoFenceFragment addGeofenceFragment;
 	RelativeLayout map_detail_layout,drawer_icon_layout;
-	int animateSpeed = 800, animateFast = 200;
+	int animateSpeed = 800, animateFast = 200, _radiusChanged =20;
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
@@ -292,8 +291,8 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		if(!editable) {
 			searchEdit.setFocusable(false); searchEdit.setClickable(false);
 			searchButton.setFocusable(false); searchButton.setClickable(false);
-			spinner.setFocusable(false); spinner.setClickable(false);
-			spinner.setSelection(getSelectedPositionInSpinnerByValue(selectedRadius));
+//			spinner.setFocusable(false); spinner.setClickable(false);
+//			spinner.setSelection(getSelectedPositionInSpinnerByValue(selectedRadius));
 		}
 	}
 	@Override
@@ -327,6 +326,51 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		isPanelExpanded = true;
 	}
 	private void setListeners() {
+		
+		addGeofenceFragment.radius_seek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				if(newCircle != null) {
+					newCircle.remove();
+				}
+				
+				CircleOptions circleOptions = new CircleOptions()
+				.center(latLng)   //set center
+				.radius(_radiusChanged)   //set radius in meters  make this configurable
+				.fillColor(0x408A2BE2) 
+				.strokeColor(Color.MAGENTA)
+				.strokeWidth(5);
+
+				newCircle = mMap.addCircle(circleOptions);				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				_radiusChanged = progress;
+				if(myCircle != null) {
+					myCircle.remove();
+				}
+				if(newCircle != null) {
+					newCircle.remove();
+				}
+				CircleOptions circleOptions = new CircleOptions()
+				.center(latLng)   //set center
+				.radius(_radiusChanged)   //set radius in meters  make this configurable
+				.strokeColor(Color.MAGENTA)
+				.strokeWidth(5);
+				addGeofenceFragment.radius_text.setText("Radius: " + _radiusChanged + "m");
+				newCircle = mMap.addCircle(circleOptions);
+				
+			}
+		});
 		ic_drawer.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -408,7 +452,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 				public void onClick(View v) {
 					// Getting user input location
 					String location = searchEdit.getText().toString();
-
+					location = location.equals("") ? "9453 Vollmerhausen drive, 21046" : "";
 					if(location!=null && !location.equals("")){
 						new GeocoderTask().execute(location);
 					}				
@@ -509,6 +553,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 	public void addMarker(LatLng latLng) {
 
 		String title ="not set yet";
+		int radius;
 		Geocoder geo = new Geocoder(getApplicationContext());
 		try {
 			List<Address> addressList = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
@@ -536,14 +581,18 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		SimpleGeofence fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
 		//populate data drawer
 		if(fence != null) {
+			radius = (int)fence.getRadius();
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
 			addGeofenceFragment.emailEdit.setText(fence.getEmailPhone());
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_enter);
+			addGeofenceFragment.radius_seek.setProgress(radius);
+			addGeofenceFragment.radius_text.setText(  radius + "m");
 			
 		} else {
 			//clear the drawer data to be empty except the title
 			addGeofenceFragment.messageEdit.setText("");
+			addGeofenceFragment.radius_seek.setProgress(100);
 			addGeofenceFragment.emailEdit.setText("");
 		}
 		
@@ -568,11 +617,12 @@ public class MapActivity extends Activity implements OnMapLongClickListener, OnM
 		}
 		//		mMap.clear();
 		addMarker(latLng);
+
 		currentMarker.showInfoWindow();
 		o("selected radius in createRadiusCircle " + selectedRadius);
 		CircleOptions circleOptions = new CircleOptions()
 		.center(latLng)   //set center
-		.radius(selectedRadius)   //set radius in meters  make this configurable
+		.radius(_radiusChanged)   //set radius in meters  make this configurable
 		.fillColor(0x408A2BE2) 
 		.strokeColor(Color.MAGENTA)
 		.strokeWidth(5);

@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	EditText latEdit, lonEdit, radiusEdit,messageEdit,emailEdit,nicknameEdit;
 	RadioGroup enter_exit;
 	TextView radius_text;
+	SeekBar radius_seek;
 	boolean enter = true;
 	int radius = 100;
 	public String TAG = "Reid";
@@ -102,6 +104,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		enter_exit = (RadioGroup)addGeoFenceView.findViewById(R.id.enter_exit);
 		messageEdit = (EditText)addGeoFenceView.findViewById(R.id.message_edit);
 		nicknameEdit= (EditText)addGeoFenceView.findViewById(R.id.nickname_edit);
+		radius_seek = (SeekBar)addGeoFenceView.findViewById(R.id.radius_seekBar);
 		enter_exit.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
 			@Override

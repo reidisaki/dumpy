@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,7 +21,6 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
@@ -44,9 +42,11 @@ import com.google.android.gms.location.LocationClient.OnRemoveGeofencesResultLis
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
@@ -403,6 +403,11 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 		// Request a connection from the client to Location Services
 		Log.v(TAG,"connected");
 
+		Location location = mLocationClient.getLastLocation();
+	    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+	    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+//	    mMap.animateCamera(cameraUpdate);
+	    
 		mLocationClient.requestLocationUpdates(mLocationRequest,this);
 		Log.v(TAG,"Called get address task Request type: " + mRequestType);
 		new GetAddressTask(this).execute(mLocationClient.getLastLocation());
