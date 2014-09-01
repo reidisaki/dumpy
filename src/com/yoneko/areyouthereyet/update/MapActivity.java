@@ -837,9 +837,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		slidePanelLayout.collapsePanel();
 		//update the cached version of hte list.
 		mSimpleGeoFenceList = newList;
-		
+		Log.i("Reid","newItem: " +newItem.getTitle());
 		//add new item, remove old item from simpleGeoFence and from drawer
-		drawerStringList.set(drawerStringList.indexOf(oldItem.getTitle()), newItem.getTitle());
+		if(oldItem != null) {
+			drawerStringList.set(drawerStringList.indexOf(oldItem.getTitle()), newItem.getTitle());
+		} else {
+			drawerStringList.add(newItem.getTitle());
+		}
 		drawerStringList.remove(getResources().getString(R.string.clear_all_text));
 		drawerStringList.add(getResources().getString(R.string.clear_all_text));
 		drawerAdapter.notifyDataSetChanged();

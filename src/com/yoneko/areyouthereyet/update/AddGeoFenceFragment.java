@@ -57,6 +57,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	private String mParam2;
 
 	private onEditTextClicked mListener;
+	private SimpleGeofenceList cachedList;
 
 	/**
 	 * Use this factory method to create a new instance of this fragment using
@@ -189,7 +190,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	
 	protected SimpleGeofence getItemInGeoFenceList(SimpleGeofence item) {
 		SimpleGeofence returnItem = null;
-		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
 			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
 			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude()) {
@@ -211,7 +212,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		//save geoFence to mainActivity save json method
 
 		boolean isUpdate = false;
-		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
 		String geoFenceId,message,email,nickname;
@@ -235,12 +235,12 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, email, nickname);
 
-		//item doesn't exist yet
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
+		//Adding a new item
 		if(oldfence == null) {
 			cachedList = MainActivity.getGeoFenceFromCache(getActivity());
-				Toast.makeText(getActivity(), "cached list was null" ,Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
 				cachedList.getGeoFences().add(geofence);
 				MainActivity.storeJSON(cachedList, getActivity());
 		} else {
