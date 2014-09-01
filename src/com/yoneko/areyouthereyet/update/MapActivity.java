@@ -400,14 +400,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		map_detail_layout = (RelativeLayout)findViewById(R.id.map_detail_layout);
 		drawer_icon_layout = (RelativeLayout)findViewById(R.id.drawer_icon_layout);
 		addGeofenceFragment = (AddGeoFenceFragment)getFragmentManager().findFragmentById(R.id.fragment_add_geo_fence);
-
-
-		if(!editable) {
-			searchEdit.setFocusable(false); searchEdit.setClickable(false);
-			searchButton.setFocusable(false); searchButton.setClickable(false);
-			//			spinner.setFocusable(false); spinner.setClickable(false);
-			//			spinner.setSelection(getSelectedPositionInSpinnerByValue(selectedRadius));
-		}
 	}
 
 	public void clearAllGeoFences() {
@@ -578,7 +570,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 				public void onClick(View v) {
 					// Getting user input location
 					String location = searchEdit.getText().toString();
-					location = location.equals("") ? "9453 Vollmerhausen drive, 21046" : "";
+					location = location.equals("") ? "9453 Vollmerhausen drive, 21046" : location;
 					if(location!=null && !location.equals("")){
 						new GeocoderTask().execute(location);
 					}				
