@@ -20,6 +20,7 @@
     <string name="nickname_text">Name</string>
     <string name="positive_text">Yes</string>
     <string name="negative_text">Cancel</string>
+    <string name="clear_all_text">Clear all geofences</string>
 
     <string-array name="radius_array">
         <item>radius</item>

@@ -176,7 +176,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	protected SimpleGeofence getItemInGeoFenceListByLatLng(LatLng _latLng) {
 		SimpleGeofence returnItem = null;
-		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
+		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		
 		for( SimpleGeofence i :  cachedList.getGeoFences()) {
 			if(i.getLatitude() == _latLng.latitude && i.getLongitude() == _latLng.longitude) {
@@ -189,9 +189,17 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	
 	protected SimpleGeofence getItemInGeoFenceList(SimpleGeofence item) {
 		SimpleGeofence returnItem = null;
-		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
-		for( SimpleGeofence i :  cachedList.getGeoFences()) {
-			if(item.getLatitude() == i.getLatitude() && item.getLongitude() == i.getLongitude()) {
+		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
+			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
+			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude()) {
+
+				//exists update the item
+				if(cachedList.getGeoFences() != null && cachedList.getGeoFences().remove(currentGeofence)) {
+					cachedList.getGeoFences().add(i, item);
+					MainActivity.storeJSON(cachedList, getActivity());
+				};
+				
 				returnItem = item;
 				break;
 			}
@@ -204,7 +212,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	protected void saveGeoFence(View v) {
 		//save geoFence to mainActivity save json method
 
-		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext());
+		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
 		String geoFenceId,message,email,nickname;
@@ -223,30 +231,32 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		Log.i("Reid","Nickname is: " + nickname);
 		LatLng latLng = ((MapActivity)getActivity()).getLatLng();
 		if(latLng == null) {
-			Toast.makeText(getActivity().getApplicationContext(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, email, nickname);
 
 		//item doesn't exist yet
 		if(getItemInGeoFenceList(geofence) == null) {
-			if(cachedList == null) {
-				Toast.makeText(getActivity().getApplicationContext(), "cached list was null" ,Toast.LENGTH_SHORT).show();
-				list.add(geofence); 
-				cachedList= new SimpleGeofenceList(list);
-			} else {
-				cachedList.add(geofence);
-			}
+			cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+				Toast.makeText(getActivity(), "cached list was null" ,Toast.LENGTH_SHORT).show();
+				cachedList.getGeoFences().add(geofence);
+				MainActivity.storeJSON(cachedList, getActivity());
+			//might not need this.
+//			else {
+//				cachedList.add(geofence);
+//			}
 		} else {
-			Toast.makeText(getActivity().getApplicationContext(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
 		}
-		MainActivity.storeJSON(cachedList, getActivity().getApplicationContext());
+		
 
-		Toast.makeText(getActivity().getApplicationContext(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity().getApplicationContext()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
+		Toast.makeText(getActivity(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
 		//		mListener.dialogDismissed();
 
-		mListener.onItemSaved();
+		mListener.onItemSaved(geofence);
 	}
+
 
 
 	// TODO: Rename method, update argument and hook method into UI event
@@ -308,7 +318,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public interface onEditTextClicked {
 		// TODO: Update argument type and name
 		public void editTextClicked();
-		public void onItemSaved();
+		public void onItemSaved(SimpleGeofence s);
 	}
 
 }

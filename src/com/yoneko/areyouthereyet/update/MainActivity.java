@@ -240,7 +240,6 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 		//clear out the stuff first
 		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 		SharedPreferences.Editor spe = sp.edit();
-		spe.commit();
 		Gson gson = new Gson();
 		String jsonString = gson.toJson(list);
 		spe.putString(GEO_FENCE_KEY_LIST, jsonString);
@@ -839,7 +838,7 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 	}
 
 	@Override
-	public void onItemSaved() {
+	public void onItemSaved(SimpleGeofence s) {
 		// TODO Auto-generated method stub
 		
 	}
