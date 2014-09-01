@@ -193,14 +193,12 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
 			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
 			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude()) {
-
+				returnItem = currentGeofence;
 				//exists update the item
-				if(cachedList.getGeoFences() != null && cachedList.getGeoFences().remove(currentGeofence)) {
-					cachedList.getGeoFences().add(i, item);
+				if(cachedList.getGeoFences() != null) {
+					cachedList.getGeoFences().set(i, item);
 					MainActivity.storeJSON(cachedList, getActivity());
 				};
-				
-				returnItem = item;
 				break;
 			}
 		}
@@ -212,6 +210,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	protected void saveGeoFence(View v) {
 		//save geoFence to mainActivity save json method
 
+		boolean isUpdate = false;
 		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
@@ -237,24 +236,23 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, email, nickname);
 
 		//item doesn't exist yet
-		if(getItemInGeoFenceList(geofence) == null) {
+		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
+		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
+		if(oldfence == null) {
 			cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 				Toast.makeText(getActivity(), "cached list was null" ,Toast.LENGTH_SHORT).show();
 				cachedList.getGeoFences().add(geofence);
 				MainActivity.storeJSON(cachedList, getActivity());
-			//might not need this.
-//			else {
-//				cachedList.add(geofence);
-//			}
 		} else {
-			Toast.makeText(getActivity(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
+			isUpdate = true;
+//			Toast.makeText(getActivity(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
 		}
 		
 
 		Toast.makeText(getActivity(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
 		//		mListener.dialogDismissed();
 
-		mListener.onItemSaved(geofence);
+		mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);
 	}
 
 
@@ -318,7 +316,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public interface onEditTextClicked {
 		// TODO: Update argument type and name
 		public void editTextClicked();
-		public void onItemSaved(SimpleGeofence s);
+		public void onItemSaved(SimpleGeofence oldFence, SimpleGeofence newFence,List<SimpleGeofence> newList,  boolean isUpdate);
 	}
 
 }

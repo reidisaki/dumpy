@@ -838,7 +838,7 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 	}
 
 	@Override
-	public void onItemSaved(SimpleGeofence s) {
+	public void onItemSaved(SimpleGeofence olditem, SimpleGeofence newItem,List<SimpleGeofence> newList, boolean isUpdate) {
 		// TODO Auto-generated method stub
 		
 	}

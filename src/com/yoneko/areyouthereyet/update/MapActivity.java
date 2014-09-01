@@ -833,14 +833,17 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 	}
 
 	@Override
-	public void onItemSaved(SimpleGeofence item) {
+	public void onItemSaved(SimpleGeofence oldItem, SimpleGeofence newItem, List<SimpleGeofence> newList, boolean isUpdate) {
 		slidePanelLayout.collapsePanel();
-		mSimpleGeoFenceList.add(item);
+		//update the cached version of hte list.
+		mSimpleGeoFenceList = newList;
+		
+		//add new item, remove old item from simpleGeoFence and from drawer
+		drawerStringList.set(drawerStringList.indexOf(oldItem.getTitle()), newItem.getTitle());
 		drawerStringList.remove(getResources().getString(R.string.clear_all_text));
-		drawerStringList.add(item.getTitle());
 		drawerStringList.add(getResources().getString(R.string.clear_all_text));
 		drawerAdapter.notifyDataSetChanged();
-		mDrawerList.setItemChecked(drawerStringList.indexOf(item.getTitle()), true);
+		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
 		addGeofences();
 	}
 
