@@ -24,6 +24,8 @@ public class SimpleGeofenceStore {
 			"com.example.android.geofence.KEY_MESSAGE";
 	public static final String KEY_NICKNAME =
 			"com.example.android.geofence.KEY_NICKNAME";
+	public static final String KEY_DISPLAY_PHONE =
+			"com.example.android.geofence.KEY_DISPLAY_PHONE";
 
 	// The prefix for flattened geofence keys
 	public static final String KEY_PREFIX =
@@ -95,6 +97,7 @@ public class SimpleGeofenceStore {
 		String email = mPrefs.getString(getGeofenceFieldKey(id, KEY_EMAIL),"NOT FOUND");
 		String nickname = mPrefs.getString(getGeofenceFieldKey(id, KEY_NICKNAME),"NOT FOUND");
 		String message = mPrefs.getString(getGeofenceFieldKey(id,KEY_MESSAGE), "NOT FOUND");
+		String displayPhone = mPrefs.getString(getGeofenceFieldKey(id, KEY_DISPLAY_PHONE),"NOT FOUND");
 		// If none of the values is incorrect, return the object
 //		if (				
 //				lat != GeofenceUtils.INVALID_FLOAT_VALUE &&
@@ -107,7 +110,7 @@ public class SimpleGeofenceStore {
 			// Return a true Geofence object
 			return new SimpleGeofence(
 					id, lat, lng, radius, expirationDuration,
-					transitionType, message, email, nickname);
+					transitionType, message, email, nickname, displayPhone);
 			// Otherwise, return null.
 //		} else {
 //			return null;
@@ -147,6 +150,10 @@ public class SimpleGeofenceStore {
 		editor.putInt(
 				getGeofenceFieldKey(id, KEY_TRANSITION_TYPE),
 				geofence.getTransitionType());
+		editor.putString(
+				getGeofenceFieldKey(id, KEY_DISPLAY_PHONE),
+				geofence.getPhoneDisplay());
+		
 		// Commit the changes
 		editor.commit();
 	}
@@ -161,6 +168,7 @@ public class SimpleGeofenceStore {
 		editor.remove(getGeofenceFieldKey(id, KEY_RADIUS));
 		editor.remove(getGeofenceFieldKey(id, KEY_EMAIL));
 		editor.remove(getGeofenceFieldKey(id, KEY_MESSAGE));
+		editor.remove(getGeofenceFieldKey(id, KEY_DISPLAY_PHONE));
 		editor.remove(getGeofenceFieldKey(id,
 				KEY_EXPIRATION_DURATION));
 		editor.remove(getGeofenceFieldKey(id, KEY_TRANSITION_TYPE));

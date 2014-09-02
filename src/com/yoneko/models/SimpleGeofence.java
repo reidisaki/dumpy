@@ -8,7 +8,14 @@ public class SimpleGeofence {
     private final double mLatitude;
     private final double mLongitude;
     private final float mRadius;
-    private long mExpirationDuration;
+    private String phoneDisplay;
+    public String getPhoneDisplay() {
+		return phoneDisplay;
+	}
+	public void setPhoneDisplay(String phoneDisplay) {
+		this.phoneDisplay = phoneDisplay;
+	}
+	private long mExpirationDuration;
     private int mTransitionType;
     private String message;
     private String emailPhone;
@@ -37,7 +44,8 @@ public SimpleGeofence(
         int transition,
         String message,
         String email,
-        String title) {
+        String title,
+        String phoneDisplay) {
     // Set the instance fields from the constructor
     this.mId = geofenceId;
     this.mLatitude = latitude;
@@ -48,6 +56,7 @@ public SimpleGeofence(
     this.message = message;
     this.emailPhone = email;
     this.title = title;
+    this.phoneDisplay = phoneDisplay;
 }
 // Instance field getters
 public String getId() {

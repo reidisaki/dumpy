@@ -59,7 +59,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	public static ArrayList<String> nameValueArr = new ArrayList<String>();
 
 	EditText toNumber=null;
-	String toNumberValue="";
+	String toNumberValue="", emailOrPhone ="";
 
 	// TODO: Rename parameter arguments, choose names that match
 	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -254,13 +254,14 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			public void onItemClick(AdapterView<?> adapterView, View view, int index, long arg3) {
 				// Get Array index value for selected name
 				int i = nameValueArr.indexOf(""+adapterView.getItemAtPosition(index));
-
+				
 				// If name exist in name ArrayList
 				if (i >= 0) {
 					// Get Phone Number
 					toNumberValue = phoneValueArr.get(i);
 				}
-				emailEdit.setText(toNumberValue);
+				emailOrPhone = toNumberValue;
+				emailEdit.setText(toNumberValue + " (" + nameValueArr.get(i).toString() + ")");
 			}
 		});
 		//        emailEdit.setOnItemSelectedListener(this);
@@ -339,7 +340,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		boolean isUpdate = false;
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
-		String geoFenceId,message,email,nickname;
+		String geoFenceId,message,email,nickname,displayPhone;
 
 		float r;
 		long expiration;
@@ -350,15 +351,15 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		expiration = Geofence.NEVER_EXPIRE;
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
 		message =  messageEdit.getText().toString();
-		email =  emailEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
+		displayPhone = emailEdit.getText().toString();
 		Log.i("Reid","Nickname is: " + nickname);
 		LatLng latLng = ((MapActivity)getActivity()).getLatLng();
 		if(latLng == null) {
 			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, email, nickname);
+		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, emailOrPhone, nickname,displayPhone);
 
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);

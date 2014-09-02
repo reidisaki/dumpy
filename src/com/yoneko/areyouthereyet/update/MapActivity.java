@@ -83,7 +83,7 @@ import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
-OnItemSelectedListener, onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener,
+ onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener,
 OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener {
 
 	private static final long SECONDS_PER_HOUR = 60;
@@ -154,39 +154,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	Spinner spinner;
 	protected boolean isPanelExpanded;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
-	public void onItemSelected(AdapterView<?> parent, View view, 
-			int pos, long id) {
-		switch(pos) {
-		case 1: 
-			selectedRadius = 5;
-			break;
-		case 2: 
-			selectedRadius = 20;
-			break;
-		case 3: 
-			selectedRadius = 50;
-			break;
-		case 4: 
-			selectedRadius = 100;
-			break;
-		case 5: 
-			selectedRadius = 150;
-			break;
-		case 6: 
-			selectedRadius = 200;
-			break;
-		case 7: 
-			selectedRadius = 500;
-			break;
-		default: 
-			selectedRadius = 100;
-			break;
-		}
-		o("selected radius: " + selectedRadius);
-		if(latLng != null) {
-			createRadiusCircle(latLng);
-		}
-	}
+	
 
 	public void o (String s) {
 		Log.i(tag,"output s: " + s);
@@ -194,37 +162,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	public void onNothingSelected(AdapterView<?> parent) {
 	}
 
-	public int getSelectedPositionInSpinnerByValue(int selectedValue) {
-		int retvalue;
-		switch(selectedValue) {
-		case 5: 
-			retvalue = 1;
-			break;
-		case 20: 
-			retvalue = 2;
-			break;
-		case 50: 
-			retvalue = 3;
-			break;
-		case 100: 
-			retvalue = 4;
-			break;
-		case 150: 
-			retvalue = 5;
-			break;
-		case 200: 
-			retvalue = 6;
-			break;
-		case 500: 
-			retvalue = 7;
-			break;
-		default: 
-			retvalue = 4;
-			break;
-		}
-		return retvalue;
-
-	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -531,7 +469,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			}
 		});
 		if(editable) {
-			spinner.setOnItemSelectedListener(this);
 			mMap.setOnMapLongClickListener(this);
 			mMap.setOnMarkerClickListener(this);
 			//		mMap.setOnMapClickListener(this);
@@ -731,7 +668,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			radius = (int)fence.getRadius();
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
-			addGeofenceFragment.emailEdit.setText(fence.getEmailPhone());
+			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
+			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_enter);
 			addGeofenceFragment.radius_seek.setProgress(radius);
 			addGeofenceFragment.radius_text.setText(  radius + "m");
@@ -1376,5 +1314,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		myLocationMarker = mMap.addMarker(new MarkerOptions() 
 		.position(new LatLng(location.getLatitude(),location.getLongitude())).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))) ;
 	}
+
 
 }
