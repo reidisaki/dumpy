@@ -231,8 +231,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
+				
 				if(hasFocus)
 				{
+					Log.i("Reid","View has focus");
 					mListener.editTextClicked();
 
 				}
@@ -241,7 +243,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		nicknameEdit.setOnFocusChangeListener(expandPanelListener);
 		messageEdit.setOnFocusChangeListener(expandPanelListener);
 		emailEdit.setOnFocusChangeListener(expandPanelListener);
-
+		
 
 		//Create adapter    
 		adapter = new ArrayAdapter<String>
