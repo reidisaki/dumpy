@@ -307,6 +307,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			String selectedItemTitle = ((TextView)view).getText().toString();
 			if(selectedItemTitle.equals(getResources().getString(R.string.clear_all_text))) {
 				clearAllGeoFences();
+				slidePanelLayout.collapsePanel();
+				//reset items
+				addGeofenceFragment.nicknameEdit.setText("");
+				addGeofenceFragment.messageEdit.setText("");
+				addGeofenceFragment.emailEdit.setText("");
+				addGeofenceFragment.radius_seek.setProgress(100);
 				mMap.clear();
 			} else {
 				//find item in the simpleGeoFenceLIst and match that to the list View
