@@ -101,27 +101,36 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		if (getArguments() != null) {
 			mParam1 = getArguments().getString(ARG_PARAM1);
 			mParam2 = getArguments().getString(ARG_PARAM2);
 		}
 
 	}
+	
+	private static final String[] PROJECTION = new String[] {
+	    ContactsContract.Contacts._ID,
+	    ContactsContract.Contacts.DISPLAY_NAME,
+	    ContactsContract.Contacts.HAS_PHONE_NUMBER,
+		ContactsContract.CommonDataKinds.Phone.NUMBER,
+		ContactsContract.CommonDataKinds.Phone.TYPE,
+		ContactsContract.CommonDataKinds.Phone.LABEL
+	};
 	private void readContactData() {
 
 		try {
 
 			/*********** Reading Contacts Name And Number **********/
 
-			String phoneNumber = "";
+			
 			ContentResolver cr = getActivity()
 					.getContentResolver();
 
-			//Query to get contact name
 
-			Cursor cur = cr
-					.query(ContactsContract.Contacts.CONTENT_URI,
-							null,
+			//Query to get contact name
+			Cursor cur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+							PROJECTION,
 							null,
 							null,
 							null);
@@ -131,53 +140,43 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 				Log.i("AutocompleteContacts", "Reading   contacts........");
 
-				int k=0;
-				String name = "";
-
+//				//edit
+//				final int contactIdIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
+//		        final int displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+//		        final int emailIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+//		        long contactId;
+//		        String displayName, address;
+//		        while (cursor.moveToNext()) {
+//		            contactId = cursor.getLong(contactIdIndex);
+//		            displayName = cursor.getString(displayNameIndex);
+//		            address = cursor.getString(emailIndex);
+//		            
+		        //end edit
+		            int contactId;
+		            final int contactIdIndex = cur.getColumnIndex(ContactsContract.Contacts._ID);
+		            final int displayNameIndex =cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+		            final int phoneNumberIndex= cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+					final int phoneTypeIndex  = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+					final int customLabelIndex = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL);
+					final int hasPhoneNumberIndex = cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
+					
 				while (cur.moveToNext()) 
 				{
 
-					String id = cur
-							.getString(cur
-									.getColumnIndex(ContactsContract.Contacts._ID));
-					name = cur
-							.getString(cur
-									.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-
+					
 					//Check contact have phone number
-					if (Integer
-							.parseInt(cur
-									.getString(cur
-											.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) 
+					if (cur.getLong(hasPhoneNumberIndex) > 0) 
 					{
-
-						//Create query to get phone number by contact id
-						Cursor pCur = cr
-								.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-										null,
-										ContactsContract.CommonDataKinds.Phone.CONTACT_ID
-										+ " = ?",
-										new String[] { id },
-										null);
-						int j=0;
-
-						while (pCur
-								.moveToNext()) 
-						{
-
-
-							String phoneNumbers= pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-							int phonetype = pCur.getInt(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
-							String customLabel = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL));
-							String phoneLabel = (String) ContactsContract.CommonDataKinds.Email.getTypeLabel(this.getResources(), phonetype, customLabel);                       
+						int phonetype = cur.getInt(phoneTypeIndex);
+						String customLabel = cur.getString(customLabelIndex);	  
+						String phoneNumbers = cur.getString(phoneNumberIndex);
+						String phoneLabel = (String) ContactsContract.CommonDataKinds.Email.getTypeLabel(this.getResources(), phonetype, customLabel); 
+						String name  = cur.getString(displayNameIndex);
 							Log.e(TAG, "Phone Number: " + phoneNumbers + " Selected Phone Label: " + phoneLabel);
 
 							// Sometimes get multiple data 
-//							if(j==0)
-//							{
 								// Get Phone number
-								phoneNumber =""+pCur.getString(pCur
-										.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+								String phoneNumber =""+cur.getString(phoneNumberIndex);
 
 								// Add contacts names to adapter
 								adapter.add(name + "("+phoneLabel+")");
@@ -185,12 +184,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 								// Add ArrayList names to adapter
 								phoneValueArr.add(phoneNumber.toString());
 								nameValueArr.add(name + "("+phoneLabel+")");
-
-								j++;
-								k++;
-//							}
-						}  // End while loop
-						pCur.close();
 					} // End if
 
 				}  // End while loop
