@@ -19,6 +19,7 @@ import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -57,12 +58,12 @@ import com.google.android.gms.location.LocationClient.OnRemoveGeofencesResultLis
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationStatusCodes;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -79,8 +80,8 @@ import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
-OnItemSelectedListener, onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener,
-OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
+OnItemSelectedListener, onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener,
+OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener {
 
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
@@ -120,7 +121,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 	private RelativeLayout loading_screen,main_screen;
 	private List<SimpleGeofence> geoList;
 	private SlidingUpPanelLayout slide;
-
+	private Marker myLocationMarker;
 
 	private String[] mPlanetTitles;
 	private DrawerLayout mDrawerLayout;
@@ -272,6 +273,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
 		mMap.setMyLocationEnabled(true);
+		mMap.setOnMarkerClickListener(this);
+		mMap.setOnMyLocationChangeListener(this); 
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, false);
@@ -648,10 +651,21 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		//		finish();
 	}
 
+
 	@Override
 	public boolean onMarkerClick(Marker marker) {
 		o("Clicked marker");
-		handlePoint(marker);
+		if (marker.equals(myLocationMarker)) {
+			/* My Location dot callback ... */
+			 Uri uri = Uri.parse("smsto:");
+			    Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+			    intent.putExtra("sms_body", "http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);  
+			    startActivityForResult(intent, 1234);
+			
+			//Send out text message to someone who your location
+		} else {
+			handlePoint(marker);
+		}
 		return false;
 	}
 
@@ -859,7 +873,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		} else {
 			Log.i(TAG,"client is not connected()");
 		}
-		
+
 		super.onStop();
 	}
 	//BEGINNING MERGE
@@ -967,7 +981,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		 * OnConnectionFailedListener, pass the current activity object
 		 * as the listener for both parameters
 		 */
-		
+
 
 
 		if (!mInProgress) {
@@ -995,9 +1009,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 	public void onConnected(Bundle arg0) {
 		// Request a connection from the client to Location Services
 		Log.v(TAG," For reals connected");
-//		Location location = mLocationClient.getLastLocation();
-//		LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+		//		Location location = mLocationClient.getLastLocation();
+		//		LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+		//		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
 		//		    mMap.animateCamera(cameraUpdate);
 
 		mLocationClient.requestLocationUpdates(mLocationRequest,this);
@@ -1035,7 +1049,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 			//			geoFences.add(exitReid.toGeofence());
 			if(geoFences.size() > 0) {
 				Log.i("Reid","adding all geofences to GOOGLE");
-				
+
 				mLocationClient.addGeofences(
 						geoFences, mTransitionPendingIntent, this);
 			}
@@ -1154,7 +1168,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		if (!servicesConnected()) {
 			return;
 		}
-		
+
 		/*
 		 * Create a new location client object. Since the current
 		 * activity class implements ConnectionCallbacks and
@@ -1334,4 +1348,17 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener{
 		mLocationClient.disconnect();
 	}
 	////END MERGE
+
+	@Override
+	public void onMyLocationChange(Location location) {
+		// Remove the old marker object
+		if(myLocationMarker != null) {
+			myLocationMarker.remove(); 
+		}
+
+		// Add a new marker object at the new (My Location dot) location
+		myLocationMarker = mMap.addMarker(new MarkerOptions() 
+		.position(new LatLng(location.getLatitude(),location.getLongitude())).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))) ;
+	}
+
 }
