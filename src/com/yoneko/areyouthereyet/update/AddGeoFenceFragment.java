@@ -172,7 +172,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 						String phoneNumbers = cur.getString(phoneNumberIndex);
 						String phoneLabel = (String) ContactsContract.CommonDataKinds.Phone.getTypeLabel(this.getResources(), phonetype, customLabel); 
 						String name  = cur.getString(displayNameIndex);
-							Log.e(TAG, "Phone Number: " + phoneNumbers + " Selected Phone Label: " + phoneLabel);
+//							Log.e(TAG, "Phone Number: " + phoneNumbers + " Selected Phone Label: " + phoneLabel);
 
 							// Sometimes get multiple data 
 								// Get Phone number

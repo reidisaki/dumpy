@@ -1,6 +1,7 @@
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -47,8 +47,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.analytics.ExceptionReporter;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.StandardExceptionParser;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
@@ -66,6 +68,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -83,7 +86,7 @@ import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
- onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener,
+onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
 OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener {
 
 	private static final long SECONDS_PER_HOUR = 60;
@@ -125,7 +128,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	private List<SimpleGeofence> geoList;
 	private SlidingUpPanelLayout slide;
 	private Marker myLocationMarker;
-
+	private Location location;
 	private String[] mPlanetTitles;
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
@@ -154,7 +157,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	Spinner spinner;
 	protected boolean isPanelExpanded;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
-	
+
 
 	public void o (String s) {
 		Log.i(tag,"output s: " + s);
@@ -162,20 +165,39 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	public void onNothingSelected(AdapterView<?> parent) {
 	}
 
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fragment_map);
 
 		mInProgress = false;
-		
-		Tracker t = ((AreYouThereYet) getApplication()).getTracker(AreYouThereYet.TrackerName.APP_TRACKER);
-        t.setScreenName("MapActivity");
-        t.send(new HitBuilders.AppViewBuilder().build());
 
-//		ArrayList<String> test = null;
-//		test.add("tafasd");
+		Tracker t = ((AreYouThereYet) getApplication()).getTracker(AreYouThereYet.TrackerName.APP_TRACKER);
+		
+		
+		try {
+			throw new NullPointerException("This is a test null pointer exception");
+		} catch (NullPointerException e) {
+			  e.printStackTrace();
+			  t.setScreenName("MapActivity");
+				t.send(new HitBuilders.AppViewBuilder().build());
+				  t.send(new HitBuilders.ExceptionBuilder()
+			        .setDescription(e.getMessage())
+			        .setFatal(true)
+			        .build());
+			  Log.i("Reid",e.getMessage());
+		}
+
+		UncaughtExceptionHandler myHandler = new ExceptionReporter(
+				t,                                        // Currently used Tracker.
+				Thread.getDefaultUncaughtExceptionHandler(),      // Current default uncaught exception handler.
+				this);                                         // Context of the application.
+
+		// Make myHandler the new default uncaught exception handler.
+		Thread.setDefaultUncaughtExceptionHandler(myHandler);
+//				ArrayList<String> test = null;
+//				test.add("tafasd");
 		mGeofencesToRemove = new ArrayList<String>();
 		mBroadcastReceiver = new GeofenceSampleReceiver();
 		mIntentFilter = new IntentFilter();
@@ -223,10 +245,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		mMap.setMyLocationEnabled(true);
 		mMap.setOnMarkerClickListener(this);
 		mMap.setOnMyLocationChangeListener(this); 
+		mMap.setOnMyLocationButtonClickListener(this);
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, false);
-		Location location = locationManager.getLastKnownLocation(bestProvider);
+		location = locationManager.getLastKnownLocation(bestProvider);
 		if( location != null) {
 			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
 		}
@@ -390,7 +413,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	public LatLng getLatLng() {
 		return latLng;
 	}
-	
+
 	protected void onStart() {
 		super.onStart();
 		GoogleAnalytics.getInstance(this).reportActivityStart(this);
@@ -654,8 +677,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				Log.i("Reid","premises:" + address.getPremises());
 				Log.i("Reid","locality:" + address.getLocality());
 				title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
+				searchEdit.setText(title);
 				addGeofenceFragment.nicknameEdit.setText(title);
 			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1319,6 +1344,20 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		// Add a new marker object at the new (My Location dot) location
 		myLocationMarker = mMap.addMarker(new MarkerOptions() 
 		.position(new LatLng(location.getLatitude(),location.getLongitude())).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))) ;
+	}
+	@Override
+	public boolean onMyLocationButtonClick() {
+		Point p = mMap.getProjection().toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+		boolean panelExpanded = true;
+		if(panelExpanded) {
+			p.set(p.x, p.y-mapOffset);
+		} 
+
+		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)));
+		
+		boolean returnValue =  (slidePanelLayout.isPanelAnchored() || slidePanelLayout.isPanelExpanded()) ? true : false;
+		Log.i("Reid","Return value onMyLocationButtonClick  " + returnValue);
+		return returnValue;
 	}
 
 
