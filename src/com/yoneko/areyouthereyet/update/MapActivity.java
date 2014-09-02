@@ -659,7 +659,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			/* My Location dot callback ... */
 			 Uri uri = Uri.parse("smsto:");
 			    Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-			    intent.putExtra("sms_body", "http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);  
+			    intent.putExtra("sms_body", "Hello I'm here right now!!! \n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);  
 			    startActivityForResult(intent, 1234);
 			
 			//Send out text message to someone who your location
