@@ -16,10 +16,6 @@
         android:name="com.yoneko.areyouthereyet.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
-    <meta-data
-        android:name="com.google.android.gms.analytics.globalConfigResource"
-        android:resource="@xml/global_tracker" />
-
     <uses-permission android:name="com.yoneko.areyouthereyet.permission.MAPS_RECEIVE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
