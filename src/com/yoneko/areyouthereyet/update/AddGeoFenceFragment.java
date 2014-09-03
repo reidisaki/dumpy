@@ -205,8 +205,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		ScrollView addGeoFenceView = (ScrollView)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
 		//		getDialog().setTitle("Add Geofence");
 		emailEdit = (AutoCompleteTextView)addGeoFenceView.findViewById(R.id.email_edit);
-		latEdit = (EditText)addGeoFenceView.findViewById(R.id.lat_edit);
-		lonEdit = (EditText)addGeoFenceView.findViewById(R.id.lon_edit);
 		radius_text = (TextView)addGeoFenceView.findViewById(R.id.radius_text);
 		enter_exit = (RadioGroup)addGeoFenceView.findViewById(R.id.enter_exit);
 		messageEdit = (EditText)addGeoFenceView.findViewById(R.id.message_edit);
@@ -459,7 +457,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	 * >Communicating with Other Fragments</a> for more information.
 	 */
 	public interface onEditTextClicked {
-		// TODO: Update argument type and name
 		public void editTextClicked();
 		public void onItemSaved(SimpleGeofence oldFence, SimpleGeofence newFence,List<SimpleGeofence> newList,  boolean isUpdate);
 	}

@@ -47,7 +47,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -487,7 +486,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 	protected void onStart() {
 		super.onStart();
-		FlurryAgent.onStartSession(this, flurryKey);
+//		FlurryAgent.onStartSession(this, flurryKey);
 		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 	private void showAddGeoFenceFragment() {
@@ -940,7 +939,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");
-		FlurryAgent.onEndSession(this);
+//		FlurryAgent.onEndSession(this);
 		if (mLocationClient != null && mLocationClient.isConnected()) {
 			Log.i(TAG,"stopping updates");
 			/*
