@@ -339,10 +339,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	protected void saveGeoFence(View v) {
 		//save geoFence to mainActivity save json method
 
-		boolean isUpdate = false;
+		boolean isUpdate = false, errors = false;;
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
-		String geoFenceId,message,email,nickname,displayPhone;
+		String geoFenceId,message,email,nickname,displayPhone, errorMessage = "";
 
 		float r;
 		long expiration;
@@ -381,11 +381,23 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			//			Toast.makeText(getActivity(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
 		}
 
-		
-		Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
+		if(geofence.getEmailPhone().equals("")) {
+			errors =true;
+			errorMessage ="phone number can't be blank\n";
+		}
+		if(geofence.getMessage().equals("")){
+			errors= true;
+			errorMessage += "message can't be blank";
+		}
+		if(!errors) {
+			Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
+			mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);
+		} else {
+			Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_SHORT).show();
+		}
 		//		mListener.dialogDismissed();
 
-		mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);
+		
 	}
 
 

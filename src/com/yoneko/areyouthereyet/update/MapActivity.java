@@ -5,9 +5,6 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
@@ -25,7 +22,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -85,7 +81,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
@@ -144,8 +139,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	private ActionBarDrawerToggle mDrawerToggle;
 
 	//analytic crap
-	MixpanelAPI mixpanel;
-	public static final String MIXPANEL_TOKEN = "b7c6bad49761f053e6a7b586bc9d2aea";
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
 
@@ -212,23 +205,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		ta.send(new HitBuilders.AppViewBuilder().build());
 		//end test
 
-
-		// Initialize the library with your
-		// Mixpanel project token, MIXPANEL_TOKEN, and a reference
-		// to your application context.
-		mixpanel =
-				MixpanelAPI.getInstance(this, MIXPANEL_TOKEN);
-		JSONObject props = new JSONObject();
-
-		try {
-			props.put("Plan", "Premium");
-			props.put("Gender", "Female");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		mixpanel.track("Plan Selected", props);
 
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
@@ -733,7 +709,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	@Override
 	public void onDestroy() {
 		// Destroy the AdView.
-		mixpanel.flush();
 		if (adView != null) {
 			adView.destroy();
 		}
