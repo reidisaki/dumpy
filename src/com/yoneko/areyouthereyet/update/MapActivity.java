@@ -5,6 +5,9 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
@@ -22,15 +25,19 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -45,12 +52,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flurry.android.FlurryAgent;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.analytics.ExceptionReporter;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.StandardExceptionParser;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
@@ -78,9 +85,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.AreYouThereYet.TrackerName;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
@@ -134,6 +143,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 
+	//analytic crap
+	MixpanelAPI mixpanel;
+	public static final String MIXPANEL_TOKEN = "b7c6bad49761f053e6a7b586bc9d2aea";
+	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
+
+
 	GoogleMap mMap;
 	Marker currentMarker = null;
 	Circle myCircle = null, newCircle =null;
@@ -172,22 +187,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		setContentView(R.layout.fragment_map);
 
 		mInProgress = false;
-
+		GoogleAnalytics.getInstance(this).newTracker("UA-54368949-1");
 		Tracker t = ((AreYouThereYet) getApplication()).getTracker(AreYouThereYet.TrackerName.APP_TRACKER);
-		
-		
-		try {
-			throw new NullPointerException("This is a test null pointer exception");
-		} catch (NullPointerException e) {
-			  e.printStackTrace();
-			  t.setScreenName("MapActivity");
-				t.send(new HitBuilders.AppViewBuilder().build());
-				  t.send(new HitBuilders.ExceptionBuilder()
-			        .setDescription(e.getMessage())
-			        .setFatal(true)
-			        .build());
-			  Log.i("Reid",e.getMessage());
-		}
 
 		UncaughtExceptionHandler myHandler = new ExceptionReporter(
 				t,                                        // Currently used Tracker.
@@ -196,8 +197,102 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 		// Make myHandler the new default uncaught exception handler.
 		Thread.setDefaultUncaughtExceptionHandler(myHandler);
-//				ArrayList<String> test = null;
-//				test.add("tafasd");
+
+
+
+		// Get tracker.
+		Tracker ta = ((AreYouThereYet)getApplication()).getTracker(
+				TrackerName.APP_TRACKER);
+
+		// Set screen name.
+		// Where path is a String representing the screen name.
+		ta.setScreenName("TESTING SCREEN");
+
+		// Send a screen view.
+		ta.send(new HitBuilders.AppViewBuilder().build());
+		//end test
+
+
+		// Initialize the library with your
+		// Mixpanel project token, MIXPANEL_TOKEN, and a reference
+		// to your application context.
+		mixpanel =
+				MixpanelAPI.getInstance(this, MIXPANEL_TOKEN);
+		JSONObject props = new JSONObject();
+
+		try {
+			props.put("Plan", "Premium");
+			props.put("Gender", "Female");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		mixpanel.track("Plan Selected", props);
+
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+				SmsManager manager = SmsManager.getDefault();
+				Throwable e = paramThrowable;
+				String SMS_SENT = "ConfirmSentActivity";
+				String SMS_DELIVERED = "DevliveredActivty";
+				PendingIntent piSend = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(SMS_SENT), 0);
+				PendingIntent piDelivered = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(SMS_DELIVERED), 0);
+				//				Log.i("Reid","error: " + paramThrowable.getCause().getMessage());
+				//				paramThrowable.printStackTrace();
+				
+
+				
+				StackTraceElement[] arr = e.getStackTrace();
+		        final StringBuffer report = new StringBuffer(e.toString());
+		        report.append("--------- Stack trace ---------\n\n");
+		        for (int i = 0; i < arr.length; i++) {
+		            report.append( "  \n  ");
+		            report.append(arr[i].toString());
+		        }
+		        // If the exception was thrown in a background thread inside
+		        // AsyncTask, then the actual exception can be found with getCause
+		        report.append("--------- Cause ---------\n\n");
+		        Throwable cause = e.getCause();
+		        if (cause != null) {
+		            report.append(cause.toString());
+		            arr = cause.getStackTrace();
+		            for (int i = 0; i < arr.length; i++) {
+		                report.append("   \n ");
+		                report.append(arr[i].toString());
+		            }
+		        }
+		        // Getting the Device brand,model and sdk verion details.
+//		        report.append("--------- Device ---------\n\n");
+//		        report.append("Brand: ");
+//		        report.append(Build.BRAND);
+//		        report.append("Device: ");
+//		        report.append(Build.DEVICE);
+//		        report.append("Model: ");
+//		        report.append(Build.MODEL);
+//		        report.append("Id: ");
+//		        report.append(Build.ID);
+//		        report.append("Product: ");
+//		        report.append(Build.PRODUCT);
+//		        report.append("--------- Firmware ---------\n\n");
+//		        report.append("SDK: ");
+//		        report.append(Build.VERSION.SDK);
+//		        report.append("Release: ");
+//		        report.append(Build.VERSION.RELEASE);
+//		        report.append("Incremental: ");
+//		        report.append(Build.VERSION.INCREMENTAL);
+
+				ArrayList<String> messagelist = manager.divideMessage(report.toString());
+				manager.sendMultipartTextMessage("3233098967", null, messagelist, null, null);
+//				Log.i("Reid",output);
+
+		        Log.i("Reid", report.toString());
+			}
+		});
+		
+//		ArrayList<String> test = null;
+//		test.add("tafasd");
 		mGeofencesToRemove = new ArrayList<String>();
 		mBroadcastReceiver = new GeofenceSampleReceiver();
 		mIntentFilter = new IntentFilter();
@@ -416,6 +511,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 	protected void onStart() {
 		super.onStart();
+		FlurryAgent.onStartSession(this, flurryKey);
 		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 	private void showAddGeoFenceFragment() {
@@ -431,6 +527,25 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	}
 	private void setListeners() {
 
+		searchEdit.setOnKeyListener(new OnKeyListener()
+		{
+			public boolean onKey(View v, int keyCode, KeyEvent event)
+			{
+				if (event.getAction() == KeyEvent.ACTION_DOWN)
+				{
+					switch (keyCode)
+					{
+					case KeyEvent.KEYCODE_DPAD_CENTER:
+					case KeyEvent.KEYCODE_ENTER:
+						onSearchEditButtonClicked();
+						return true;
+					default:
+						break;
+					}
+				}
+				return false;
+			}
+		});
 		addGeofenceFragment.radius_seek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
@@ -470,7 +585,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				.strokeColor(Color.MAGENTA)
 				.strokeWidth(5);
 				addGeofenceFragment.radius_text.setText("Radius: " + _radiusChanged + "m");
-				newCircle = mMap.addCircle(circleOptions);
+				if(mMap != null) {
+					newCircle = mMap.addCircle(circleOptions);
+				}
 
 			}
 		});
@@ -553,11 +670,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				@Override
 				public void onClick(View v) {
 					// Getting user input location
-					String location = searchEdit.getText().toString();
-					location = location.equals("") ? "9453 Vollmerhausen drive, 21046" : location;
-					if(location!=null && !location.equals("")){
-						new GeocoderTask().execute(location);
-					}				
+					onSearchEditButtonClicked();
 				}
 			});
 		}
@@ -581,7 +694,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			adView.resume();
 		}
 	}
-
+	protected void onSearchEditButtonClicked() {
+		String location = searchEdit.getText().toString();
+		location = location.equals("") ? "9453 Vollmerhausen drive, 21046" : location;
+		if(location!=null && !location.equals("")){
+			new GeocoderTask().execute(location);
+		}				
+	}
 	@Override
 	public void onPause() {
 		if (adView != null) {
@@ -614,6 +733,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	@Override
 	public void onDestroy() {
 		// Destroy the AdView.
+		mixpanel.flush();
 		if (adView != null) {
 			adView.destroy();
 		}
@@ -680,7 +800,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				searchEdit.setText(title);
 				addGeofenceFragment.nicknameEdit.setText(title);
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -701,13 +821,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
 			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
 			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
-			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_enter);
+			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_exit);
 			addGeofenceFragment.radius_seek.setProgress(radius);
 			addGeofenceFragment.radius_text.setText(  radius + "m");
 
 		} else {
 			//clear the drawer data to be empty except the title
 			addGeofenceFragment.messageEdit.setText("");
+			addGeofenceFragment.enter_exit.check(R.id.radio_enter);
 			addGeofenceFragment.radius_seek.setProgress(100);
 			addGeofenceFragment.emailEdit.setText("");
 		}
@@ -844,6 +965,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");
+		FlurryAgent.onEndSession(this);
 		if (mLocationClient != null && mLocationClient.isConnected()) {
 			Log.i(TAG,"stopping updates");
 			/*
@@ -1354,7 +1476,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		} 
 
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)));
-		
+
 		boolean returnValue =  (slidePanelLayout.isPanelAnchored() || slidePanelLayout.isPanelExpanded()) ? true : false;
 		Log.i("Reid","Return value onMyLocationButtonClick  " + returnValue);
 		return returnValue;

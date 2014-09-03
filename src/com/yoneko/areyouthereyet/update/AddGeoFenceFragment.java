@@ -349,14 +349,19 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		int transition;
 
 
-		r = Float.valueOf(radius);
+		r = radius_seek.getProgress();
 		expiration = Geofence.NEVER_EXPIRE;
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
+		Log.i("Reid", "Transition type: " + transition);
 		message =  messageEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
 		displayPhone = emailEdit.getText().toString();
 		Log.i("Reid","Nickname is: " + nickname);
 		LatLng latLng = ((MapActivity)getActivity()).getLatLng();
+		
+		if(!emailEdit.getText().toString().contains("(")) {
+			emailOrPhone = emailEdit.getText().toString();
+		}
 		if(latLng == null) {
 			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
@@ -376,8 +381,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			//			Toast.makeText(getActivity(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
 		}
 
-
-		Toast.makeText(getActivity(), "Size of cache : " + MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size(),Toast.LENGTH_SHORT).show();
+		
+		Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
 		//		mListener.dialogDismissed();
 
 		mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);

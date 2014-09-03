@@ -154,6 +154,7 @@
         <TableRow style="@style/tableStyle" >
 
             <Button
+                android:layout_gravity="right"
                 android:id="@+id/save_button"
                 style="@style/wrapAll"
                 android:text="@string/save" />

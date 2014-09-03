@@ -11,6 +11,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
@@ -146,7 +147,8 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
 		PendingIntent piSend = PendingIntent.getBroadcast(context, 0, new Intent(SMS_SENT), 0);
 		PendingIntent piDelivered = PendingIntent.getBroadcast(context, 0, new Intent(SMS_DELIVERED), 0);
-
+		Toast.makeText(context, "SENDING A TEXT fat pat!!!" + message + " phone number: " + phonenumber,
+				Toast.LENGTH_LONG).show();
 		if(isBinary)
 		{
 			byte[] data = new byte[message.length()];
@@ -172,7 +174,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			{
 //				Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "  + phonenumber);
 				Log.i(TAG,"Sending texts are SSENDING!!:  "  + phonenumber);
-				if(phonenumber != null ) {
+				if(phonenumber != null && message != null && phonenumber != "" && message != "") {
 					manager.sendTextMessage(phonenumber, null, message, null, null);
 				}
 			}
