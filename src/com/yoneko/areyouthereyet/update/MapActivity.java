@@ -140,7 +140,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
-
+	public String title;
 	GoogleMap mMap;
 	Marker currentMarker = null;
 	Circle myCircle = null, newCircle =null;
@@ -760,7 +760,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 	public void addMarker(LatLng latLng) {
 
-		String title ="not set yet";
+		title ="not set yet";
 		int radius;
 		Geocoder geo = new Geocoder(getApplicationContext());
 		try {
@@ -935,7 +935,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
 		addGeofences();
 	}
-
+	public String getNickName() {
+		return title;
+	}
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");

@@ -12,10 +12,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -67,8 +69,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	private static final String ARG_PARAM2 = "param2";
 	double latitude, longitude;
 	// TODO: Rename and change types of parameters
-	private String mParam1;
-	private String mParam2;
+	private String mParam1, title,mParam2;
 
 	private onEditTextClicked mListener;
 	private SimpleGeofenceList cachedList;
@@ -353,6 +354,9 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		Log.i("Reid", "Transition type: " + transition);
 		message =  messageEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
+		if(nickname.equals("")) {
+			nickname = ((MapActivity)getActivity()).getNickName();
+		}
 		displayPhone = emailEdit.getText().toString();
 		Log.i("Reid","Nickname is: " + nickname);
 		LatLng latLng = ((MapActivity)getActivity()).getLatLng();
