@@ -29,13 +29,14 @@ import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -147,7 +148,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	TextView slide_tab_text;
 	EditText searchEdit;
 	ImageView ic_drawer;
-	Button searchButton;
 	FragmentManager fm;
 	ArrayAdapter drawerAdapter;
 	AddGeoFenceFragment addGeofenceFragment;
@@ -315,7 +315,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		initLeftDrawer();
 		initViews();
 		setListeners();
-		initShowView();
 
 		fm.beginTransaction()
 		.hide(addGeofenceFragment)
@@ -335,11 +334,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		View showcasedView = findViewById(R.id.drawer_icon_layout);
 		//		ViewTarget target = new ViewTarget(showcasedView);
 		//		ShowcaseView.insertShowcaseView(target, this,"Click here","See all your saved geo fences");
-
+		int[] posXY = new int[2];
+		ic_drawer.getLocationOnScreen(posXY);
+		int x = posXY[0];
+		int y = posXY[1];
+		
 		View showcasedView2 = findViewById(R.id.ic_drawer);
 		ViewTarget target2 = new ViewTarget(showcasedView2);
-		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,"Tap here","or swipe left to right to open location data");
-		sv.animateGesture(0, (screenHeight/2), screenWidth/2, (screenHeight/2));
+		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,"Tap icon","view saved location alerts, or destination alerts");
+		sv.animateGesture(0, screenHeight/2 , screenWidth/2, screenHeight/2 );
 
 		//		new ShowcaseView.Builder(this)
 		//	    .setTarget(new ActionViewTarget(this, ActionViewTarget.Type.HOME))
@@ -348,6 +351,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//	    .hideOnTouchOutside()
 		//	    .build();		
 	}
+	
+	@Override
+	public void onWindowFocusChanged (boolean hasFocus) {
+	   super.onWindowFocusChanged(hasFocus);
+	   if (hasFocus)
+		   initShowView();
+	}
+
 
 	private void initLeftDrawer() {
 		int geoFenceSize = mSimpleGeoFenceList.size();
@@ -435,7 +446,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		// Set the list's click listener
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
-		searchButton = (Button)findViewById(R.id.btn_find);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
 		slidePanelLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
 		map_detail_layout = (RelativeLayout)findViewById(R.id.map_detail_layout);
@@ -511,6 +521,24 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				return false;
 			}
 		});
+		searchEdit.setOnTouchListener(new OnTouchListener() {
+		        @Override
+		        public boolean onTouch(View v, MotionEvent event) {
+		            final int DRAWABLE_LEFT = 0;
+		            final int DRAWABLE_TOP = 1;
+		            final int DRAWABLE_RIGHT = 2;
+		            final int DRAWABLE_BOTTOM = 3;
+
+		            if(event.getAction() == MotionEvent.ACTION_UP) {
+		                if(event.getRawX() >= (searchEdit.getRight() - searchEdit.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+		                	onSearchEditButtonClicked();
+		                } else if (event.getRawX() >= (searchEdit.getRight() - searchEdit.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+		                	searchEdit.setText("");
+		                }
+		            } 
+		            return false;
+		        }
+		    });
 		addGeofenceFragment.radius_seek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
@@ -628,14 +656,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				public void onPanelAnchored(View panel) {
 					Log.i("Reid","onPanelAnchored 352");
 					showAddGeoFenceFragment();
-				}
-			});
-			searchButton.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					// Getting user input location
-					onSearchEditButtonClicked();
 				}
 			});
 		}

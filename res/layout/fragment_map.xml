@@ -54,14 +54,9 @@
                         android:layout_weight=".85"
                         android:inputType="text"
                         android:hint="ie: 9453 vollmerhausen drive, 21046"
+                        android:drawableRight="@drawable/magnify"
+                        android:drawableLeft="@drawable/magnify"
                         android:text="" />
-
-                    <Button
-                        android:id="@+id/btn_find"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight=".15"
-                        android:text="@string/button_find" />
 
                     <Spinner
                         android:visibility="gone"
@@ -124,6 +119,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/map_detail_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:visibility="gone"
                  >
 
                 <TextView
