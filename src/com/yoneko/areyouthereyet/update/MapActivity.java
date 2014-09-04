@@ -1,7 +1,6 @@
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -40,6 +38,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -48,6 +47,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.espian.showcaseview.ShowcaseView;
+import com.espian.showcaseview.targets.ViewTarget;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -81,7 +82,6 @@ import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
-import com.yoneko.areyouthereyet.update.AreYouThereYet.TrackerName;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
@@ -152,7 +152,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	ArrayAdapter drawerAdapter;
 	AddGeoFenceFragment addGeofenceFragment;
 	RelativeLayout map_detail_layout,drawer_icon_layout;
-	int animateSpeed = 800, animateFast = 200, _radiusChanged =20;
+	int animateSpeed = 800, animateFast = 200, _radiusChanged =20, screenWidth, screenHeight;
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
@@ -178,67 +178,67 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		mInProgress = false;
 
-		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-			@Override
-			public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-				SmsManager manager = SmsManager.getDefault();
-				Throwable e = paramThrowable;
-				String SMS_SENT = "ConfirmSentActivity";
-				String SMS_DELIVERED = "DevliveredActivty";
-				PendingIntent piSend = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(SMS_SENT), 0);
-				PendingIntent piDelivered = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(SMS_DELIVERED), 0);
-				
+		//		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		//			@Override
+		//			public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+		//				SmsManager manager = SmsManager.getDefault();
+		//				Throwable e = paramThrowable;
+		//				String SMS_SENT = "ConfirmSentActivity";
+		//				String SMS_DELIVERED = "DevliveredActivty";
+		//				PendingIntent piSend = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(SMS_SENT), 0);
+		//				PendingIntent piDelivered = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(SMS_DELIVERED), 0);
+		//				
+		//
+		//				
+		//				StackTraceElement[] arr = e.getStackTrace();
+		//		        final StringBuffer report = new StringBuffer(e.toString());
+		//		        report.append("--------- Stack trace ---------\n\n");
+		//		        for (int i = 0; i < arr.length; i++) {
+		//		            report.append( "  \n  ");
+		//		            report.append(arr[i].toString());
+		//		        }
+		//		        // If the exception was thrown in a background thread inside
+		//		        // AsyncTask, then the actual exception can be found with getCause
+		//		        report.append("--------- Cause ---------\n\n");
+		//		        Throwable cause = e.getCause();
+		//		        if (cause != null) {
+		//		            report.append(cause.toString());
+		//		            arr = cause.getStackTrace();
+		//		            for (int i = 0; i < arr.length; i++) {
+		//		                report.append("   \n ");
+		//		                report.append(arr[i].toString());
+		//		            }
+		//		        }
+		//		        // Getting the Device brand,model and sdk verion details.
+		////		        report.append("--------- Device ---------\n\n");
+		////		        report.append("Brand: ");
+		////		        report.append(Build.BRAND);
+		////		        report.append("Device: ");
+		////		        report.append(Build.DEVICE);
+		////		        report.append("Model: ");
+		////		        report.append(Build.MODEL);
+		////		        report.append("Id: ");
+		////		        report.append(Build.ID);
+		////		        report.append("Product: ");
+		////		        report.append(Build.PRODUCT);
+		////		        report.append("--------- Firmware ---------\n\n");
+		////		        report.append("SDK: ");
+		////		        report.append(Build.VERSION.SDK);
+		////		        report.append("Release: ");
+		////		        report.append(Build.VERSION.RELEASE);
+		////		        report.append("Incremental: ");
+		////		        report.append(Build.VERSION.INCREMENTAL);
+		//
+		//				ArrayList<String> messagelist = manager.divideMessage(report.toString());
+		////				manager.sendMultipartTextMessage("3233098967", null, messagelist, null, null);
+		////				Log.i("Reid",output);
+		//
+		//		        Log.i("Reid", report.toString());
+		//			}
+		//		});
 
-				
-				StackTraceElement[] arr = e.getStackTrace();
-		        final StringBuffer report = new StringBuffer(e.toString());
-		        report.append("--------- Stack trace ---------\n\n");
-		        for (int i = 0; i < arr.length; i++) {
-		            report.append( "  \n  ");
-		            report.append(arr[i].toString());
-		        }
-		        // If the exception was thrown in a background thread inside
-		        // AsyncTask, then the actual exception can be found with getCause
-		        report.append("--------- Cause ---------\n\n");
-		        Throwable cause = e.getCause();
-		        if (cause != null) {
-		            report.append(cause.toString());
-		            arr = cause.getStackTrace();
-		            for (int i = 0; i < arr.length; i++) {
-		                report.append("   \n ");
-		                report.append(arr[i].toString());
-		            }
-		        }
-		        // Getting the Device brand,model and sdk verion details.
-//		        report.append("--------- Device ---------\n\n");
-//		        report.append("Brand: ");
-//		        report.append(Build.BRAND);
-//		        report.append("Device: ");
-//		        report.append(Build.DEVICE);
-//		        report.append("Model: ");
-//		        report.append(Build.MODEL);
-//		        report.append("Id: ");
-//		        report.append(Build.ID);
-//		        report.append("Product: ");
-//		        report.append(Build.PRODUCT);
-//		        report.append("--------- Firmware ---------\n\n");
-//		        report.append("SDK: ");
-//		        report.append(Build.VERSION.SDK);
-//		        report.append("Release: ");
-//		        report.append(Build.VERSION.RELEASE);
-//		        report.append("Incremental: ");
-//		        report.append(Build.VERSION.INCREMENTAL);
-
-				ArrayList<String> messagelist = manager.divideMessage(report.toString());
-				manager.sendMultipartTextMessage("3233098967", null, messagelist, null, null);
-//				Log.i("Reid",output);
-
-		        Log.i("Reid", report.toString());
-			}
-		});
-		
-//		ArrayList<String> test = null;
-//		test.add("tafasd");
+		//		ArrayList<String> test = null;
+		//		test.add("tafasd");
 		mGeofencesToRemove = new ArrayList<String>();
 		mBroadcastReceiver = new GeofenceSampleReceiver();
 		mIntentFilter = new IntentFilter();
@@ -292,7 +292,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
 		location = locationManager.getLastKnownLocation(bestProvider);
-		
+
 		Bundle b = getIntent().getExtras();
 		if(b != null){
 			editable = b.getBoolean("editable",true);
@@ -309,13 +309,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		int width = size.x;
-		int height = size.y;
-		mapOffset = (int)(height * -.25f) + 60;
+		screenWidth = size.x;
+		screenHeight = size.y;
+		mapOffset = (int)(screenHeight * -.25f) + 60;
 		initLeftDrawer();
 		initViews();
 		setListeners();
-
+		initShowView();
 
 		fm.beginTransaction()
 		.hide(addGeofenceFragment)
@@ -327,6 +327,27 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		
 	}
 
+
+	private void initShowView() {
+		LinearLayout l = (LinearLayout)findViewById(R.id.mainLinearLayout);
+
+		//		l.setBackgroundColor(Color.parseColor("#FF000000"));
+		//		View showcasedView = findViewById(R.id.drawer_icon_layout);
+		//		ViewTarget target = new ViewTarget(showcasedView);
+		//		ShowcaseView.insertShowcaseView(target, this,"Click here","See all your saved geo fences");
+
+		View showcasedView2 = findViewById(R.id.ic_drawer);
+		ViewTarget target2 = new ViewTarget(showcasedView2);
+		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,"Tap here","or swipe left to right to open location data");
+		sv.animateGesture(0, (screenHeight/2), screenWidth/2, (screenHeight/2));
+
+		//		new ShowcaseView.Builder(this)
+		//	    .setTarget(new ActionViewTarget(this, ActionViewTarget.Type.HOME))
+		//	    .setContentTitle("ShowcaseView")
+		//	    .setContentText("This is highlighting the Home button")
+		//	    .hideOnTouchOutside()
+		//	    .build();		
+	}
 
 	private void initLeftDrawer() {
 		int geoFenceSize = mSimpleGeoFenceList.size();
@@ -1429,9 +1450,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onMapLoaded() {
 		if( location != null) {
 			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
-		} else {
-			locationManager.
-		}		
+		} 	
 	}
 
 

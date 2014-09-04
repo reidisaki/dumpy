@@ -22,6 +22,7 @@
             sothree:shadowHeight="4dp" >
 
             <LinearLayout
+                android:id="@+id/mainLinearLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:orientation="vertical" >
@@ -123,7 +124,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/map_detail_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone" >
+                 >
 
                 <TextView
                     android:id="@+id/slide_tab_text"
