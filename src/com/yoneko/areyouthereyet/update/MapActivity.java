@@ -22,6 +22,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
@@ -29,17 +30,15 @@ import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -135,7 +134,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
-
+	private ImageButton clearTextImage,searchButton;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
@@ -328,7 +327,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 
 	private void initShowView() {
-		LinearLayout l = (LinearLayout)findViewById(R.id.mainLinearLayout);
 
 		//		l.setBackgroundColor(Color.parseColor("#FF000000"));
 		//		View showcasedView = findViewById(R.id.drawer_icon_layout);
@@ -338,7 +336,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		ic_drawer.getLocationOnScreen(posXY);
 		int x = posXY[0];
 		int y = posXY[1];
-		
+
 		View showcasedView2 = findViewById(R.id.ic_drawer);
 		ViewTarget target2 = new ViewTarget(showcasedView2);
 		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,"Tap icon","view saved location alerts, or destination alerts");
@@ -351,12 +349,23 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//	    .hideOnTouchOutside()
 		//	    .build();		
 	}
-	
+
 	@Override
 	public void onWindowFocusChanged (boolean hasFocus) {
-	   super.onWindowFocusChanged(hasFocus);
-	   if (hasFocus)
-		   initShowView();
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
+			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
+			if (isFirstRun)
+			{
+				initShowView();
+				// Code to run once
+				SharedPreferences.Editor editor = wmbPreference.edit();
+				editor.putBoolean("FIRSTRUN", false);
+				editor.commit();
+			}
+		}
+
 	}
 
 
@@ -442,7 +451,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
-
+		clearTextImage = (ImageButton)findViewById(R.id.clearTextImage);
+		searchButton = (ImageButton)findViewById(R.id.searchButton);
 		// Set the list's click listener
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
@@ -521,24 +531,39 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				return false;
 			}
 		});
-		searchEdit.setOnTouchListener(new OnTouchListener() {
-		        @Override
-		        public boolean onTouch(View v, MotionEvent event) {
-		            final int DRAWABLE_LEFT = 0;
-		            final int DRAWABLE_TOP = 1;
-		            final int DRAWABLE_RIGHT = 2;
-		            final int DRAWABLE_BOTTOM = 3;
+		searchButton.setOnClickListener(new OnClickListener() {
 
-		            if(event.getAction() == MotionEvent.ACTION_UP) {
-		                if(event.getRawX() >= (searchEdit.getRight() - searchEdit.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-		                	onSearchEditButtonClicked();
-		                } else if (event.getRawX() >= (searchEdit.getRight() - searchEdit.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
-		                	searchEdit.setText("");
-		                }
-		            } 
-		            return false;
-		        }
-		    });
+			@Override
+			public void onClick(View v) {
+				onSearchEditButtonClicked();
+
+			}
+		});
+		clearTextImage.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				searchEdit.setText("");
+			}
+		});
+		//		searchEdit.setOnTouchListener(new OnTouchListener() {
+		//		        @Override
+		//		        public boolean onTouch(View v, MotionEvent event) {
+		//		            final int DRAWABLE_LEFT = 0;
+		//		            final int DRAWABLE_TOP = 1;
+		//		            final int DRAWABLE_RIGHT = 2;
+		//		            final int DRAWABLE_BOTTOM = 3;
+		//
+		//		            if(event.getAction() == MotionEvent.ACTION_UP) {
+		//		                if(event.getRawX() >= (searchEdit.getRight() - searchEdit.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+		//		                	onSearchEditButtonClicked();
+		//		                } else if (event.getRawX() <= (searchEdit.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width() - searchEdit.getLeft())) {
+		//		                	searchEdit.setText("");
+		//		                }
+		//		            } 
+		//		            return false;
+		//		        }
+		//		    });
 		addGeofenceFragment.radius_seek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
@@ -758,7 +783,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onMapLongClick(LatLng point) {
 		latLng = point;
 		createRadiusCircle(point);
-
+		Log.i("REID","hiding keyboard now");
+		InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 		//		MarkerOptions mo = new MarkerOptions()
 		//		.position(point)
 		//		.title( point.latitude + ", " + point.longitude)           
