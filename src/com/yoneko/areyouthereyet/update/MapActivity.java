@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
@@ -89,7 +90,7 @@ import com.yoneko.models.SimpleGeofenceStore;
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
 onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
 OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback {
-
+	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
 	private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
@@ -134,7 +135,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
-	private ImageButton clearTextImage,searchButton;
+	private ImageButton clearTextImage,searchButton,voiceButton;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
@@ -453,6 +454,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
 		clearTextImage = (ImageButton)findViewById(R.id.clearTextImage);
 		searchButton = (ImageButton)findViewById(R.id.searchButton);
+		voiceButton =(ImageButton)findViewById(R.id.voiceButton);
 		// Set the list's click listener
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
 		searchEdit =  (EditText)findViewById(R.id.location_edit);
@@ -531,10 +533,18 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				return false;
 			}
 		});
+		voiceButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				startVoiceRecognitionActivity();				
+			}
+		});
 		searchButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
+				
 				onSearchEditButtonClicked();
 
 			}
@@ -738,6 +748,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			}
 		}
 	};
+	
 
 	/** Called before the activity is destroyed. */
 	@Override
@@ -794,7 +805,33 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
 
 	}
-
+	 private void startVoiceRecognitionActivity()
+	    {
+	        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+	        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+	                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+	        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Voice recognition Demo...");
+	        startActivityForResult(intent, REQUEST_CODE);
+	    }
+	 
+	    /**
+	     * Handle the results from the voice recognition activity.
+	     */
+	    @Override
+	    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	    {
+	        if (requestCode == REQUEST_CODE  && resultCode == RESULT_OK)
+	        {
+	            // Populate the wordsList with the String values the recognition engine thought it heard
+	            ArrayList<String> matches = data.getStringArrayListExtra(
+	                    RecognizerIntent.EXTRA_RESULTS);
+	           if(matches.size() >0) {
+	        	   searchEdit.setText(matches.get(0));
+	           }
+	           
+	        }
+	        super.onActivityResult(requestCode, resultCode, data);
+	    }
 	public void addMarker(LatLng latLng) {
 
 		title ="not set yet";

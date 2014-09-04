@@ -44,16 +44,16 @@
 
                 <LinearLayout
                     android:layout_width="fill_parent"
-                    android:padding="10dip"
                     android:layout_height="wrap_content"
-                    android:background="#00ffffff" >
+                    android:background="#00ffffff"
+                    android:padding="10dip" >
 
                     <ImageButton
-                        android:padding="5dip"
                         android:id="@+id/clearTextImage"
                         style="@style/wrapAll"
                         android:layout_gravity="center"
                         android:background="#ffffff"
+                        android:padding="5dip"
                         android:src="@drawable/magnify" />
 
                     <EditText
@@ -68,11 +68,19 @@
                         android:text="" />
 
                     <ImageButton
-                        android:padding="5dip"
                         android:id="@+id/searchButton"
                         style="@style/wrapAll"
                         android:layout_gravity="center"
                         android:background="#ffffff"
+                        android:padding="5dip"
+                        android:src="@drawable/magnify" />
+
+                    <ImageButton
+                        android:id="@+id/voiceButton"
+                        style="@style/wrapAll"
+                        android:layout_gravity="center"
+                        android:background="#ffffff"
+                        android:padding="5dip"
                         android:src="@drawable/magnify" />
 
                     <Spinner
