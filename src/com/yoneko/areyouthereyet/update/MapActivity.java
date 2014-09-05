@@ -28,18 +28,20 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -68,7 +70,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
-import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
@@ -85,6 +86,7 @@ import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.models.DrawerItem;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
@@ -120,13 +122,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	private REQUEST_TYPE mRequestType;
 	// Flag that indicates if a request is underway.
 	private boolean mInProgress;
-	private ArrayList<String> drawerStringList;
+	private ArrayList<DrawerItem> drawerStringList;
 	private SimpleGeofenceStore mGeofenceStorage;
 	private GeofenceSampleReceiver mBroadcastReceiver;
 	private Intent pendingIntent;
 	private LocationRequest mLocationRequest;
 	private SharedPreferences prefs;
-	private ListView mainListView;
 	private GeofenceAdapter adapter;
 	private RelativeLayout loading_screen,main_screen;
 	private List<SimpleGeofence> geoList;
@@ -141,6 +142,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
+	
+	LinearLayout footerView;
 	public String title;
 	GoogleMap mMap;
 	Marker currentMarker = null;
@@ -151,7 +154,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	EditText searchEdit;
 	ImageView ic_drawer;
 	FragmentManager fm;
-	ArrayAdapter drawerAdapter;
+	DrawerItemAdapter drawerAdapter;
 	AddGeoFenceFragment addGeofenceFragment;
 	RelativeLayout map_detail_layout,drawer_icon_layout;
 	int animateSpeed = 800, animateFast = 200, _radiusChanged =20, screenWidth, screenHeight;
@@ -344,7 +347,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 		View showcasedView2 = findViewById(R.id.ic_drawer);
 		ViewTarget target2 = new ViewTarget(showcasedView2);
-		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,"Tap icon","view saved location alerts, or destination alerts");
+		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,getResources().getString(R.string.showcase_title), getResources().getString(R.string.showcase_message));
 		sv.animateGesture(0, screenHeight/2 , screenWidth/2, screenHeight/2 );
 
 		//		new ShowcaseView.Builder(this)
@@ -377,16 +380,19 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	private void initLeftDrawer() {
 		int geoFenceSize = mSimpleGeoFenceList.size();
 
-		drawerStringList = new ArrayList<String>();
+		drawerStringList = new ArrayList<DrawerItem>();
 		for(int i=0; i < geoFenceSize; i++) {
-			drawerStringList.add(mSimpleGeoFenceList.get(i).getTitle());
+			drawerStringList.add(new DrawerItem(mSimpleGeoFenceList.get(i).getTitle()));
 		}
-		drawerStringList.add(getResources().getString(R.string.clear_all_text));
+		drawerStringList.add(new DrawerItem(getResources().getString(R.string.clear_all_text)));
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
+		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+	    footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
+		mDrawerList.addFooterView(footerView);
 		// Set the adapter for the list view
-		drawerAdapter = new ArrayAdapter<String>(this,
+		drawerAdapter = new DrawerItemAdapter(this,
 				R.layout.drawer_list_item, drawerStringList);
 		mDrawerList.setAdapter(drawerAdapter);
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -477,7 +483,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		spe.commit();
 		Log.i("Reid", "clearing list");
 		//remove geo fences
-		drawerStringList.add(getResources().getString(R.string.clear_all_text));
+		drawerStringList.add(new DrawerItem(getResources().getString(R.string.clear_all_text)));
 		drawerAdapter.notifyDataSetChanged();
 		removeGeofences(getTransitionPendingIntent());
 	}
@@ -518,6 +524,27 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	}
 	private void setListeners() {
 
+		ImageButton trashDrawer = (ImageButton)footerView.findViewById(R.id.drawer_trash);
+		trashDrawer.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String selected = "";
+	            int cntChoice = drawerStringList.size();
+
+	            SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
+	            o(sbArray.size() + "sparseBoolean array");
+	            
+	            for(int i=0;i<cntChoice-1;i++){
+	            	if(((DrawerItem)mDrawerList.getItemAtPosition(i)).isChecked()) {
+	            		drawerStringList.remove(i);
+	            	}
+	            }
+	            drawerAdapter.notifyDataSetChanged();
+
+				
+			}
+		});
 		searchEdit.setOnKeyListener(new OnKeyListener()
 		{
 			public boolean onKey(View v, int keyCode, KeyEvent event)
@@ -1008,12 +1035,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		Log.i("Reid","newItem: " +newItem.getTitle());
 		//add new item, remove old item from simpleGeoFence and from drawer
 		if(oldItem != null) {
-			drawerStringList.set(drawerStringList.indexOf(oldItem.getTitle()), newItem.getTitle());
+			drawerStringList.set(drawerStringList.indexOf(new DrawerItem(oldItem.getTitle())), new DrawerItem(newItem.getTitle()));
 		} else {
-			drawerStringList.add(newItem.getTitle());
+			drawerStringList.add(new DrawerItem(newItem.getTitle()));
 		}
-		drawerStringList.remove(getResources().getString(R.string.clear_all_text));
-		drawerStringList.add(getResources().getString(R.string.clear_all_text));
+		drawerStringList.remove(new DrawerItem(getResources().getString(R.string.clear_all_text)));
+		drawerStringList.add(new DrawerItem(getResources().getString(R.string.clear_all_text)));
 		drawerAdapter.notifyDataSetChanged();
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
 		addGeofences();
