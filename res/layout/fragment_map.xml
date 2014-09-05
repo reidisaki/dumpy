@@ -54,12 +54,12 @@
                         android:layout_gravity="center"
                         android:background="#ffffff"
                         android:padding="5dip"
-                        android:src="@drawable/magnify" />
+                        android:src="@drawable/clear" />
 
                     <EditText
                         android:id="@+id/location_edit"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight=".85"
                         android:background="#ffffff"
                         android:hint="ie: 9453 vollmerhausen drive, 21046"
@@ -81,7 +81,7 @@
                         android:layout_gravity="center"
                         android:background="#ffffff"
                         android:padding="5dip"
-                        android:src="@drawable/magnify" />
+                        android:src="@drawable/mic" />
 
                     <Spinner
                         android:id="@+id/radius_spinner"
@@ -146,12 +146,24 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_height="match_parent"
                 android:visibility="gone" >
 
+                <ImageView
+                    android:id="@+id/arrow"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="5dip"
+                    android:paddingBottom="5dip"
+                    android:layout_width="match_parent"
+                    android:src="@drawable/up"
+                    
+                     />
+
                 <TextView
+                    android:layout_below="@+id/arrow"
                     android:id="@+id/slide_tab_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center|top"
-                    android:paddingBottom="10dip"
+                    android:paddingTop="10dip"
                     android:text="Slide up to add GeoFence"
                     android:textSize="16sp" />
 

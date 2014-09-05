@@ -38,7 +38,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -152,7 +151,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	AdView adView;
 	TextView slide_tab_text;
 	EditText searchEdit;
-	ImageView ic_drawer;
+	ImageView ic_drawer, arrow;
 	FragmentManager fm;
 	DrawerItemAdapter drawerAdapter;
 	AddGeoFenceFragment addGeofenceFragment;
@@ -463,6 +462,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
+		arrow = (ImageView)findViewById(R.id.arrow);
 		clearTextImage = (ImageButton)findViewById(R.id.clearTextImage);
 		searchButton = (ImageButton)findViewById(R.id.searchButton);
 		voiceButton =(ImageButton)findViewById(R.id.voiceButton);
@@ -518,6 +518,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			animateToLocation(panelWillExpand);
 		}
 		slide_tab_text.setText("");
+		arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
 		fm.beginTransaction()
 		.show(addGeofenceFragment)
 		.commit();
@@ -692,7 +693,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				@Override
 				public void onPanelSlide(View panel, float slideOffset) {
 					slide_tab_text.setText("");
-					//					Log.i("Reid","onPanelSlide: " + slideOffset);
+					arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
+										Log.i("Reid","onPanelSlide: " + slideOffset);
 				}
 
 				@Override
@@ -720,6 +722,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 					.commit();
 
 					slide_tab_text.setText("Slide up to add a Geofence");
+					arrow.setImageDrawable(getResources().getDrawable(R.drawable.up));
 					if(latLng != null) {
 						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 					}
