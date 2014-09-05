@@ -64,6 +64,7 @@ import com.google.android.gms.location.LocationClient.OnRemoveGeofencesResultLis
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
@@ -74,6 +75,7 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -89,7 +91,7 @@ import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
 onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
-OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback {
+OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
@@ -287,12 +289,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mMap.setOnMarkerClickListener(this);
 		mMap.setOnMyLocationChangeListener(this); 
 		mMap.setOnMyLocationButtonClickListener(this);
-		mMap.setOnMapLoadedCallback(this);
+//		mMap.setOnMapLoadedCallback(this);
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
 		location = locationManager.getLastKnownLocation(bestProvider);
-
+		if( location != null) {
+			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
+		} 	
 		Bundle b = getIntent().getExtras();
 		if(b != null){
 			editable = b.getBoolean("editable",true);
@@ -827,6 +831,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	                    RecognizerIntent.EXTRA_RESULTS);
 	           if(matches.size() >0) {
 	        	   searchEdit.setText(matches.get(0));
+	        	   onSearchEditButtonClicked();
 	           }
 	           
 	        }
@@ -871,7 +876,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_exit);
 			addGeofenceFragment.radius_seek.setProgress(radius);
-			addGeofenceFragment.radius_text.setText(  radius + "m");
+			addGeofenceFragment.radius_text.setText("Radius: " + radius + "m");
 
 		} else {
 			//clear the drawer data to be empty except the title
@@ -923,8 +928,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
 		} 
-
-		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)), animateSpeed, cameraCallBack);
+		
+//		CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
+		 CameraUpdate update = CameraUpdateFactory.newCameraPosition(new CameraPosition(mMap.getProjection().fromScreenLocation(p), 15f, 0f, 0f));
+		 
+		mMap.animateCamera(update, animateSpeed, cameraCallBack);
+		
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
 
@@ -1530,12 +1539,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		Log.i("Reid","Return value onMyLocationButtonClick  " + returnValue);
 		return returnValue;
 	}
-	@Override
-	public void onMapLoaded() {
-		if( location != null) {
-			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
-		} 	
-	}
+//	@Override
+//	public void onMapLoaded() {
+//		if( location != null) {
+//			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
+//		} 	
+//	}
 
 
 }
