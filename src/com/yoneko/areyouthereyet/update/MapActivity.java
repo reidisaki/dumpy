@@ -27,6 +27,8 @@ import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Display;
@@ -70,6 +72,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
+import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
@@ -92,7 +95,7 @@ import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
 onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
-OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener {
+OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
@@ -160,7 +163,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
-	boolean editable = true;
+	boolean editable = true, isMapLoaded = false;
 	public static String tag = "Reid";
 	int selectedRadius = 100, mapOffset;;
 	Spinner spinner;
@@ -291,7 +294,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		mMap.setOnMarkerClickListener(this);
 		mMap.setOnMyLocationChangeListener(this); 
 		mMap.setOnMyLocationButtonClickListener(this);
-		//		mMap.setOnMapLoadedCallback(this);
+		mMap.setOnMapLoadedCallback(this);
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
@@ -382,12 +385,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		for(int i=0; i < geoFenceSize; i++) {
 			drawerStringList.add(mSimpleGeoFenceList.get(i));
 		}  
-		
+
 		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
-//		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		//		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
 		mDrawerList.addFooterView(footerView);
 		// Set the adapter for the list view
@@ -395,7 +398,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				R.layout.drawer_list_item, drawerStringList);
 		mDrawerList.setAdapter(drawerAdapter);
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-		
+
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 
@@ -553,6 +556,32 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 			}
 		});
+		searchEdit.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				if(!s.toString().equals("")) {
+					Log.i("Reid", "show clear text");
+					clearTextImage.setVisibility(View.VISIBLE);
+					voiceButton.setVisibility(View.GONE);
+				}  else {
+					Log.i("Reid", "hide clear text");
+					clearTextImage.setVisibility(View.GONE);
+					voiceButton.setVisibility(View.VISIBLE);
+				}
+				Log.i("Reid","onAfter text changed:" + s.toString());
+			}
+		});
 		searchEdit.setOnKeyListener(new OnKeyListener()
 		{
 			public boolean onKey(View v, int keyCode, KeyEvent event)
@@ -654,7 +683,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				.strokeWidth(5);
 				addGeofenceFragment.radius_text.setText("Radius: " + _radiusChanged + "m");
 				if(mMap != null && circleOptions != null) {
-					newCircle = mMap.addCircle(circleOptions);
+					try {
+						newCircle = mMap.addCircle(circleOptions);
+					} catch (NullPointerException e) {
+						Log.i("Reid", e.getMessage());
+					}
 				}
 
 			}
@@ -694,7 +727,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				public void onPanelSlide(View panel, float slideOffset) {
 					slide_tab_text.setText("");
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
-										Log.i("Reid","onPanelSlide: " + slideOffset);
+					Log.i("Reid","onPanelSlide: " + slideOffset);
 				}
 
 				@Override
@@ -790,7 +823,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			}
 		}
 	};
-
 
 	/** Called before the activity is destroyed. */
 	@Override
@@ -1050,7 +1082,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		} else {
 			drawerStringList.add(newItem);
 		}
-		
+
 		drawerStringList.remove(drawerStringList.size()-2);
 		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
 		drawerAdapter.notifyDataSetChanged();
@@ -1571,19 +1603,17 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
 		} 
- 
+
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)));
 
 		boolean returnValue =  (slidePanelLayout.isPanelAnchored() || slidePanelLayout.isPanelExpanded()) ? true : false;
 		Log.i("Reid","Return value onMyLocationButtonClick  " + returnValue);
 		return returnValue;
 	}
-	//	@Override
-	//	public void onMapLoaded() {
-	//		if( location != null) {
-	//			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
-	//		} 	
-	//	}
+	@Override
+	public void onMapLoaded() {
+		isMapLoaded = true; 	
+	}
 
 
 }
