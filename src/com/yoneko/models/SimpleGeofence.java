@@ -8,7 +8,14 @@ public class SimpleGeofence {
     private final double mLatitude;
     private final double mLongitude;
     private final float mRadius;
-    private String phoneDisplay;
+    private boolean checked; 
+    public void setChecked(boolean b) {
+    	checked = b;
+	}
+    public boolean isChecked() {
+    	return checked;
+    }
+	private String phoneDisplay;
     public String getPhoneDisplay() {
 		return phoneDisplay;
 	}
@@ -57,6 +64,18 @@ public SimpleGeofence(
     this.emailPhone = email;
     this.title = title;
     this.phoneDisplay = phoneDisplay;
+}
+public SimpleGeofence(String string) {
+	this.title = string;
+	this.mRadius = 0;
+    this.mId = null;
+    this.mLatitude = 0;
+    this.mLongitude = 0;
+    this.mExpirationDuration = 0;
+    this.mTransitionType = 0;
+    this.message = "";
+    this.emailPhone = "";
+    this.phoneDisplay = "";
 }
 // Instance field getters
 public String getId() {

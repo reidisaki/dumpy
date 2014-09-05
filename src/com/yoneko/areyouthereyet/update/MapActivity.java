@@ -38,6 +38,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -86,7 +87,6 @@ import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
-import com.yoneko.models.DrawerItem;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
@@ -122,7 +122,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	private REQUEST_TYPE mRequestType;
 	// Flag that indicates if a request is underway.
 	private boolean mInProgress;
-	private ArrayList<DrawerItem> drawerStringList;
+	private ArrayList<SimpleGeofence> drawerStringList;
 	private SimpleGeofenceStore mGeofenceStorage;
 	private GeofenceSampleReceiver mBroadcastReceiver;
 	private Intent pendingIntent;
@@ -130,7 +130,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	private SharedPreferences prefs;
 	private GeofenceAdapter adapter;
 	private RelativeLayout loading_screen,main_screen;
-	private List<SimpleGeofence> geoList;
+	private List<SimpleGeofence> geoListRemove;
 	private SlidingUpPanelLayout slide;
 	private Marker myLocationMarker;
 	private Location location;
@@ -142,7 +142,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
-	
+
 	LinearLayout footerView;
 	public String title;
 	GoogleMap mMap;
@@ -292,7 +292,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		mMap.setOnMarkerClickListener(this);
 		mMap.setOnMyLocationChangeListener(this); 
 		mMap.setOnMyLocationButtonClickListener(this);
-//		mMap.setOnMapLoadedCallback(this);
+		//		mMap.setOnMapLoadedCallback(this);
 		Criteria criteria = new Criteria();
 		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
@@ -376,26 +376,27 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 	}
 
-
 	private void initLeftDrawer() {
 		int geoFenceSize = mSimpleGeoFenceList.size();
 
-		drawerStringList = new ArrayList<DrawerItem>();
+		drawerStringList = new ArrayList<SimpleGeofence>();
 		for(int i=0; i < geoFenceSize; i++) {
-			drawerStringList.add(new DrawerItem(mSimpleGeoFenceList.get(i).getTitle()));
-		}
-		drawerStringList.add(new DrawerItem(getResources().getString(R.string.clear_all_text)));
+			drawerStringList.add(mSimpleGeoFenceList.get(i));
+		}  
+		
+		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
-		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-	    footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
+//		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
 		mDrawerList.addFooterView(footerView);
 		// Set the adapter for the list view
 		drawerAdapter = new DrawerItemAdapter(this,
 				R.layout.drawer_list_item, drawerStringList);
 		mDrawerList.setAdapter(drawerAdapter);
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+		
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 
@@ -419,7 +420,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View view, int position,
 				long arg3) {
-			String selectedItemTitle = ((TextView)view).getText().toString();
+			String selectedItemTitle = ((TextView)(view).findViewById(R.id.drawer_text)).getText().toString();
 			if(selectedItemTitle.equals(getResources().getString(R.string.clear_all_text))) {
 				clearAllGeoFences();
 				slidePanelLayout.collapsePanel();
@@ -483,7 +484,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		spe.commit();
 		Log.i("Reid", "clearing list");
 		//remove geo fences
-		drawerStringList.add(new DrawerItem(getResources().getString(R.string.clear_all_text)));
+		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
 		drawerAdapter.notifyDataSetChanged();
 		removeGeofences(getTransitionPendingIntent());
 	}
@@ -526,23 +527,29 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 		ImageButton trashDrawer = (ImageButton)footerView.findViewById(R.id.drawer_trash);
 		trashDrawer.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				String selected = "";
-	            int cntChoice = drawerStringList.size();
+				int cntChoice = drawerStringList.size();
+				ArrayList<String> geoFenceIdToRemoveList = new ArrayList<String>();
+				SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
+				o(sbArray.size() + "sparseBoolean array");
 
-	            SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
-	            o(sbArray.size() + "sparseBoolean array");
-	            
-	            for(int i=0;i<cntChoice-1;i++){
-	            	if(((DrawerItem)mDrawerList.getItemAtPosition(i)).isChecked()) {
-	            		drawerStringList.remove(i);
-	            	}
-	            }
-	            drawerAdapter.notifyDataSetChanged();
+				for(int i=0;i<cntChoice-1;i++){
+					if(((SimpleGeofence)mDrawerList.getItemAtPosition(i)).isChecked()) {
 
-				
+						SimpleGeofence fence = drawerStringList.remove(i);
+						mSimpleGeoFenceList.remove(fence);
+						geoFenceIdToRemoveList.add(fence.getId());
+					}
+				}
+				SimpleGeofenceList list = new SimpleGeofenceList(mSimpleGeoFenceList);
+				storeJSON(list, getApplicationContext());
+				removeGeofences(geoFenceIdToRemoveList);
+				drawerAdapter.notifyDataSetChanged();
+
+
 			}
 		});
 		searchEdit.setOnKeyListener(new OnKeyListener()
@@ -553,6 +560,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 				{
 					switch (keyCode)
 					{
+
 					case KeyEvent.KEYCODE_DPAD_CENTER:
 					case KeyEvent.KEYCODE_ENTER:
 						onSearchEditButtonClicked();
@@ -565,7 +573,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			}
 		});
 		voiceButton.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				startVoiceRecognitionActivity();				
@@ -575,7 +583,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 
 			@Override
 			public void onClick(View v) {
-				
+
 				onSearchEditButtonClicked();
 
 			}
@@ -779,7 +787,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 			}
 		}
 	};
-	
+
 
 	/** Called before the activity is destroyed. */
 	@Override
@@ -836,34 +844,34 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		//		mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
 
 	}
-	 private void startVoiceRecognitionActivity()
-	    {
-	        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-	        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-	                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-	        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Voice recognition Demo...");
-	        startActivityForResult(intent, REQUEST_CODE);
-	    }
-	 
-	    /**
-	     * Handle the results from the voice recognition activity.
-	     */
-	    @Override
-	    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	    {
-	        if (requestCode == REQUEST_CODE  && resultCode == RESULT_OK)
-	        {
-	            // Populate the wordsList with the String values the recognition engine thought it heard
-	            ArrayList<String> matches = data.getStringArrayListExtra(
-	                    RecognizerIntent.EXTRA_RESULTS);
-	           if(matches.size() >0) {
-	        	   searchEdit.setText(matches.get(0));
-	        	   onSearchEditButtonClicked();
-	           }
-	           
-	        }
-	        super.onActivityResult(requestCode, resultCode, data);
-	    }
+	private void startVoiceRecognitionActivity()
+	{
+		Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+				RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+		intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Voice recognition Demo...");
+		startActivityForResult(intent, REQUEST_CODE);
+	}
+
+	/**
+	 * Handle the results from the voice recognition activity.
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if (requestCode == REQUEST_CODE  && resultCode == RESULT_OK)
+		{
+			// Populate the wordsList with the String values the recognition engine thought it heard
+			ArrayList<String> matches = data.getStringArrayListExtra(
+					RecognizerIntent.EXTRA_RESULTS);
+			if(matches.size() >0) {
+				searchEdit.setText(matches.get(0));
+				onSearchEditButtonClicked();
+			}
+
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
 	public void addMarker(LatLng latLng) {
 
 		title ="not set yet";
@@ -955,12 +963,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
 		} 
-		
-//		CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
-		 CameraUpdate update = CameraUpdateFactory.newCameraPosition(new CameraPosition(mMap.getProjection().fromScreenLocation(p), 15f, 0f, 0f));
-		 
+
+		//		CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
+		CameraUpdate update = CameraUpdateFactory.newCameraPosition(new CameraPosition(mMap.getProjection().fromScreenLocation(p), 15f, 0f, 0f));
+
 		mMap.animateCamera(update, animateSpeed, cameraCallBack);
-		
+
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
 
@@ -1035,12 +1043,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		Log.i("Reid","newItem: " +newItem.getTitle());
 		//add new item, remove old item from simpleGeoFence and from drawer
 		if(oldItem != null) {
-			drawerStringList.set(drawerStringList.indexOf(new DrawerItem(oldItem.getTitle())), new DrawerItem(newItem.getTitle()));
+			drawerStringList.set(drawerStringList.indexOf(oldItem), newItem);
 		} else {
-			drawerStringList.add(new DrawerItem(newItem.getTitle()));
+			drawerStringList.add(newItem);
 		}
-		drawerStringList.remove(new DrawerItem(getResources().getString(R.string.clear_all_text)));
-		drawerStringList.add(new DrawerItem(getResources().getString(R.string.clear_all_text)));
+		
+		drawerStringList.remove(drawerStringList.size()-2);
+		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
 		drawerAdapter.notifyDataSetChanged();
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
 		addGeofences();
@@ -1559,19 +1568,19 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener 
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
 		} 
-
+ 
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)));
 
 		boolean returnValue =  (slidePanelLayout.isPanelAnchored() || slidePanelLayout.isPanelExpanded()) ? true : false;
 		Log.i("Reid","Return value onMyLocationButtonClick  " + returnValue);
 		return returnValue;
 	}
-//	@Override
-//	public void onMapLoaded() {
-//		if( location != null) {
-//			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
-//		} 	
-//	}
+	//	@Override
+	//	public void onMapLoaded() {
+	//		if( location != null) {
+	//			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
+	//		} 	
+	//	}
 
 
 }
