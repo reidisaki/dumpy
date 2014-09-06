@@ -719,17 +719,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				if(newCircle != null) {
 					newCircle.remove();
 				}
-				CircleOptions circleOptions = new CircleOptions()
-				.center(latLng)   //set center
-				.radius(_radiusChanged)   //set radius in meters  make this configurable
-				.strokeColor(Color.MAGENTA)
-				.strokeWidth(5);
-				addGeofenceFragment.radius_text.setText("Radius  " + _radiusChanged + "m");
-				if(mMap != null && circleOptions != null) {
-					try {
+				if(latLng != null) {
+					CircleOptions circleOptions = new CircleOptions()
+					.center(latLng)   //set center
+					.radius(_radiusChanged)   //set radius in meters  make this configurable
+					.strokeColor(Color.MAGENTA)
+					.strokeWidth(5);
+					addGeofenceFragment.radius_text.setText("Radius  " + _radiusChanged + "m");
+					if(mMap != null && circleOptions != null) {
 						newCircle = mMap.addCircle(circleOptions);
-					} catch (NullPointerException e) {
-						Log.i("Reid", e.getMessage());
 					}
 				}
 
