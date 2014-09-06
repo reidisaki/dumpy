@@ -70,11 +70,11 @@
                     <ImageButton
                         android:id="@+id/clearTextImage"
                         style="@style/wrapAll"
-                        android:visibility="gone"
                         android:layout_gravity="center"
                         android:background="#ffffff"
                         android:padding="5dip"
-                        android:src="@drawable/clear" />
+                        android:src="@drawable/clear"
+                        android:visibility="gone" />
 
                     <ImageButton
                         android:id="@+id/voiceButton"

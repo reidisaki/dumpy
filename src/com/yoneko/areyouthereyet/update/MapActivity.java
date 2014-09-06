@@ -140,7 +140,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
-	private ImageButton clearTextImage,searchButton,voiceButton;
+	private ImageButton clearTextImage,searchButton,voiceButton,trashDrawer;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
@@ -163,11 +163,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
-	boolean editable = true, isMapLoaded = false;
+	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true;
 	public static String tag = "Reid";
 	int selectedRadius = 100, mapOffset;;
 	Spinner spinner;
-	protected boolean isPanelExpanded;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 
 
@@ -463,7 +462,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//        .transparency(0.5f);
 		//        mMap.addGroundOverlay(groundOverlay);
 
-
+		trashDrawer = (ImageButton)footerView.findViewById(R.id.drawer_trash);
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
 		arrow = (ImageView)findViewById(R.id.arrow);
 		clearTextImage = (ImageButton)findViewById(R.id.clearTextImage);
@@ -529,9 +528,26 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	private void setListeners() {
 
-		ImageButton trashDrawer = (ImageButton)footerView.findViewById(R.id.drawer_trash);
+		arrow.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.i("Reid", "clicked on arrow");
+				if(isArrowUp) {
+					
+					if(slidePanelLayout.isPanelAnchored()){
+						o("expand panel all the way");
+						slidePanelLayout.expandPanel();
+					} else {
+						o("expand panel half way");
+						slidePanelLayout.expandPanel(.5f);
+					}
+				} else {
+					o("collapsing panel");
+					slidePanelLayout.collapsePanel();
+				}
+			}
+		});
 		trashDrawer.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				String selected = "";
@@ -681,7 +697,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				.radius(_radiusChanged)   //set radius in meters  make this configurable
 				.strokeColor(Color.MAGENTA)
 				.strokeWidth(5);
-				addGeofenceFragment.radius_text.setText("Radius: " + _radiusChanged + "m");
+				addGeofenceFragment.radius_text.setText("Radius  " + _radiusChanged + "m");
 				if(mMap != null && circleOptions != null) {
 					try {
 						newCircle = mMap.addCircle(circleOptions);
@@ -692,8 +708,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 			}
 		});
+	 
 		ic_drawer.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				if(mDrawerLayout.isDrawerOpen(mDrawerList)){
@@ -727,7 +743,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				public void onPanelSlide(View panel, float slideOffset) {
 					slide_tab_text.setText("");
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
-					Log.i("Reid","onPanelSlide: " + slideOffset);
+					isArrowUp =false;
+//					Log.i("Reid","onPanelSlide: " + slideOffset);
 				}
 
 				@Override
@@ -756,6 +773,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 					slide_tab_text.setText("Slide up to add a Geofence");
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.up));
+					isArrowUp =true;
 					if(latLng != null) {
 						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 					}
@@ -869,8 +887,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		latLng = point;
 		createRadiusCircle(point);
 		Log.i("REID","hiding keyboard now");
-		InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-		imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 		//		MarkerOptions mo = new MarkerOptions()
 		//		.position(point)
 		//		.title( point.latitude + ", " + point.longitude)           
@@ -946,7 +962,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_exit);
 			addGeofenceFragment.radius_seek.setProgress(radius);
-			addGeofenceFragment.radius_text.setText("Radius: " + radius + "m");
+			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
 
 		} else {
 			//clear the drawer data to be empty except the title
@@ -1003,7 +1019,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		CameraUpdate update = CameraUpdateFactory.newCameraPosition(new CameraPosition(mMap.getProjection().fromScreenLocation(p), 15f, 0f, 0f));
 
 		mMap.animateCamera(update, animateSpeed, cameraCallBack);
-
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
 
@@ -1089,9 +1104,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
 		addGeofences();
 	}
+	
 	public String getNickName() {
 		return title;
 	}
+	
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");

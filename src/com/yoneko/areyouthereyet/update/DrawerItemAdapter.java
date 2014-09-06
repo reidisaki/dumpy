@@ -19,7 +19,6 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 	Context mContext;
 	int layoutResourceId;
 	ArrayList<SimpleGeofence> data = null;
-	boolean checked[];
 	public DrawerItemAdapter(Context context, int resource) {
 		super(context, resource);
 	}
@@ -29,7 +28,6 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		this.layoutResourceId = layoutResourceId;
 		this.mContext = mContext;
 		this.data = data;
-		checked = new boolean[data.size()];
 	}
 
 	@Override
@@ -49,7 +47,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		textViewItem.setText(objectItem.getTitle());
 
 		final CheckBox checkbox = (CheckBox)convertView.findViewById(R.id.drawer_check_box);
-		checkbox.setChecked(checked[position]);
+		checkbox.setChecked(objectItem.isChecked());
 		checkbox.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -58,10 +56,8 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 					v.setSelected(true);
 					objectItem.setChecked(true);
 					data.set(position, objectItem);
-					checked[position] = true;
 				} else {
 					v.setSelected(false);
-					checked[position] = false;  
 					objectItem.setChecked(false);
 					data.set(position, objectItem);
 

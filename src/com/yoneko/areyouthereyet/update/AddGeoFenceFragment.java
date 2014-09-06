@@ -426,7 +426,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			//			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
 			//			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
 			radius = data.getIntExtra("radius", 100);
-			radius_text.setText("Radius: " + radius + "meters");
+			radius_text.setText("Radius " + radius + "meters");
 			break;
 		}
 		Log.i("Reid","onActivityForResult");
