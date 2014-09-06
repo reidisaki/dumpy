@@ -38,6 +38,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -147,7 +149,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
 
-	LinearLayout footerView;
+	LinearLayout footerView,searchBar,adView_layout;
 	public String title;
 	GoogleMap mMap;
 	Marker currentMarker = null;
@@ -167,7 +169,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true;
 	public static String tag = "Reid";
-	int selectedRadius = 100, mapOffset;;
+	int selectedRadius = 100, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 
@@ -287,7 +289,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		.build();
 		adView = (AdView)findViewById(R.id.adView);
 		// Start loading the ad in the background.
-		adView.loadAd(adRequest);
+		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
+			adView.loadAd(adRequest);
+		} else {
+			adView.setVisibility(View.GONE);
+		}
 
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
@@ -367,14 +373,17 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if (hasFocus) {
 			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
 			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
+			appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
+			SharedPreferences.Editor editor = wmbPreference.edit();
 			if (isFirstRun)
 			{
 				initShowView();
 				// Code to run once
-				SharedPreferences.Editor editor = wmbPreference.edit();
 				editor.putBoolean("FIRSTRUN", false);
-				editor.commit();
+				
 			}
+			editor.putInt("numTimesAppOpened", appOpenNumber++);
+			editor.commit();
 		}
 
 	}
@@ -464,7 +473,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//        .position(new LatLng(40.714086, -74.228697), 500f)
 		//        .transparency(0.5f);
 		//        mMap.addGroundOverlay(groundOverlay);
-
+		adView_layout = (LinearLayout)findViewById(R.id.adView_layout);
+		searchBar = (LinearLayout)findViewById(R.id.searchBar);
 		trashDrawer = (ImageButton)footerView.findViewById(R.id.drawer_trash);
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
 		arrow = (ImageView)findViewById(R.id.arrow);
@@ -532,7 +542,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private void setListeners() {
 
 		feedbackBtn.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(Intent.ACTION_SEND);
@@ -775,7 +785,25 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				@Override
 				public void onPanelCollapsed(View panel) {
 					Log.i("Reid","panel is collapsed");
+					
+					Animation fadeIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
+					searchBar.startAnimation(fadeIn);
+					fadeIn.setAnimationListener(new Animation.AnimationListener() {
+					    @Override
+					    public void onAnimationStart(Animation animation) {
+					    	searchBar.setVisibility(View.VISIBLE);
+					    }
 
+					    @Override
+					    public void onAnimationEnd(Animation animation) {
+					        
+					    }
+
+					    @Override
+					    public void onAnimationRepeat(Animation animation) {
+					    }
+					});
+					
 					InputMethodManager imm = (InputMethodManager)getSystemService(
 							Context.INPUT_METHOD_SERVICE);
 
@@ -798,6 +826,22 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				public void onPanelAnchored(View panel) {
 					Log.i("Reid","onPanelAnchored 352");
 					showAddGeoFenceFragment();
+					Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
+					searchBar.startAnimation(fadeOut);
+					fadeOut.setAnimationListener(new Animation.AnimationListener() {
+					    @Override
+					    public void onAnimationStart(Animation animation) {
+					    }
+
+					    @Override
+					    public void onAnimationEnd(Animation animation) {
+					        searchBar.setVisibility(View.GONE);
+					    }
+
+					    @Override
+					    public void onAnimationRepeat(Animation animation) {
+					    }
+					});
 				}
 			});
 		}
@@ -816,6 +860,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	public void onResume() {
 		super.onResume();
+		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
+			adView_layout.setVisibility(View.VISIBLE);
+		} else {
+			adView_layout.setVisibility(View.GONE);
+		}
 		LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
 		if (adView != null) {
 			adView.resume();
