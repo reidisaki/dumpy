@@ -11,4 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <Button 
+		android:text="Feedback"
+        android:id="@+id/drawer_feedback"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+        ></Button>
 </LinearLayout>

@@ -40,6 +40,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -141,6 +142,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private ImageButton clearTextImage,searchButton,voiceButton,trashDrawer;
+	private Button feedbackBtn;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
@@ -391,6 +393,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 		//		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
+		feedbackBtn = (Button)footerView.findViewById(R.id.drawer_feedback);
 		mDrawerList.addFooterView(footerView);
 		// Set the adapter for the list view
 		drawerAdapter = new DrawerItemAdapter(this,
@@ -528,12 +531,23 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	private void setListeners() {
 
+		feedbackBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Intent.ACTION_SEND);
+				intent.setType("plain/text");
+				intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "reidisaki@gmail.com", "pchung528@gmail.com" });
+				intent.putExtra(Intent.EXTRA_SUBJECT, "location app feedback");
+				startActivity(Intent.createChooser(intent, ""));				
+			}
+		});
 		arrow.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Log.i("Reid", "clicked on arrow");
 				if(isArrowUp) {
-					
+
 					if(slidePanelLayout.isPanelAnchored()){
 						o("expand panel all the way");
 						slidePanelLayout.expandPanel();
@@ -708,7 +722,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 			}
 		});
-	 
+
 		ic_drawer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -744,7 +758,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					slide_tab_text.setText("");
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
 					isArrowUp =false;
-//					Log.i("Reid","onPanelSlide: " + slideOffset);
+					//					Log.i("Reid","onPanelSlide: " + slideOffset);
 				}
 
 				@Override
@@ -1104,11 +1118,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
 		addGeofences();
 	}
-	
+
 	public String getNickName() {
 		return title;
 	}
-	
+
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");
@@ -1313,13 +1327,17 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			break;
 		case REMOVE_INTENT :
 			Log.i(TAG,"Removing all geo fences for reals on google");
-			mLocationClient.removeGeofences(
-					mRemoveIntent, this);
+			if(mRemoveIntent != null) {
+				mLocationClient.removeGeofences(
+						mRemoveIntent, this);
+			}
 			break;
 		case REMOVE_LIST :
 			Log.i(TAG,"Removing CERTAIN not all. geo fences for reals on google");
-			mLocationClient.removeGeofences(
-					mGeofencesToRemove, this);
+			if(mGeofencesToRemove != null && mGeofencesToRemove.get(0) != null) {
+				mLocationClient.removeGeofences(
+						mGeofencesToRemove, this);
+			}
 			break;
 		}
 	}
