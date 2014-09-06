@@ -442,6 +442,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				addGeofenceFragment.messageEdit.setText("");
 				addGeofenceFragment.emailEdit.setText("");
 				addGeofenceFragment.radius_seek.setProgress(100);
+				searchEdit.setText("");
 				mMap.clear();
 			} else {
 				//find item in the simpleGeoFenceLIst and match that to the list View
@@ -1156,7 +1157,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		Log.i("Reid","newItem: " +newItem.getTitle());
 		//add new item, remove old item from simpleGeoFence and from drawer
 		if(oldItem != null) {
-			drawerStringList.set(drawerStringList.indexOf(oldItem), newItem);
+			int index = drawerStringList.indexOf(oldItem);
+			if(index == -1) {
+				drawerStringList.add(newItem);	
+			} else {
+				drawerStringList.set(drawerStringList.indexOf(oldItem), newItem);
+			}
 		} else {
 			drawerStringList.add(newItem);
 		}
@@ -1383,7 +1389,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			break;
 		case REMOVE_LIST :
 			Log.i(TAG,"Removing CERTAIN not all. geo fences for reals on google");
-			if(mGeofencesToRemove != null && mGeofencesToRemove.get(0) != null) {
+			if(mGeofencesToRemove != null && mGeofencesToRemove.size() > 0 ) {
 				mLocationClient.removeGeofences(
 						mGeofencesToRemove, this);
 			}
