@@ -371,19 +371,21 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onWindowFocusChanged (boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
-			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
-			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
-			appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
-			SharedPreferences.Editor editor = wmbPreference.edit();
-			if (isFirstRun)
-			{
-				initShowView();
-				// Code to run once
-				editor.putBoolean("FIRSTRUN", false);
-				
-			}
-			editor.putInt("numTimesAppOpened", appOpenNumber++);
-			editor.commit();
+			//			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
+			//			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
+			//			appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
+			//			Log.i("Reid", "number of times app opened: " + appOpenNumber);
+			//			SharedPreferences.Editor editor = wmbPreference.edit();
+			//			if (isFirstRun)
+			//			{
+			//				initShowView();
+			//				// Code to run once
+			//				editor.putBoolean("FIRSTRUN", false);
+			//				
+			//			}
+			//			int newOpenAppNumber = appOpenNumber+1;
+			//			editor.putInt("numTimesAppOpened", newOpenAppNumber);
+			//			editor.commit();
 		}
 
 	}
@@ -786,25 +788,25 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				@Override
 				public void onPanelCollapsed(View panel) {
 					Log.i("Reid","panel is collapsed");
-					
+
 					Animation fadeIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
 					searchBar.startAnimation(fadeIn);
 					fadeIn.setAnimationListener(new Animation.AnimationListener() {
-					    @Override
-					    public void onAnimationStart(Animation animation) {
-					    	searchBar.setVisibility(View.VISIBLE);
-					    }
+						@Override
+						public void onAnimationStart(Animation animation) {
+							searchBar.setVisibility(View.VISIBLE);
+						}
 
-					    @Override
-					    public void onAnimationEnd(Animation animation) {
-					        
-					    }
+						@Override
+						public void onAnimationEnd(Animation animation) {
 
-					    @Override
-					    public void onAnimationRepeat(Animation animation) {
-					    }
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+						}
 					});
-					
+
 					InputMethodManager imm = (InputMethodManager)getSystemService(
 							Context.INPUT_METHOD_SERVICE);
 
@@ -830,18 +832,18 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
 					searchBar.startAnimation(fadeOut);
 					fadeOut.setAnimationListener(new Animation.AnimationListener() {
-					    @Override
-					    public void onAnimationStart(Animation animation) {
-					    }
+						@Override
+						public void onAnimationStart(Animation animation) {
+						}
 
-					    @Override
-					    public void onAnimationEnd(Animation animation) {
-					        searchBar.setVisibility(View.GONE);
-					    }
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							searchBar.setVisibility(View.GONE);
+						}
 
-					    @Override
-					    public void onAnimationRepeat(Animation animation) {
-					    }
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+						}
 					});
 				}
 			});
@@ -861,6 +863,23 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	public void onResume() {
 		super.onResume();
+		Log.i("Reid","on resume: "+appOpenNumber);
+
+		SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
+		boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
+		appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
+		Log.i("Reid", "number of times app opened: " + appOpenNumber);
+		SharedPreferences.Editor editor = wmbPreference.edit();
+		if (isFirstRun)
+		{
+			initShowView();
+			// Code to run once
+			editor.putBoolean("FIRSTRUN", false);
+
+		}
+		int newOpenAppNumber = appOpenNumber+1;
+		editor.putInt("numTimesAppOpened", newOpenAppNumber);
+		editor.commit();
 		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
 			adView_layout.setVisibility(View.VISIBLE);
 		} else {
