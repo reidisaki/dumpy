@@ -144,7 +144,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private ImageButton clearTextImage,searchButton,voiceButton,trashDrawer;
-	private Button feedbackBtn;
+	private Button feedbackBtn,drawer_clear;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
@@ -398,8 +398,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			drawerStringList.add(mSimpleGeoFenceList.get(i));
 		}  
 
-		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
-
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 		//		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -436,24 +434,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		public void onItemClick(AdapterView<?> arg0, View view, int position,
 				long arg3) {
 			String selectedItemTitle = ((TextView)(view).findViewById(R.id.drawer_text)).getText().toString();
-			if(selectedItemTitle.equals(getResources().getString(R.string.clear_all_text))) {
-				clearAllGeoFences();
-				slidePanelLayout.collapsePanel();
-				//reset items
-				addGeofenceFragment.nicknameEdit.setText("");
-				addGeofenceFragment.messageEdit.setText("");
-				addGeofenceFragment.emailEdit.setText("");
-				addGeofenceFragment.radius_seek.setProgress(100);
-				searchEdit.setText("");
-				mMap.clear();
-			} else {
-				//find item in the simpleGeoFenceLIst and match that to the list View
-				int index = indexOfItemInGeofenceList(selectedItemTitle);
-				SimpleGeofence item = mSimpleGeoFenceList.get(index);
-				latLng = new LatLng(item.getLatitude(),
-						item.getLongitude());
-				createRadiusCircle(latLng);
-			}
+			int index = indexOfItemInGeofenceList(selectedItemTitle);
+			SimpleGeofence item = mSimpleGeoFenceList.get(index);
+			latLng = new LatLng(item.getLatitude(),
+					item.getLongitude());
+			createRadiusCircle(latLng);
 			//check the View if they clicked hte text item or if they clicked the X icon.
 			mDrawerLayout.closeDrawers();
 
@@ -481,6 +466,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		trashDrawer = (ImageButton)footerView.findViewById(R.id.drawer_trash);
 		ic_drawer = (ImageView)findViewById(R.id.ic_drawer);
 		arrow = (ImageView)findViewById(R.id.arrow);
+		drawer_clear = (Button)footerView.findViewById(R.id.drawer_clear);
 		clearTextImage = (ImageButton)findViewById(R.id.clearTextImage);
 		searchButton = (ImageButton)findViewById(R.id.searchButton);
 		voiceButton =(ImageButton)findViewById(R.id.voiceButton);
@@ -502,7 +488,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		spe.commit();
 		Log.i("Reid", "clearing list");
 		//remove geo fences
-		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
 		drawerAdapter.notifyDataSetChanged();
 		removeGeofences(getTransitionPendingIntent());
 	}
@@ -544,6 +529,21 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	private void setListeners() {
 
+		drawer_clear.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				clearAllGeoFences();
+				slidePanelLayout.collapsePanel();
+				//reset items
+				addGeofenceFragment.nicknameEdit.setText("");
+				addGeofenceFragment.messageEdit.setText("");
+				addGeofenceFragment.emailEdit.setText("");
+				addGeofenceFragment.radius_seek.setProgress(100);
+				searchEdit.setText("");
+				mMap.clear();
+			}
+		});
 		feedbackBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -582,18 +582,16 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
 				o(sbArray.size() + "sparseBoolean array");
 				boolean isCurrentGeofenceAffected = false;
-				for(int i=0;i<cntChoice-1;i++){
-					if(((SimpleGeofence)mDrawerList.getItemAtPosition(i)).isChecked()) {
-						SimpleGeofence fence = drawerStringList.remove(i);
-						mSimpleGeoFenceList.remove(fence);
+				for(int i=drawerStringList.size()-1; i > 0; i--){
+					SimpleGeofence fence = ((SimpleGeofence)mDrawerList.getItemAtPosition(i));
+					if(fence.isChecked()) {
+						Log.i("Reid","removing item");
+						drawerStringList.remove(i);
 						if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
 							isCurrentGeofenceAffected = true;
-						}
-						mDrawerList.setItemChecked(i, false);
+						}						
 						geoFenceIdToRemoveList.add(fence.getId());
-
-					}
-
+					} 
 				}
 				//if current geofence is the selected geoFence then clear out all the crap
 				if(isCurrentGeofenceAffected){
@@ -609,8 +607,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					searchEdit.setText("");
 				}
 
-				SimpleGeofenceList list = new SimpleGeofenceList(mSimpleGeoFenceList);
-				storeJSON(list, getApplicationContext());
+				SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerStringList);
+				storeJSON(mSimpleGeofenceList, getApplicationContext());
 				removeGeofences(geoFenceIdToRemoveList);
 
 				drawerAdapter.notifyDataSetChanged();
@@ -1206,8 +1204,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			drawerStringList.add(newItem);
 		}
 
-		drawerStringList.remove(drawerStringList.size()-2);
-		drawerStringList.add(new SimpleGeofence((getResources().getString(R.string.clear_all_text))));
+		//		drawerStringList.remove(drawerStringList.size()-2);
 		drawerAdapter.notifyDataSetChanged();
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
 		addGeofences();

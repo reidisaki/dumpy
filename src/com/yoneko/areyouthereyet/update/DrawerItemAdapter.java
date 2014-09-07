@@ -1,6 +1,6 @@
 package com.yoneko.areyouthereyet.update;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,17 +12,16 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.yoneko.models.DrawerItem;
 import com.yoneko.models.SimpleGeofence;
 
 public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 	Context mContext;
 	int layoutResourceId;
-	ArrayList<SimpleGeofence> data = null;
+	List<SimpleGeofence> data = null;
 	public DrawerItemAdapter(Context context, int resource) {
 		super(context, resource);
 	}
-	public DrawerItemAdapter(Context mContext, int layoutResourceId, ArrayList<SimpleGeofence> data) {
+	public DrawerItemAdapter(Context mContext, int layoutResourceId, List<SimpleGeofence> data) {
 		super(mContext, layoutResourceId, data);
 
 		this.layoutResourceId = layoutResourceId;
