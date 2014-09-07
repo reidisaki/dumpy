@@ -577,23 +577,42 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		trashDrawer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String selected = "";
 				int cntChoice = drawerStringList.size();
 				ArrayList<String> geoFenceIdToRemoveList = new ArrayList<String>();
 				SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
 				o(sbArray.size() + "sparseBoolean array");
-
+				boolean isCurrentGeofenceAffected = false;
 				for(int i=0;i<cntChoice-1;i++){
 					if(((SimpleGeofence)mDrawerList.getItemAtPosition(i)).isChecked()) {
-
 						SimpleGeofence fence = drawerStringList.remove(i);
 						mSimpleGeoFenceList.remove(fence);
+						if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
+							isCurrentGeofenceAffected = true;
+						}
+						mDrawerList.setItemChecked(i, false);
 						geoFenceIdToRemoveList.add(fence.getId());
+
 					}
+
 				}
+				//if current geofence is the selected geoFence then clear out all the crap
+				if(isCurrentGeofenceAffected){
+					mMap.clear();
+					if(myCircle != null) {
+						myCircle.remove();
+					}
+					if(newCircle != null) {
+						newCircle.remove();
+					}
+					clearAddGeoFenceFragment();
+					addGeofenceFragment.nicknameEdit.setText("");
+					searchEdit.setText("");
+				}
+
 				SimpleGeofenceList list = new SimpleGeofenceList(mSimpleGeoFenceList);
 				storeJSON(list, getApplicationContext());
 				removeGeofences(geoFenceIdToRemoveList);
+
 				drawerAdapter.notifyDataSetChanged();
 
 
@@ -1047,15 +1066,18 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		} else {
 			//clear the drawer data to be empty except the title
-			addGeofenceFragment.messageEdit.setText("");
-			addGeofenceFragment.enter_exit.check(R.id.radio_enter);
-			addGeofenceFragment.radius_seek.setProgress(100);
-			addGeofenceFragment.emailEdit.setText("");
+			clearAddGeoFenceFragment();
 		}
 
 		currentMarker = mMap.addMarker(mo);
 		boolean panelWillExpand = true;
 		animateToLocation(panelWillExpand);
+	}
+	private void clearAddGeoFenceFragment() {
+		addGeofenceFragment.messageEdit.setText("");
+		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
+		addGeofenceFragment.radius_seek.setProgress(100);
+		addGeofenceFragment.emailEdit.setText("");		
 	}
 	//	@Override
 	//	public void onMapClick(LatLng point) {
@@ -1199,7 +1221,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");
 		FlurryAgent.onEndSession(this);
-		if (mLocationClient != null && mLocationClient.isConnected()) {
+		if (mLocationClient !=null && mLocationClient.isConnected()) {
 			Log.i(TAG,"stopping updates");
 			/*
 			 * Remove location updates for a listener.
@@ -1207,12 +1229,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			 * the argument is "this".
 			 */
 			//dont need
-			mLocationClient.removeLocationUpdates(this);	
+			mLocationClient.removeLocationUpdates(this);
 			mLocationClient.disconnect();
 		} else {
 			Log.i(TAG,"client is not connected()");
 		}
-
 		super.onStop();
 	}
 	//BEGINNING MERGE
