@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -530,18 +532,36 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private void setListeners() {
 
 		drawer_clear.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
-				clearAllGeoFences();
-				slidePanelLayout.collapsePanel();
-				//reset items
-				addGeofenceFragment.nicknameEdit.setText("");
-				addGeofenceFragment.messageEdit.setText("");
-				addGeofenceFragment.emailEdit.setText("");
-				addGeofenceFragment.radius_seek.setProgress(100);
-				searchEdit.setText("");
-				mMap.clear();
+
+				new AlertDialog.Builder(MapActivity.this) 
+				//set message, title, and icon
+				.setTitle("Delete All Geofences") 
+				.setMessage("Do you want to remove all geofences?") 
+				//				.setIcon(R.drawable.delete)
+				.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int whichButton) { 
+						clearAllGeoFences();
+						slidePanelLayout.collapsePanel();
+						//reset items
+						addGeofenceFragment.nicknameEdit.setText("");
+						addGeofenceFragment.messageEdit.setText("");
+						addGeofenceFragment.emailEdit.setText("");
+						addGeofenceFragment.radius_seek.setProgress(100);
+						searchEdit.setText("");
+						mMap.clear();
+						dialog.dismiss();
+					}   
+				})
+
+				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				}).create()
+				.show();
 			}
 		});
 		feedbackBtn.setOnClickListener(new OnClickListener() {
@@ -577,43 +597,59 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		trashDrawer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				int cntChoice = drawerStringList.size();
-				ArrayList<String> geoFenceIdToRemoveList = new ArrayList<String>();
-				SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
-				o(sbArray.size() + "sparseBoolean array");
-				boolean isCurrentGeofenceAffected = false;
-				for(int i=drawerStringList.size()-1; i > 0; i--){
-					SimpleGeofence fence = ((SimpleGeofence)mDrawerList.getItemAtPosition(i));
-					if(fence.isChecked()) {
-						Log.i("Reid","removing item");
-						drawerStringList.remove(i);
-						if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
-							isCurrentGeofenceAffected = true;
-						}						
-						geoFenceIdToRemoveList.add(fence.getId());
-					} 
-				}
-				//if current geofence is the selected geoFence then clear out all the crap
-				if(isCurrentGeofenceAffected){
-					mMap.clear();
-					if(myCircle != null) {
-						myCircle.remove();
+
+				new AlertDialog.Builder(MapActivity.this) 
+				//set message, title, and icon
+				.setTitle("Delete selected Geofences") 
+				.setMessage("Do you want to remove selected geofences?") 
+				//				.setIcon(R.drawable.delete)
+				.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int whichButton) { 
+						int cntChoice = drawerStringList.size();
+						ArrayList<String> geoFenceIdToRemoveList = new ArrayList<String>();
+						SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
+						o(sbArray.size() + "sparseBoolean array");
+						boolean isCurrentGeofenceAffected = false;
+						for(int i=drawerStringList.size()-1; i > 0; i--){
+							SimpleGeofence fence = ((SimpleGeofence)mDrawerList.getItemAtPosition(i));
+							if(fence.isChecked()) {
+								Log.i("Reid","removing item");
+								drawerStringList.remove(i);
+								if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
+									isCurrentGeofenceAffected = true;
+								}						
+								geoFenceIdToRemoveList.add(fence.getId());
+							} 
+						}
+						//if current geofence is the selected geoFence then clear out all the crap
+						if(isCurrentGeofenceAffected){
+							mMap.clear();
+							if(myCircle != null) {
+								myCircle.remove();
+							}
+							if(newCircle != null) {
+								newCircle.remove();
+							}
+							clearAddGeoFenceFragment();
+							addGeofenceFragment.nicknameEdit.setText("");
+							searchEdit.setText("");
+						}
+
+						SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerStringList);
+						storeJSON(mSimpleGeofenceList, getApplicationContext());
+						removeGeofences(geoFenceIdToRemoveList);
+
+						drawerAdapter.notifyDataSetChanged();
+					}   
+				})
+
+				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
 					}
-					if(newCircle != null) {
-						newCircle.remove();
-					}
-					clearAddGeoFenceFragment();
-					addGeofenceFragment.nicknameEdit.setText("");
-					searchEdit.setText("");
-				}
-
-				SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerStringList);
-				storeJSON(mSimpleGeofenceList, getApplicationContext());
-				removeGeofences(geoFenceIdToRemoveList);
-
-				drawerAdapter.notifyDataSetChanged();
-
-
+				}).create()
+				.show();
 			}
 		});
 		searchEdit.addTextChangedListener(new TextWatcher() {
@@ -1194,12 +1230,20 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		Log.i("Reid","newItem: " +newItem.getTitle());
 		//add new item, remove old item from simpleGeoFence and from drawer
 		if(oldItem != null) {
-			int index = drawerStringList.indexOf(oldItem);
-			if(index == -1) {
-				drawerStringList.add(newItem);	
-			} else {
-				drawerStringList.set(drawerStringList.indexOf(oldItem), newItem);
+			for(int i=0; i < drawerStringList.size(); i++) {
+				SimpleGeofence updateItem = drawerStringList.get(i);
+				//item exists update
+				if(updateItem.getTitle().equals(oldItem.getTitle())) {
+					drawerStringList.set(i,oldItem);
+				}
 			}
+//			int index = drawerStringList.indexOf(oldItem);
+//			if(index == -1) {
+//				drawerStringList.add(newItem);	
+//			} else {
+//				o("updating");
+//				drawerStringList.set(index, newItem);
+//			}
 		} else {
 			drawerStringList.add(newItem);
 		}
