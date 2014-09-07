@@ -129,7 +129,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private REQUEST_TYPE mRequestType;
 	// Flag that indicates if a request is underway.
 	private boolean mInProgress;
-	private ArrayList<SimpleGeofence> drawerStringList;
+	private List<SimpleGeofence> drawerStringList;
 	private SimpleGeofenceStore mGeofenceStorage;
 	private GeofenceSampleReceiver mBroadcastReceiver;
 	private Intent pendingIntent;
@@ -393,12 +393,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 
 	private void initLeftDrawer() {
-		int geoFenceSize = mSimpleGeoFenceList.size();
+//		int geoFenceSize = mSimpleGeoFenceList.size();
 
-		drawerStringList = new ArrayList<SimpleGeofence>();
-		for(int i=0; i < geoFenceSize; i++) {
-			drawerStringList.add(mSimpleGeoFenceList.get(i));
-		}  
+		drawerStringList = mSimpleGeoFenceList;//new ArrayList<SimpleGeofence>();
+//		for(int i=0; i < geoFenceSize; i++) {
+//			drawerStringList.add(mSimpleGeoFenceList.get(i));
+//		}  
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -1226,7 +1226,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onItemSaved(SimpleGeofence oldItem, SimpleGeofence newItem, List<SimpleGeofence> newList, boolean isUpdate) {
 		slidePanelLayout.collapsePanel();
 		//update the cached version of hte list.
-		mSimpleGeoFenceList = newList;
 		Log.i("Reid","newItem: " +newItem.getTitle());
 		//add new item, remove old item from simpleGeoFence and from drawer
 		if(oldItem != null) {
@@ -1237,17 +1236,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					drawerStringList.set(i,oldItem);
 				}
 			}
-//			int index = drawerStringList.indexOf(oldItem);
-//			if(index == -1) {
-//				drawerStringList.add(newItem);	
-//			} else {
-//				o("updating");
-//				drawerStringList.set(index, newItem);
-//			}
 		} else {
 			drawerStringList.add(newItem);
 		}
-
+		mSimpleGeoFenceList = drawerStringList;
 		//		drawerStringList.remove(drawerStringList.size()-2);
 		drawerAdapter.notifyDataSetChanged();
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);

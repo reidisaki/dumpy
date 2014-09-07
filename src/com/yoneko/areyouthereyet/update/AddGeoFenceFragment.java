@@ -393,7 +393,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 		if(!errors) {
 			Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
-			Log.i("Reid","old fence:" + oldfence.getTitle());
 			mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);
 		} else {
 			Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_SHORT).show();
