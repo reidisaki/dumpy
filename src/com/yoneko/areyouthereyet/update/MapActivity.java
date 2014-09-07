@@ -611,7 +611,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
 						o(sbArray.size() + "sparseBoolean array");
 						boolean isCurrentGeofenceAffected = false;
-						for(int i=drawerStringList.size()-1; i > 0; i--){
+						for(int i=drawerStringList.size()-1; i >= 0; i--){
+							o("i IS: " + i);
 							SimpleGeofence fence = ((SimpleGeofence)mDrawerList.getItemAtPosition(i));
 							if(fence.isChecked()) {
 								Log.i("Reid","removing item");
