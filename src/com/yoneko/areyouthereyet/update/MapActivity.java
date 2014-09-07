@@ -595,9 +595,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			}
 		});
 		trashDrawer.setOnClickListener(new OnClickListener() {
-			@Override
+			@Override 
 			public void onClick(View v) {
-
 				new AlertDialog.Builder(MapActivity.this) 
 				//set message, title, and icon
 				.setTitle("Delete selected Geofences") 

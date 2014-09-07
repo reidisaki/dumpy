@@ -12,18 +12,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -203,7 +202,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		ScrollView addGeoFenceView = (ScrollView)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
+		LinearLayout addGeoFenceView = (LinearLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
 		//		getDialog().setTitle("Add Geofence");
 		emailEdit = (AutoCompleteTextView)addGeoFenceView.findViewById(R.id.email_edit);
 		radius_text = (TextView)addGeoFenceView.findViewById(R.id.radius_text);
