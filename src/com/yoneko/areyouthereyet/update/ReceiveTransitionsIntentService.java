@@ -31,6 +31,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
 	 */
 	public ReceiveTransitionsIntentService() {		
 		super("ReceiveTransitionsIntentService");
+		
 //		Log.v(TAG,"Receive Transion service is running");		
 	}
 	/**
@@ -42,6 +43,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
 	 */
 	@Override
 	protected void onHandleIntent(Intent intent) {
+		Log.i("Reid", "intentservice running");
 		// First check for errors
 		LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
@@ -127,12 +129,12 @@ public class ReceiveTransitionsIntentService extends IntentService {
 		} 
 	}
 
-//	@Override
-//	public int onStartCommand(Intent intent, int flags, int startId) {
-//		// We want this service to continue running until it is explicitly
-//		// stopped, so return sticky.
-//		return START_STICKY;
-//	}
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		// We want this service to continue running until it is explicitly
+		// stopped, so return sticky.
+		return START_STICKY;
+	}
 
 	private void sendSms(String phonenumber,String message, boolean isBinary)
 	{

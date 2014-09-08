@@ -19,12 +19,11 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +44,7 @@ import com.yoneko.models.SimpleGeofenceList;
 public class AddGeoFenceFragment extends DialogFragment  {
 	Button mapButton, saveButton;
 	EditText latEdit, lonEdit, radiusEdit,messageEdit,nicknameEdit;
-	AutoCompleteTextView emailEdit;
+	MultiAutoCompleteTextView emailEdit;
 	RadioGroup enter_exit;
 	TextView radius_text;
 	SeekBar radius_seek;
@@ -204,7 +203,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			Bundle savedInstanceState) {
 		LinearLayout addGeoFenceView = (LinearLayout)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
 		//		getDialog().setTitle("Add Geofence");
-		emailEdit = (AutoCompleteTextView)addGeoFenceView.findViewById(R.id.email_edit);
+		emailEdit = (MultiAutoCompleteTextView)addGeoFenceView.findViewById(R.id.email_edit);
 		radius_text = (TextView)addGeoFenceView.findViewById(R.id.radius_text);
 		enter_exit = (RadioGroup)addGeoFenceView.findViewById(R.id.enter_exit);
 		messageEdit = (EditText)addGeoFenceView.findViewById(R.id.message_edit);
@@ -249,6 +248,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		emailEdit.setThreshold(1);
 		//Set adapter to AutoCompleteTextView
 		emailEdit.setAdapter(adapter);
+		emailEdit.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 		emailEdit.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> adapterView, View view, int index, long arg3) {
@@ -260,8 +260,12 @@ public class AddGeoFenceFragment extends DialogFragment  {
 					// Get Phone Number
 					toNumberValue = phoneValueArr.get(i);
 				}
+				String toPhone = "";
 				emailOrPhone = toNumberValue;
-				emailEdit.setText(toNumberValue + " (" + nameValueArr.get(i).toString() + ")");
+				String outputString = toNumberValue + " (" + nameValueArr.get(i).toString() + "),\n";
+//				String addComma = emailEdit.getText().toString().equals("") ? "" : ",";
+//				toPhone = emailEdit.getT + outputString; 
+				emailEdit.setText(outputString);
 			}
 		});
 		//        emailEdit.setOnItemSelectedListener(this);

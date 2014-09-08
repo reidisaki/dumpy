@@ -19,8 +19,8 @@
     <string name="Radius">radius</string>
     <string name="nickname_text">Name</string>
     <string name="positive_text">Yes</string>
-    <string name="showcase_title">Tap icon</string>
-    <string name="showcase_message">view saved location alerts, or destination alerts</string>
+    <string name="showcase_title">Tap icon or swipe</string>
+    <string name="showcase_message">view saved location alerts</string>
     <string name="negative_text">Cancel</string>
     <string name="clear_all_text">Clear all geofences</string>
 

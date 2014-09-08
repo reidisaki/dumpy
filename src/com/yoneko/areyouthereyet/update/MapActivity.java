@@ -51,6 +51,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -174,7 +175,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	int selectedRadius = 100, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
-
+	public static boolean isActive = false;
 
 	public void o (String s) {
 		Log.i(tag,"output s: " + s);
@@ -186,8 +187,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i("Reid1","onCreate mapactivity");
 		setContentView(R.layout.fragment_map);
-
+		startService(new Intent(this, SafetyService.class));
 		mInProgress = false;
 
 		//		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -254,7 +256,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mGeofencesToRemove = new ArrayList<String>();
 		mBroadcastReceiver = new GeofenceSampleReceiver();
 		mIntentFilter = new IntentFilter();
-		pendingIntent = new Intent(this,ReceiveTransitionsIntentService.class);	
+//		pendingIntent = new Intent(this,ReceiveTransitionsIntentService.class);	
 		mLocationRequest = LocationRequest.create();
 		// Use high accuracy
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -356,10 +358,16 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		int x = posXY[0];
 		int y = posXY[1];
 
+		Log.i("Reid1","y coordinate:" + y);
 		View showcasedView2 = findViewById(R.id.ic_drawer);
 		ViewTarget target2 = new ViewTarget(showcasedView2);
 		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,getResources().getString(R.string.showcase_title), getResources().getString(R.string.showcase_message));
-		sv.animateGesture(0, screenHeight/2 , screenWidth/2, screenHeight/2 );
+		sv.animateGesture(0, y, screenWidth/2, y);
+		ShowcaseView.ConfigOptions options = sv.getConfigOptions();
+		options.centerText=true;
+		options.hideOnClickOutside=true;
+		
+		
 
 		//		new ShowcaseView.Builder(this)
 		//	    .setTarget(new ActionViewTarget(this, ActionViewTarget.Type.HOME))
@@ -373,21 +381,31 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onWindowFocusChanged (boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
-			//			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
-			//			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
-			//			appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
-			//			Log.i("Reid", "number of times app opened: " + appOpenNumber);
-			//			SharedPreferences.Editor editor = wmbPreference.edit();
-			//			if (isFirstRun)
-			//			{
-			//				initShowView();
-			//				// Code to run once
-			//				editor.putBoolean("FIRSTRUN", false);
-			//				
-			//			}
-			//			int newOpenAppNumber = appOpenNumber+1;
-			//			editor.putInt("numTimesAppOpened", newOpenAppNumber);
-			//			editor.commit();
+			Log.i("Reid","on resume: "+appOpenNumber);
+
+			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
+			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
+			appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
+			Log.i("Reid", "number of times app opened: " + appOpenNumber);
+			SharedPreferences.Editor editor = wmbPreference.edit();
+			// Code to run once
+			if (isFirstRun)
+			{
+				initShowView();
+				editor.putBoolean("FIRSTRUN", false);
+			}
+			int newOpenAppNumber = appOpenNumber+1;
+			editor.putInt("numTimesAppOpened", newOpenAppNumber);
+			editor.commit();
+			if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
+				adView_layout.setVisibility(View.VISIBLE);
+			} else {
+				adView_layout.setVisibility(View.GONE);
+			}
+			LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
+			if (adView != null) {
+				adView.resume();
+			}
 		}
 
 	}
@@ -914,32 +932,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.i("Reid","on resume: "+appOpenNumber);
-
-		SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
-		boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
-		appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
-		Log.i("Reid", "number of times app opened: " + appOpenNumber);
-		SharedPreferences.Editor editor = wmbPreference.edit();
-		if (isFirstRun)
-		{
-			initShowView();
-			// Code to run once
-			editor.putBoolean("FIRSTRUN", false);
-
-		}
-		int newOpenAppNumber = appOpenNumber+1;
-		editor.putInt("numTimesAppOpened", newOpenAppNumber);
-		editor.commit();
-		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
-			adView_layout.setVisibility(View.VISIBLE);
-		} else {
-			adView_layout.setVisibility(View.GONE);
-		}
-		LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
-		if (adView != null) {
-			adView.resume();
-		}
+		isActive = true;
 	}
 	protected void onSearchEditButtonClicked() {
 		String location = searchEdit.getText().toString();
@@ -948,6 +941,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			new GeocoderTask().execute(location);
 		}				
 	}
+	
 	@Override
 	public void onPause() {
 		if (adView != null) {
@@ -979,6 +973,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	/** Called before the activity is destroyed. */
 	@Override
 	public void onDestroy() {
+		isActive = false;
 		// Destroy the AdView.
 		if (adView != null) {
 			adView.destroy();
