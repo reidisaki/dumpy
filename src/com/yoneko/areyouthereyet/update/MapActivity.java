@@ -186,9 +186,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.i("Reid1", "movetoback is null? " + String.valueOf(getIntent().getExtras() == null));
+		if(getIntent().getExtras() != null && getIntent().getExtras().getBoolean("moveToBack")) {
+			moveTaskToBack(true);
+		} else {
+			Log.i("Reid1","keep the app in front as normal");
+		}
 		super.onCreate(savedInstanceState);
-		Log.i("Reid1","onCreate mapactivity");
 		setContentView(R.layout.fragment_map);
+
 		startService(new Intent(this, SafetyService.class));
 		mInProgress = false;
 
