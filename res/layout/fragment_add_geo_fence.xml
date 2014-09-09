@@ -84,7 +84,7 @@
             android:paddingLeft="20dip"
             android:text="@string/email_phone" />
 
-        <AutoCompleteTextView
+        <MultiAutoCompleteTextView
             android:id="@+id/email_edit"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
