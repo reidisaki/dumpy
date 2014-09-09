@@ -16,6 +16,7 @@
         android:name="com.yoneko.areyouthereyet.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.yoneko.areyouthereyet.permission.MAPS_RECEIVE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -27,7 +28,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
-        android:name="AreYouThereYet"
+        android:name=".AreYouThereYet"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -40,9 +41,9 @@
             android:value="AIzaSyDl2XggW6VDu4qcqbviZVrTNBCcagNr6k8" />
 
         <activity
-            android:screenOrientation="portrait"
-            android:name="com.yoneko.areyouthereyet.update.MapActivity"
+            android:name=".MapActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,10 +59,11 @@
         -->
 
         <receiver
-            android:name="com.yoneko.areyouthereyet.update.GeoFenceReceiver"
+            android:name=".GeoFenceReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
@@ -70,10 +72,32 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
 
         <service
-            android:name="com.yoneko.areyouthereyet.update.ReceiveTransitionsIntentService"
+            android:name=".ReceiveTransitionsIntentService"
             android:exported="false"
             android:label="@string/app_name" >
         </service>
+        <service
+            android:name=".SafetyService"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name=".START_SERVICE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".RestartAppReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="YouWillNeverKillMe" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

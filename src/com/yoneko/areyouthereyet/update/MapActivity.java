@@ -117,6 +117,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			SECONDS_PER_HOUR *
 			MILLISECONDS_PER_SECOND;
 
+	public LocationManager locationManager;
 	// Holds the location client
 	private LocationClient mLocationClient;
 	// Stores the PendingIntent used to request geofence monitoring
@@ -150,7 +151,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private Button feedbackBtn,drawer_clear;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
-
+	
 
 	LinearLayout footerView,searchBar,adView_layout;
 	public String title;
@@ -313,7 +314,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mMap.setOnMyLocationButtonClickListener(this);
 		mMap.setOnMapLoadedCallback(this);
 		Criteria criteria = new Criteria();
-		LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+		locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
 		location = locationManager.getLastKnownLocation(bestProvider);
 		if( location != null) {
@@ -939,6 +940,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onResume() {
 		super.onResume();
 		isActive = true;
+		Criteria cri= new Criteria();
+		
+		String bbb = locationManager.getBestProvider(cri, true);
+		Location myLocation = locationManager.getLastKnownLocation(bbb);
+		LatLng ll = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
+		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+		
 	}
 	protected void onSearchEditButtonClicked() {
 		String location = searchEdit.getText().toString();
