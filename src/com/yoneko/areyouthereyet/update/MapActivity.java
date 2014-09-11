@@ -1,8 +1,18 @@
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -51,7 +61,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -149,9 +158,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private ActionBarDrawerToggle mDrawerToggle;
 	private ImageButton clearTextImage,searchButton,voiceButton,trashDrawer;
 	private Button feedbackBtn,drawer_clear;
+	private Geocoder geocoder;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
-	
+
 
 	LinearLayout footerView,searchBar,adView_layout;
 	public String title;
@@ -263,7 +273,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mGeofencesToRemove = new ArrayList<String>();
 		mBroadcastReceiver = new GeofenceSampleReceiver();
 		mIntentFilter = new IntentFilter();
-//		pendingIntent = new Intent(this,ReceiveTransitionsIntentService.class);	
+		//		pendingIntent = new Intent(this,ReceiveTransitionsIntentService.class);	
 		mLocationRequest = LocationRequest.create();
 		// Use high accuracy
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -313,6 +323,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mMap.setOnMyLocationChangeListener(this); 
 		mMap.setOnMyLocationButtonClickListener(this);
 		mMap.setOnMapLoadedCallback(this);
+		geocoder = new Geocoder(getApplicationContext()) ;
 		Criteria criteria = new Criteria();
 		locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
@@ -373,8 +384,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		ShowcaseView.ConfigOptions options = sv.getConfigOptions();
 		options.centerText=true;
 		options.hideOnClickOutside=true;
-		
-		
+
+
 
 		//		new ShowcaseView.Builder(this)
 		//	    .setTarget(new ActionViewTarget(this, ActionViewTarget.Type.HOME))
@@ -418,12 +429,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 
 	private void initLeftDrawer() {
-//		int geoFenceSize = mSimpleGeoFenceList.size();
+		//		int geoFenceSize = mSimpleGeoFenceList.size();
 
 		drawerStringList = mSimpleGeoFenceList;//new ArrayList<SimpleGeofence>();
-//		for(int i=0; i < geoFenceSize; i++) {
-//			drawerStringList.add(mSimpleGeoFenceList.get(i));
-//		}  
+		//		for(int i=0; i < geoFenceSize; i++) {
+		//			drawerStringList.add(mSimpleGeoFenceList.get(i));
+		//		}  
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -941,16 +952,16 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		super.onResume();
 		isActive = true;
 		Criteria cri= new Criteria();
-		
+
 		String bbb = locationManager.getBestProvider(cri, true);
 		Location myLocation = locationManager.getLastKnownLocation(bbb);
 		if(myLocation != null) {
 			LatLng ll = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
 		} else {
-//			TODO: get the location and animate..
+			//			TODO: get the location and animate..
 		}
-		
+
 	}
 	protected void onSearchEditButtonClicked() {
 		String location = searchEdit.getText().toString();
@@ -959,7 +970,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			new GeocoderTask().execute(location);
 		}				
 	}
-	
+
 	@Override
 	public void onPause() {
 		if (adView != null) {
@@ -1016,10 +1027,23 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public boolean onMarkerClick(Marker marker) {
 		o("Clicked marker");
 		if (marker.equals(myLocationMarker)) {
-			/* My Location dot callback ... */
 			Uri uri = Uri.parse("smsto:");
 			Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-			intent.putExtra("sms_body", "Hello I'm here right now!!! \n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);  
+			Geocoder geo = new Geocoder(getApplicationContext());
+			String currentLocationText = "";
+			List<Address> addressList;
+			try {
+				addressList = geo.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
+				if(addressList.size() > 0) {
+					Address address = addressList.get(0);
+					currentLocationText =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
+				}
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			intent.putExtra("sms_body", currentLocationText + "\n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);
 			startActivityForResult(intent, 1234);
 
 			//Send out text message to someone who your location
@@ -1788,6 +1812,5 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onMapLoaded() {
 		isMapLoaded = true; 	
 	}
-
 
 }
