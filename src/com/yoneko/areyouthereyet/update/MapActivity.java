@@ -181,7 +181,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
-	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true;
+	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true;
 	public static String tag = "Reid";
 	int selectedRadius = 100, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2;
 	Spinner spinner;
@@ -328,9 +328,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
 		location = locationManager.getLastKnownLocation(bestProvider);
-		if( location != null) {
-			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 14.0f) );
-		} 	
 		Bundle b = getIntent().getExtras();
 		if(b != null){
 			editable = b.getBoolean("editable",true);
@@ -951,17 +948,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onResume() {
 		super.onResume();
 		isActive = true;
-		Criteria cri= new Criteria();
-
-		String bbb = locationManager.getBestProvider(cri, true);
-		Location myLocation = locationManager.getLastKnownLocation(bbb);
-		if(myLocation != null) {
-			LatLng ll = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
-		} else {
-			//			TODO: get the location and animate..
-		}
-
+		navigateToMyLocation = true;
 	}
 	protected void onSearchEditButtonClicked() {
 		String location = searchEdit.getText().toString();
@@ -1038,7 +1025,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					Address address = addressList.get(0);
 					currentLocationText =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
 				}
-				
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1291,6 +1278,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		// Disconnecting the client invalidates it.
 		Log.i(TAG,"Calling on Stop");
 		FlurryAgent.onEndSession(this);
+		navigateToMyLocation = false;
 		if (mLocationClient !=null && mLocationClient.isConnected()) {
 			Log.i(TAG,"stopping updates");
 			/*
@@ -1785,6 +1773,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	public void onMyLocationChange(Location location) {
+		Log.i("Reid","location changed!");
+		if(location != null && navigateToMyLocation) {
+			navigateToMyLocation = false;
+			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+		}
 		// Remove the old marker object
 		if(myLocationMarker != null) {
 			myLocationMarker.remove(); 
