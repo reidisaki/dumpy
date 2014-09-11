@@ -944,8 +944,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		
 		String bbb = locationManager.getBestProvider(cri, true);
 		Location myLocation = locationManager.getLastKnownLocation(bbb);
-		LatLng ll = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
-		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+		if(myLocation != null) {
+			LatLng ll = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+		} else {
+//			TODO: get the location and animate..
+		}
 		
 	}
 	protected void onSearchEditButtonClicked() {
