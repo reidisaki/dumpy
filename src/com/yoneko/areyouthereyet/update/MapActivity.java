@@ -404,6 +404,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			Log.i("Reid", "number of times app opened: " + appOpenNumber);
 			SharedPreferences.Editor editor = wmbPreference.edit();
 			// Code to run once
+			isFirstRun = true;
 			if (isFirstRun)
 			{
 				initShowView();
@@ -1772,8 +1773,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	////END MERGE
 
 	@Override
-	public void onMyLocationChange(Location location) {
+	public void onMyLocationChange(Location _location) {
 		Log.i("Reid","location changed!");
+		location = _location;
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
 			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
@@ -1786,7 +1788,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		// Add a new marker object at the new (My Location dot) location
 		myLocationMarker = mMap.addMarker(new MarkerOptions() 
-		.position(new LatLng(location.getLatitude(),location.getLongitude())).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))) ;
+		.position(new LatLng(location.getLatitude(),location.getLongitude())).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))) ;
 	}
 	@Override
 	public boolean onMyLocationButtonClick() {
