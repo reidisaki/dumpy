@@ -477,6 +477,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			createRadiusCircle(latLng);
 			//check the View if they clicked hte text item or if they clicked the X icon.
 			mDrawerLayout.closeDrawers();
+			
 
 
 		}
@@ -675,6 +676,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						removeGeofences(geoFenceIdToRemoveList);
 
 						drawerAdapter.notifyDataSetChanged();
+						mDrawerList.clearChoices();
 					}   
 				})
 
