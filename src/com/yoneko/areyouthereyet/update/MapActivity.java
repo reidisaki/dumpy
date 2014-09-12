@@ -163,7 +163,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 
 
-	LinearLayout footerView,searchBar,adView_layout;
+	LinearLayout footerView,searchBar,adView_layout, headerView;
 	public String title;
 	GoogleMap mMap;
 	Marker currentMarker = null;
@@ -438,8 +438,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 		//		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
+		headerView=  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_header_view, null, false);
 		feedbackBtn = (Button)footerView.findViewById(R.id.drawer_feedback);
 		mDrawerList.addFooterView(footerView);
+		mDrawerList.addHeaderView(headerView);
 		// Set the adapter for the list view
 		drawerAdapter = new DrawerItemAdapter(this,
 				R.layout.drawer_list_item, drawerStringList);
@@ -647,7 +649,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						boolean isCurrentGeofenceAffected = false;
 						for(int i=drawerStringList.size()-1; i >= 0; i--){
 							o("i IS: " + i);
-							SimpleGeofence fence = ((SimpleGeofence)mDrawerList.getItemAtPosition(i));
+							
+							SimpleGeofence fence = ((SimpleGeofence)drawerAdapter.getItem(i));
 							if(fence.isChecked()) {
 								Log.i("Reid","removing item");
 								drawerStringList.remove(i);
