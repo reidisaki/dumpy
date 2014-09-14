@@ -45,6 +45,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -101,7 +103,7 @@ import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
 onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
-OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback {
+OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback, OnItemClickListener {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
@@ -162,7 +164,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	MarkerOptions markerOptions;
 	AdView adView;
 	TextView slide_tab_text;
-	EditText searchEdit;
+	AutoCompleteTextView searchEdit;
 	ImageView ic_drawer, arrow;
 	FragmentManager fm;
 	DrawerItemAdapter drawerAdapter;
@@ -464,9 +466,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			createRadiusCircle(latLng);
 			//check the View if they clicked hte text item or if they clicked the X icon.
 			mDrawerLayout.closeDrawers();
-
-
-
 		}
 
 	}
@@ -478,7 +477,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 		return 0;
 	}
-	private void initViews() {
+	private void initViews() { 
 		//		BitmapDescriptor image = BitmapDescriptorFactory.fromResource(R.drawable.ic_drawer);
 		//		GroundOverlayOptions groundOverlay = new GroundOverlayOptions()
 		//        .image(image)
@@ -496,7 +495,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		voiceButton =(ImageButton)findViewById(R.id.voiceButton);
 		// Set the list's click listener
 		slide_tab_text = (TextView)findViewById(R.id.slide_tab_text);
-		searchEdit =  (EditText)findViewById(R.id.location_edit);
+		searchEdit =  (AutoCompleteTextView)findViewById(R.id.location_edit);
 		spinner = (Spinner) findViewById(R.id.radius_spinner);
 		slidePanelLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
 		map_detail_layout = (RelativeLayout)findViewById(R.id.map_detail_layout);
@@ -504,6 +503,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		addGeofenceFragment = (AddGeoFenceFragment)getFragmentManager().findFragmentById(R.id.fragment_add_geo_fence);
 	}
 
+	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+		String str = (String) adapterView.getItemAtPosition(position);
+		onSearchEditButtonClicked();		
+	}
 	public void clearAllGeoFences() {
 		drawerStringList.clear();
 		SharedPreferences sp = this.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
@@ -676,6 +679,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				.show();
 			}
 		});
+		searchEdit.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.places_list_item));
+		searchEdit.setThreshold(4);
 		searchEdit.addTextChangedListener(new TextWatcher() {
 
 			@Override
@@ -691,15 +696,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			@Override
 			public void afterTextChanged(Editable s) {
 				if(!s.toString().equals("")) {
-					Log.i("Reid", "show clear text");
+//					Log.i("Reid", "show clear text");
 					clearTextImage.setVisibility(View.VISIBLE);
 					voiceButton.setVisibility(View.GONE);
 				}  else {
-					Log.i("Reid", "hide clear text");
+//					Log.i("Reid", "hide clear text");
 					clearTextImage.setVisibility(View.GONE);
 					voiceButton.setVisibility(View.VISIBLE);
 				}
-				Log.i("Reid","onAfter text changed:" + s.toString());
+//				Log.i("Reid","onAfter text changed:" + s.toString());
 			}
 		});
 		searchEdit.setOnKeyListener(new OnKeyListener()
@@ -836,6 +841,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 			}
 		});
+		searchEdit.setOnItemClickListener(this);
 		if(editable) {
 			mMap.setOnMapLongClickListener(this);
 			mMap.setOnMarkerClickListener(this);
@@ -1803,7 +1809,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	public void onMyLocationChange(Location _location) {
-		Log.i("Reid","location changed!");
+//		Log.i("Reid","location changed!");
 		location = _location;
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
@@ -1837,5 +1843,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onMapLoaded() {
 		isMapLoaded = true; 	
 	}
+
+
 
 }

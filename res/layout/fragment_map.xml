@@ -58,13 +58,15 @@
                         android:padding="5dip"
                         android:src="@drawable/magnify" />
 
-                    <EditText
+                    <AutoCompleteTextView
                         android:id="@+id/location_edit"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight=".85"
                         android:background="#ffffff"
                         android:hint="Search"
+                        android:dropDownHorizontalOffset="-50dip"
+                        android:dropDownWidth="match_parent"
                         android:inputType="text"
                         android:padding="5dip"
                         android:text="" />
