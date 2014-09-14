@@ -1,18 +1,8 @@
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -50,6 +40,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -404,7 +395,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			Log.i("Reid", "number of times app opened: " + appOpenNumber);
 			SharedPreferences.Editor editor = wmbPreference.edit();
 			// Code to run once
-			isFirstRun = true;
 			if (isFirstRun)
 			{
 				initShowView();
@@ -427,16 +417,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 
 	private void initLeftDrawer() {
-		//		int geoFenceSize = mSimpleGeoFenceList.size();
 
 		drawerStringList = mSimpleGeoFenceList;//new ArrayList<SimpleGeofence>();
-		//		for(int i=0; i < geoFenceSize; i++) {
-		//			drawerStringList.add(mSimpleGeoFenceList.get(i));
-		//		}  
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
-		//		mDrawerList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
 		headerView=  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_header_view, null, false);
 		feedbackBtn = (Button)footerView.findViewById(R.id.drawer_feedback);
@@ -479,7 +464,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			createRadiusCircle(latLng);
 			//check the View if they clicked hte text item or if they clicked the X icon.
 			mDrawerLayout.closeDrawers();
-			
+
 
 
 		}
@@ -649,7 +634,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						boolean isCurrentGeofenceAffected = false;
 						for(int i=drawerStringList.size()-1; i >= 0; i--){
 							o("i IS: " + i);
-							
+
 							SimpleGeofence fence = ((SimpleGeofence)drawerAdapter.getItem(i));
 							if(fence.isChecked()) {
 								Log.i("Reid","removing item");
@@ -805,12 +790,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
 				_radiusChanged = progress;
+
 				if(myCircle != null) {
 					myCircle.remove();
 				}
+
 				if(newCircle != null) {
 					newCircle.remove();
 				}
+
 				if(latLng != null) {
 					CircleOptions circleOptions = new CircleOptions()
 					.center(latLng)   //set center
@@ -958,12 +946,55 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	protected void onSearchEditButtonClicked() {
 		String location = searchEdit.getText().toString();
-		location = location.equals("") ? "9453 Vollmerhausen drive, 21046" : location;
 		if(location!=null && !location.equals("")){
+			if(location.toLowerCase().startsWith("15912 s manhattan")) {
+				showAnimal("joey");
+			}
+			if(location.toLowerCase().startsWith("1086 s mansfield")) {
+				showAnimal("lynx");
+			}
+			if(location.toLowerCase().startsWith("138 asby bay")) {
+				showAnimal("bailey");
+			}
 			new GeocoderTask().execute(location);
 		}				
-	}
+	} 
 
+	private void showAnimal(String animal) {
+		AlertDialog.Builder imageDialog = new AlertDialog.Builder(this);
+
+		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		View layout = inflater.inflate(R.layout.animal, null);
+		ImageView image = (ImageView) layout.findViewById(R.id.animal_image);
+		TextView text = (TextView) layout.findViewById(R.id.animal_text);
+		if(animal.equals("joey")){
+			image.setImageDrawable(getResources().getDrawable(R.drawable.joey));	
+		} 
+		if(animal.equals("lynx")){
+			image.setImageDrawable(getResources().getDrawable(R.drawable.lynx));
+		}
+		if(animal.equals("bailey")){
+			image.setImageDrawable(getResources().getDrawable(R.drawable.bailey));
+		}
+		text.setText(animal + " lives on!");
+
+		final AlertDialog alert = imageDialog.create();
+		alert.setView(layout,0,0,0,0);
+
+		alert.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		alert.setCanceledOnTouchOutside(true);
+		alert.show();
+
+		image.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				alert.dismiss();
+			}
+		}) ;
+
+	}
 	@Override
 	public void onPause() {
 		if (adView != null) {
@@ -1031,7 +1062,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					Address address = addressList.get(0);
 					currentLocationText =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
 				}
-
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1230,12 +1260,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				markerOptions.position(latLng);
 				markerOptions.title(addressText);
 				createRadiusCircle(latLng);
-				// Locate the first location
-				//				if(i==0) {
-				//					boolean panelWillExpand = true;
-				//					animateToLocation(panelWillExpand);
-				//					
-				//				}
 			}
 		}
 	}

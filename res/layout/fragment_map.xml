@@ -64,7 +64,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight=".85"
                         android:background="#ffffff"
-                        android:hint="ie: 9453 vollmerhausen drive, 21046"
+                        android:hint="Search"
                         android:inputType="text"
                         android:padding="5dip"
                         android:text="" />
