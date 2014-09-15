@@ -574,7 +574,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						addGeofenceFragment.nicknameEdit.setText("");
 						addGeofenceFragment.messageEdit.setText("");
 						addGeofenceFragment.emailEdit.setText("");
-						addGeofenceFragment.radius_seek.setProgress(100);
+						addGeofenceFragment.radius_seek.setProgress(125);
 						searchEdit.setText("");
 						mMap.clear();
 						dialog.dismiss();
