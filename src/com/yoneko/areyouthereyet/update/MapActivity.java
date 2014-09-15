@@ -176,7 +176,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true;
 	public static String tag = "Reid";
-	int selectedRadius = 100, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2;
+	int selectedRadius = 125, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public static boolean isActive = false;
@@ -1176,7 +1176,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private void clearAddGeoFenceFragment() {
 		addGeofenceFragment.messageEdit.setText("");
 		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
-		addGeofenceFragment.radius_seek.setProgress(100);
+		addGeofenceFragment.radius_seek.setProgress(125);
 		addGeofenceFragment.emailEdit.setText("");		
 	}
 	//	@Override
