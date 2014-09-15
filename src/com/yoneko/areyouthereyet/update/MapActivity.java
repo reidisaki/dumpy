@@ -89,6 +89,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -113,7 +114,7 @@ import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
 onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
-OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback, OnItemClickListener {
+OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback, OnItemClickListener, OnMapClickListener {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long LOCATION_UPDATE_INTERVAL = 30;
@@ -143,7 +144,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public List<String> mGeofencesToRemove;
 	private REQUEST_TYPE mRequestType;
 	// Flag that indicates if a request is underway.
-	private boolean mInProgress;
+	private boolean mInProgress, mToggleInfoWindowShown = false;
 	private List<SimpleGeofence> drawerStringList;
 	private SimpleGeofenceStore mGeofenceStorage;
 	private GeofenceSampleReceiver mBroadcastReceiver;
@@ -862,7 +863,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(editable) {
 			mMap.setOnMapLongClickListener(this);
 			mMap.setOnMarkerClickListener(this);
-			//		mMap.setOnMapClickListener(this);
+					mMap.setOnMapClickListener(this);
 
 			slidePanelLayout.setAnchorPoint(.5f);
 			slidePanelLayout.setPanelSlideListener(new PanelSlideListener() {
@@ -1197,17 +1198,31 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		addGeofenceFragment.radius_seek.setProgress(125);
 		addGeofenceFragment.emailEdit.setText("");		
 	}
-	//	@Override
-	//	public void onMapClick(LatLng point) {
-	//		CircleOptions circleOptions = new CircleOptions()
-	//		.center(point)   //set center
-	//		.radius(500)   //set radius in meters
-	//		.fillColor(Color.TRANSPARENT)  //default
-	//		.strokeColor(Color.MAGENTA)
-	//		.strokeWidth(5);
-	//		Log.i(TAG,"map clicked");
-	//		myCircle = mMap.addCircle(circleOptions);
-	//	}
+		@Override
+		public void onMapClick(LatLng point) {
+			slidePanelLayout.collapsePanel();
+			if(currentMarker != null) {
+				
+				if(mToggleInfoWindowShown) {
+					Log.i("Reid", "hiding window");
+					currentMarker.hideInfoWindow();
+					mToggleInfoWindowShown = false;
+				} else {
+					Log.i("Reid", "showing window");
+					currentMarker.showInfoWindow();
+					mToggleInfoWindowShown = true;
+				}
+				
+			}
+//			CircleOptions circleOptions = new CircleOptions()
+//			.center(point)   //set center
+//			.radius(500)   //set radius in meters
+//			.fillColor(Color.TRANSPARENT)  //default
+//			.strokeColor(Color.MAGENTA)
+//			.strokeWidth(5);
+//			Log.i(TAG,"map clicked");
+//			myCircle = mMap.addCircle(circleOptions);
+		}
 	public void createRadiusCircle(LatLng latLng) {
 		if(myCircle != null) {
 			myCircle.remove();
@@ -1253,7 +1268,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				sb.append("?key=" + PlacesAutoCompleteAdapter.API_KEY);
 				//	        sb.append("&components=country:uk");
 				sb.append("&placeid=" + p[0].getPlaceId());
-				Log.i("Reid","API URL: " + sb.toString());
+//				Log.i("Reid","API URL: " + sb.toString());
 				URL url = new URL(sb.toString());
 				conn = (HttpURLConnection) url.openConnection();
 				InputStreamReader in = new InputStreamReader(conn.getInputStream());
@@ -1271,19 +1286,16 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					conn.disconnect();
 				}
 			}
-			Log.i("Reid","got here?" + jsonResults.toString());
 			// Create a JSON object hierarchy from the results
 			JSONObject jsonObj;
 			try {
 
 				jsonObj = new JSONObject(jsonResults.toString());
 				JSONObject latLngObj = jsonObj.getJSONObject("result").getJSONObject("geometry").getJSONObject("location");
-				Log.i("Reid","inside do in background " + latLngObj.toString());
 				p[0].setlatitude(latLngObj.getDouble("lat"));
 				p[0].setLongitude(latLngObj.getDouble("lng"));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
-				Log.i("Reid","ERROR happened " + e.getMessage());
 				e.printStackTrace();
 			}
 

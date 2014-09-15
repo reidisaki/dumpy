@@ -32,7 +32,7 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<Prediction> implements Filt
 	private static final String OUT_JSON = "/json";
 	public static final String API_KEY ="AIzaSyBc1oS-wYDEOxYiFd3sMk5kt5CZQ4SQzJs"; //places auto complete
 	
-	private int timeThresholdMilliseconds = 200;
+	private int timeThresholdMilliseconds = 0;
 	public long startTime = System.currentTimeMillis() + timeThresholdMilliseconds;
 	public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
@@ -120,10 +120,8 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<Prediction> implements Filt
 				jsonResults.append(buff, 0, read);
 			}
 		} catch (MalformedURLException e) {
-			Log.i("Reid","Error processing Places API URL" + e);
 			return resultList;
 		} catch (IOException e) {
-			Log.i("Reid","Error connecting to Places API" + e);
 			return resultList;
 		} finally {
 			if (conn != null) {
@@ -143,10 +141,8 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<Prediction> implements Filt
 				resultList.add(p);
 			}
 		} catch (JSONException e) {
-			Log.i("Reid","Cannot process JSON results" +e);
 		}
 
-		Log.i("Reid",jsonResults.toString());
 		return resultList;
 	}
 }
