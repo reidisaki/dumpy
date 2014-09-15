@@ -144,7 +144,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public List<String> mGeofencesToRemove;
 	private REQUEST_TYPE mRequestType;
 	// Flag that indicates if a request is underway.
-	private boolean mInProgress, mToggleInfoWindowShown = false;
+	private boolean mInProgress, mToggleInfoWindowShown = false,usedAutoComplete = false;
 	private List<SimpleGeofence> drawerStringList;
 	private SimpleGeofenceStore mGeofenceStorage;
 	private GeofenceSampleReceiver mBroadcastReceiver;
@@ -520,7 +520,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		Prediction p = (Prediction) adapterView.getItemAtPosition(position);
 		Log.i("Reid","item selected" + p.getDescription() + " latitude: " + p.getlatitude());
 		searchEdit.setText(p.getDescription());
-
+		title = p.getDescription();
+		usedAutoComplete = true;
 		//		onSearchEditButtonClicked();
 		new GeocoderAutoCompleteTask().execute(p);
 
@@ -1144,7 +1145,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	public void addMarker(LatLng latLng) {
 
-		title ="not set yet";
 		int radius;
 		Geocoder geo = new Geocoder(getApplicationContext());
 		try {
@@ -1154,7 +1154,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				Log.i("Reid","thoroughfare: " + address.getThoroughfare());
 				Log.i("Reid","premises:" + address.getPremises());
 				Log.i("Reid","locality:" + address.getLocality());
-				title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
+				if(!usedAutoComplete) {
+					title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
+				}
+				Log.i("Reid","title: " + title);
 				searchEdit.setText(title);
 				addGeofenceFragment.nicknameEdit.setText(title);
 			}
@@ -1162,6 +1165,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		usedAutoComplete = false;
 		MarkerOptions mo = new MarkerOptions()
 		.position(latLng)
 		.title(title)//latLng.latitude + ", " + latLng.longitude)           
