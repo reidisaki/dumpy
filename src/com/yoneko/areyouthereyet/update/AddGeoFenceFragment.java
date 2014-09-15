@@ -323,7 +323,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
 			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
-			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude()) {
+			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude() && item.getTitle().equals(currentGeofence.getTitle())) {
 				returnItem = currentGeofence;
 				//exists update the item
 				if(cachedList.getGeoFences() != null) {
@@ -371,7 +371,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, emailOrPhone, nickname,displayPhone);
+		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, emailOrPhone, nickname,displayPhone);
 
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
