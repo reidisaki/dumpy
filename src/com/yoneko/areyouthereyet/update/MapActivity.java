@@ -2,8 +2,17 @@
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,7 +58,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -98,6 +106,7 @@ import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.models.Prediction;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 import com.yoneko.models.SimpleGeofenceStore;
@@ -107,6 +116,7 @@ onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationC
 OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback, OnItemClickListener {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
+	private static final long LOCATION_UPDATE_INTERVAL = 30;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
 	private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
 	public static  String GEO_FENCES = "geofences";
@@ -274,7 +284,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//try using this:
 		mLocationRequest.setFastestInterval(1);
 		// Set the update interval to 50 seconds
-		mLocationRequest.setInterval(60);
+		mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		mGeofenceStorage = new SimpleGeofenceStore(this);
 
@@ -505,8 +515,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 
 	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-		String str = (String) adapterView.getItemAtPosition(position);
-		onSearchEditButtonClicked();		
+
+		Prediction p = (Prediction) adapterView.getItemAtPosition(position);
+		Log.i("Reid","item selected" + p.getDescription() + " latitude: " + p.getlatitude());
+		searchEdit.setText(p.getDescription());
+
+		//		onSearchEditButtonClicked();
+		new GeocoderAutoCompleteTask().execute(p);
+
 	}
 	public void clearAllGeoFences() {
 		drawerStringList.clear();
@@ -697,15 +713,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			@Override
 			public void afterTextChanged(Editable s) {
 				if(!s.toString().equals("")) {
-//					Log.i("Reid", "show clear text");
+					//					Log.i("Reid", "show clear text");
 					clearTextImage.setVisibility(View.VISIBLE);
 					voiceButton.setVisibility(View.GONE);
 				}  else {
-//					Log.i("Reid", "hide clear text");
+					//					Log.i("Reid", "hide clear text");
 					clearTextImage.setVisibility(View.GONE);
 					voiceButton.setVisibility(View.VISIBLE);
 				}
-//				Log.i("Reid","onAfter text changed:" + s.toString());
+				//				Log.i("Reid","onAfter text changed:" + s.toString());
 			}
 		});
 		searchEdit.setOnKeyListener(new OnKeyListener()
@@ -963,6 +979,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			if(location.toLowerCase().startsWith("138 asby bay")) {
 				showAnimal("bailey");
 			}
+			//if it's from the placesApi, then just use the address data back otherwise users didn't select the drop down list
 			new GeocoderTask().execute(location);
 		}				
 	} 
@@ -1224,6 +1241,63 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		mMap.animateCamera(update, animateSpeed, cameraCallBack);
 	}
+
+	private class GeocoderAutoCompleteTask extends AsyncTask<Prediction, Void, Prediction>{
+		@Override
+		protected Prediction doInBackground(Prediction... p) {
+
+			HttpURLConnection conn = null;
+			StringBuilder jsonResults = new StringBuilder();
+			try {
+				StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/details/json");
+				sb.append("?key=" + PlacesAutoCompleteAdapter.API_KEY);
+				//	        sb.append("&components=country:uk");
+				sb.append("&placeid=" + p[0].getPlaceId());
+				Log.i("Reid","API URL: " + sb.toString());
+				URL url = new URL(sb.toString());
+				conn = (HttpURLConnection) url.openConnection();
+				InputStreamReader in = new InputStreamReader(conn.getInputStream());
+
+				// Load the results into a StringBuilder
+				int read;
+				char[] buff = new char[1024];
+				while ((read = in.read(buff)) != -1) {
+					jsonResults.append(buff, 0, read);
+				}
+			} catch (MalformedURLException e) {
+			} catch (IOException e) {
+			} finally {
+				if (conn != null) {
+					conn.disconnect();
+				}
+			}
+			Log.i("Reid","got here?" + jsonResults.toString());
+			// Create a JSON object hierarchy from the results
+			JSONObject jsonObj;
+			try {
+
+				jsonObj = new JSONObject(jsonResults.toString());
+				JSONObject latLngObj = jsonObj.getJSONObject("result").getJSONObject("geometry").getJSONObject("location");
+				Log.i("Reid","inside do in background " + latLngObj.toString());
+				p[0].setlatitude(latLngObj.getDouble("lat"));
+				p[0].setLongitude(latLngObj.getDouble("lng"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				Log.i("Reid","ERROR happened " + e.getMessage());
+				e.printStackTrace();
+			}
+
+
+			return p[0];
+		}
+		protected void onPostExecute(Prediction p) {
+			Address a = new Address(null);
+			Log.i("Reid", "onPostExecute latitude:" + p.getlatitude());
+			a.setLatitude(p.getlatitude());
+			a.setLongitude(p.getLongitude());
+			setMarkerFromSearch(p.getDescription(), a);
+		}
+	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
 
 		@Override
@@ -1231,10 +1305,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			// Creating an instance of Geocoder class
 			Geocoder geocoder = new Geocoder(getBaseContext());
 			List<Address> addresses = null;
-
+			Log.i("Reid","selected location: " + locationName[0]);
 			try {
 				// Getting a maximum of 3 Address that matches the input text
-				addresses = geocoder.getFromLocationName(locationName[0], 3);
+				addresses = geocoder.getFromLocationName(URLEncoder.encode(locationName[0], "utf8"), 5);
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -1256,19 +1330,22 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			for(int i=0;i<addresses.size() && addresses != null;i++){
 
 				Address address = (Address) addresses.get(i);
-
 				// Creating an instance of GeoPoint, to display in Google Map
-				latLng = new LatLng(address.getLatitude(), address.getLongitude());
 
 				String addressText = String.format("%s, %s",
 						address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
 								address.getCountryName());
-				markerOptions = new MarkerOptions();
-				markerOptions.position(latLng);
-				markerOptions.title(addressText);
-				createRadiusCircle(latLng);
+				setMarkerFromSearch(addressText, address);
 			}
 		}
+	}
+
+	public void setMarkerFromSearch(String addressText, Address address) {
+		latLng = new LatLng(address.getLatitude(), address.getLongitude());
+		markerOptions = new MarkerOptions();
+		markerOptions.position(latLng);
+		markerOptions.title(addressText);
+		createRadiusCircle(latLng);
 	}
 	@Override
 	public void editTextClicked() {
@@ -1810,15 +1887,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	public void onMyLocationChange(Location _location) {
-//		Log.i("Reid","location changed!");
+		//		Log.i("Reid","location changed!");
 		location = _location;
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
 			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
-			
+
 			//cool animation but kinda slow.
-//			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+			//			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
 		}
 		// Remove the old marker object
 		if(myLocationMarker != null) {

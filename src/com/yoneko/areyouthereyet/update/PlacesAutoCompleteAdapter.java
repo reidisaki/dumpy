@@ -12,24 +12,28 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.drive.query.Filters;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.TextView;
 
-class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
-	private ArrayList<String> resultList;
+import com.yoneko.models.Prediction;
+
+class PlacesAutoCompleteAdapter extends ArrayAdapter<Prediction> implements Filterable {
+	private ArrayList<Prediction> resultList;
 	private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 	private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
 	private static final String OUT_JSON = "/json";
-	private static final String API_KEY ="AIzaSyBc1oS-wYDEOxYiFd3sMk5kt5CZQ4SQzJs"; //places auto complete
+	public static final String API_KEY ="AIzaSyBc1oS-wYDEOxYiFd3sMk5kt5CZQ4SQzJs"; //places auto complete
 	
 	private int timeThresholdMilliseconds = 200;
 	public long startTime = System.currentTimeMillis() + timeThresholdMilliseconds;
-	private Runnable myTask;
 	public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
 	}
@@ -40,10 +44,21 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterab
 	}
 
 	@Override
-	public String getItem(int index) {
+	public Prediction getItem(int index) {
 		return resultList.get(index);
 	}
 
+	@Override
+	public View getView(int p, View v, ViewGroup group) {
+		if(v == null) {
+			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			v = inflater.inflate(R.layout.places_list_item, null);
+		}
+		TextView placeText = (TextView)v.findViewById(R.id.place_text);
+		placeText.setText(getItem(p).getDescription());
+		return v;
+	}
+	
 	@Override
 	public Filter getFilter() {
 		Filter filter = new Filter() {
@@ -57,7 +72,7 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterab
 					final Handler mHandler = new Handler();
 					// Retrieve the autocomplete results.
 //					Log.i("Reid","PlacesAUtoCompleteAdapter  " + constraint.toString());
-					Log.i("Reid","time passed: " + (System.currentTimeMillis()-startTime));
+//					Log.i("Reid","time passed: " + (System.currentTimeMillis()-startTime));
 					if(System.currentTimeMillis()-startTime >= timeThresholdMilliseconds) {
 						resultList = autocomplete(constraint.toString());
 						startTime = System.currentTimeMillis();
@@ -83,8 +98,8 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterab
 			return filter;
 	}
 
-	private ArrayList<String> autocomplete(String input) {
-		ArrayList<String> resultList = null;
+	private ArrayList<Prediction> autocomplete(String input) {
+		ArrayList<Prediction> resultList = null;
 
 		HttpURLConnection conn = null;
 		StringBuilder jsonResults = new StringBuilder();
@@ -122,14 +137,16 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterab
 			JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
 
 			// Extract the Place descriptions from the results
-			resultList = new ArrayList<String>(predsJsonArray.length());
+			resultList = new ArrayList<Prediction>(predsJsonArray.length());
 			for (int i = 0; i < predsJsonArray.length(); i++) {
-				resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
+				Prediction p = new Prediction(predsJsonArray.getJSONObject(i).getString("description"), predsJsonArray.getJSONObject(i).getString("place_id"));
+				resultList.add(p);
 			}
 		} catch (JSONException e) {
 			Log.i("Reid","Cannot process JSON results" +e);
 		}
 
+		Log.i("Reid",jsonResults.toString());
 		return resultList;
 	}
 }
