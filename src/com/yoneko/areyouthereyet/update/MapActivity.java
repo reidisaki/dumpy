@@ -1814,7 +1814,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
 			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
-			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+			
+			//cool animation but kinda slow.
+//			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
 		}
 		// Remove the old marker object
 		if(myLocationMarker != null) {
