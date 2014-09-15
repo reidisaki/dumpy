@@ -1,3 +1,4 @@
+//showcase view background color : F02173AD
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
