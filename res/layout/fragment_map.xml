@@ -43,7 +43,21 @@
                         ads:adUnitId="@string/admob_id" />
                 </LinearLayout>
 
-                <LinearLayout
+                
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="top"
+                    android:orientation="vertical"
+                    tools:context=".MainActivity" >
+
+                    <fragment
+                        android:id="@+id/map"
+                        android:name="com.google.android.gms.maps.MapFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+<LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/searchBar"
@@ -98,20 +112,6 @@
                         android:spinnerMode="dropdown"
                         android:visibility="gone" />
                 </LinearLayout>
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="top"
-                    android:orientation="vertical"
-                    tools:context=".MainActivity" >
-
-                    <fragment
-                        android:id="@+id/map"
-                        android:name="com.google.android.gms.maps.MapFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
                     <RelativeLayout
                         android:id="@+id/drawer_icon_layout"
                         style="@style/wrapAll"

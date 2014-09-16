@@ -182,7 +182,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	DrawerItemAdapter drawerAdapter;
 	AddGeoFenceFragment addGeofenceFragment;
 	RelativeLayout map_detail_layout,drawer_icon_layout;
-	int animateSpeed = 800, animateFast = 200, _radiusChanged =20, screenWidth, screenHeight;
+	int animateSpeed = 400, animateFast = 200, _radiusChanged =20, screenWidth, screenHeight;
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
@@ -315,7 +315,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		.build();
 		adView = (AdView)findViewById(R.id.adView);
 		// Start loading the ad in the background.
-		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
+		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 			adView.loadAd(adRequest);
 		} else {
 			adView.setVisibility(View.GONE);
@@ -923,7 +923,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.up));
 					isArrowUp =true;
 					if(latLng != null) {
-						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng),animateSpeed, null);
 					}
 
 				}
