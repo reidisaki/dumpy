@@ -1172,9 +1172,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				Log.i("Reid","locality:" + address.getLocality());
 				if(!usedAutoComplete) {
 					title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
+					searchEdit.setText(title);
 				}
-				Log.i("Reid","title: " + title);
-				searchEdit.setText(title);
 				addGeofenceFragment.nicknameEdit.setText(title);
 			}
 
