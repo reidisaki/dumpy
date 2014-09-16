@@ -43,8 +43,6 @@
                         ads:adUnitId="@string/admob_id" />
                 </LinearLayout>
 
-                
-
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -57,61 +55,63 @@
                         android:name="com.google.android.gms.maps.MapFragment"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
-<LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/searchBar"
-                    android:background="#00ffffff"
-                    android:padding="10dip" >
 
-                    <ImageButton
-                        android:id="@+id/searchButton"
-                        style="@style/wrapAll"
-                        android:layout_gravity="center"
-                        android:background="#ffffff"
-                        android:padding="5dip"
-                        android:src="@drawable/magnify" />
-
-                    <AutoCompleteTextView
-                        android:id="@+id/location_edit"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight=".85"
-                        android:background="#ffffff"
-                        android:hint="Search"
-                        android:dropDownHorizontalOffset="-50dip"
-                        android:dropDownWidth="match_parent"
-                        android:inputType="text"
-                        android:padding="5dip"
-                        android:text="" />
-
-                    <ImageButton
-                        android:id="@+id/clearTextImage"
-                        style="@style/wrapAll"
-                        android:layout_gravity="center"
-                        android:background="#ffffff"
-                        android:padding="5dip"
-                        android:src="@drawable/clear"
-                        android:visibility="gone" />
-
-                    <ImageButton
-                        android:id="@+id/voiceButton"
-                        style="@style/wrapAll"
-                        android:layout_gravity="center"
-                        android:background="#ffffff"
-                        android:padding="5dip"
-                        android:src="@drawable/mic" />
-
-                    <Spinner
-                        android:id="@+id/radius_spinner"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:id="@+id/searchBar"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".25"
-                        android:entries="@array/radius_array"
-                        android:prompt="@string/Radius"
-                        android:spinnerMode="dropdown"
-                        android:visibility="gone" />
-                </LinearLayout>
+                        android:background="#00ffffff"
+                        android:padding="10dip" >
+
+                        <ImageButton
+                            android:id="@+id/searchButton"
+                            style="@style/wrapAll"
+                            android:layout_gravity="center"
+                            android:background="#ffffff"
+                            android:padding="5dip"
+                            android:src="@drawable/magnify" />
+
+                        <AutoCompleteTextView
+                            android:id="@+id/location_edit"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight=".85"
+                            android:background="#ffffff"
+                            android:dropDownHorizontalOffset="-50dip"
+                            android:dropDownWidth="match_parent"
+                            android:hint="Search"
+                            android:inputType="text"
+                            android:padding="5dip"
+                            android:text="" />
+
+                        <ImageButton
+                            android:id="@+id/clearTextImage"
+                            style="@style/wrapAll"
+                            android:layout_gravity="center"
+                            android:background="#ffffff"
+                            android:padding="5dip"
+                            android:src="@drawable/clear"
+                            android:visibility="gone" />
+
+                        <ImageButton
+                            android:id="@+id/voiceButton"
+                            style="@style/wrapAll"
+                            android:layout_gravity="center"
+                            android:background="#ffffff"
+                            android:padding="5dip"
+                            android:src="@drawable/mic" />
+
+                        <Spinner
+                            android:id="@+id/radius_spinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".25"
+                            android:entries="@array/radius_array"
+                            android:prompt="@string/Radius"
+                            android:spinnerMode="dropdown"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
                     <RelativeLayout
                         android:id="@+id/drawer_icon_layout"
                         style="@style/wrapAll"
@@ -167,9 +167,9 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_below="@+id/arrow"
                     android:gravity="center|top"
                     android:paddingTop="10dip"
-                    android:visibility="gone"
                     android:text="Slide up to add GeoFence"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:visibility="gone" />
 
                 <fragment
                     android:id="@+id/fragment_add_geo_fence"

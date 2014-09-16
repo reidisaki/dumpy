@@ -321,13 +321,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			adView.setVisibility(View.GONE);
 		}
 
-		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		mMap.getUiSettings().setRotateGesturesEnabled(false);
-		mMap.setMyLocationEnabled(true);
-		mMap.setOnMarkerClickListener(this);
-		mMap.setOnMyLocationChangeListener(this); 
-		mMap.setOnMyLocationButtonClickListener(this);
-		mMap.setOnMapLoadedCallback(this);
+		//
+		initMap();
+		
 		geocoder = new Geocoder(getApplicationContext()) ;
 		Criteria criteria = new Criteria();
 		locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -367,6 +363,26 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 
 
+	private void initMap() {
+		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		mMap.getUiSettings().setRotateGesturesEnabled(false);
+		mMap.setMyLocationEnabled(true);
+		mMap.setOnMarkerClickListener(this);
+		mMap.setOnMyLocationChangeListener(this); 
+		mMap.setOnMyLocationButtonClickListener(this);
+		mMap.setOnMapLoadedCallback(this);
+
+		//Position LocationButton
+		   // Get the button view 
+	    View locationButton = ((View)findViewById(1).getParent()).findViewById(2);
+	    // and next place it, for exemple, on bottom right (as Google Maps app)
+	    RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+	    // position on right bottom
+	    rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+	    rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+	    rlp.setMargins(0, 0, 20, 200);
+		
+	}
 	private void initShowView() {
 
 		//		l.setBackgroundColor(Color.parseColor("#FF000000"));
