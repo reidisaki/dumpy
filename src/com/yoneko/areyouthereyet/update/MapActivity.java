@@ -910,10 +910,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						}
 					});
 
-					InputMethodManager imm = (InputMethodManager)getSystemService(
-							Context.INPUT_METHOD_SERVICE);
-
-					imm.hideSoftInputFromWindow(slidePanelLayout.getWindowToken(), 0);
+					hideKeyboard();
 
 					fm.beginTransaction()
 					.hide(addGeofenceFragment)
@@ -962,6 +959,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				}
 			}
 		});
+	}
+	protected void hideKeyboard() {
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+				Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(slidePanelLayout.getWindowToken(), 0);		
 	}
 	@Override
 	public void onResume() {
@@ -1106,7 +1108,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onMapLongClick(LatLng point) {
 		latLng = point;
 		createRadiusCircle(point);
-		Log.i("REID","hiding keyboard now");
 		//		MarkerOptions mo = new MarkerOptions()
 		//		.position(point)
 		//		.title( point.latitude + ", " + point.longitude)           
@@ -1158,7 +1159,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
 				}
 				Log.i("Reid","title: " + title);
-				searchEdit.setText(title);
+				if(!usedAutoComplete) {
+					searchEdit.setText(title);
+				}
 				addGeofenceFragment.nicknameEdit.setText(title);
 			}
 
@@ -1312,6 +1315,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			a.setLatitude(p.getlatitude());
 			a.setLongitude(p.getLongitude());
 			setMarkerFromSearch(p.getDescription(), a);
+			hideKeyboard();
 		}
 	}
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
