@@ -188,7 +188,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true;
 	public static String tag = "Reid";
-	int selectedRadius = 125, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2;
+	int selectedRadius = 75, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 50;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public static boolean isActive = false;
@@ -593,7 +593,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						addGeofenceFragment.nicknameEdit.setText("");
 						addGeofenceFragment.messageEdit.setText("");
 						addGeofenceFragment.emailEdit.setText("");
-						addGeofenceFragment.radius_seek.setProgress(125);
+						addGeofenceFragment.radius_seek.setProgress(75);
 						searchEdit.setText("");
 						mMap.clear();
 						dialog.dismiss();
@@ -813,7 +813,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
-				_radiusChanged = progress;
+				_radiusChanged = progress + MIN_RADIUS;
 
 				if(myCircle != null) {
 					myCircle.remove();
@@ -1199,7 +1199,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private void clearAddGeoFenceFragment() {
 		addGeofenceFragment.messageEdit.setText("");
 		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
-		addGeofenceFragment.radius_seek.setProgress(125);
+		addGeofenceFragment.radius_seek.setProgress(75);
 		addGeofenceFragment.emailEdit.setText("");		
 	}
 		@Override
