@@ -179,7 +179,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 								String phoneNumber =""+cur.getString(phoneNumberIndex);
 
 								// Add contacts names to adapter
-								adapter.add(name + "("+phoneLabel+")");
+								adapter.add(name + "("+phoneLabel+")" + phoneNumber.toString());
 
 								// Add ArrayList names to adapter
 								phoneValueArr.add(phoneNumber.toString());
@@ -253,19 +253,18 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 			public void onItemClick(AdapterView<?> adapterView, View view, int index, long arg3) {
 				// Get Array index value for selected name
-				int i = nameValueArr.indexOf(""+adapterView.getItemAtPosition(index));
+//				int i = nameValueArr.indexOf(""+adapterView.getItemAtPosition(index));
 				
 				// If name exist in name ArrayList
-				if (i >= 0) {
+//				if (i >= 0) {
 					// Get Phone Number
-					toNumberValue = phoneValueArr.get(i);
-				}
-				String toPhone = "";
-				emailOrPhone = toNumberValue;
-				String outputString = toNumberValue + " (" + nameValueArr.get(i).toString() + ")";
-//				String addComma = emailEdit.getText().toString().equals("") ? "" : ",";
-//				toPhone = emailEdit.getT + outputString; 
-				emailEdit.setText(outputString);
+					emailOrPhone = phoneValueArr.get(index);
+					String outputString = nameValueArr.get(index).toString();
+//					String addComma = emailEdit.getText().toString().equals("") ? "" : ",";
+//					toPhone = emailEdit.getT + outputString; 
+					emailEdit.setText(outputString);
+//				}
+				
 			}
 		});
 		//        emailEdit.setOnItemSelectedListener(this);
