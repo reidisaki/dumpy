@@ -655,7 +655,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 							SimpleGeofence fence = ((SimpleGeofence)drawerAdapter.getItem(i));
 							if(fence.isChecked()) {
-								Log.i("Reid","removing item");
+//								Log.i("Reid","removing item");
 								drawerStringList.remove(i);
 								if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
 									isCurrentGeofenceAffected = true;
@@ -850,7 +850,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			@Override
 			public void onClick(View v) {
 				if(slidePanelLayout.isPanelExpanded()) {
-					Log.i("Reid","collapsing panel closing keyboard");
 					slidePanelLayout.collapsePanel();
 				}
 
@@ -870,7 +869,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					slide_tab_text.setText("");
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
 					isArrowUp =false;
-					//					Log.i("Reid","onPanelSlide: " + slideOffset);
 				}
 
 				@Override
@@ -884,7 +882,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 				@Override
 				public void onPanelCollapsed(View panel) {
-					Log.i("Reid","panel is collapsed");
 
 					Animation fadeIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
 					searchBar.startAnimation(fadeIn);
@@ -1210,11 +1207,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(currentMarker != null) {
 
 			if(mToggleInfoWindowShown) {
-				Log.i("Reid", "hiding window");
 				currentMarker.hideInfoWindow();
 				mToggleInfoWindowShown = false;
 			} else {
-				Log.i("Reid", "showing window");
 				currentMarker.showInfoWindow();
 				mToggleInfoWindowShown = true;
 			}
@@ -1256,11 +1251,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
 		} 
-
 		//				CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
 		CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);
 
-		Log.i("Reid","animating camera");
 		mMap.animateCamera(update, animateSpeed, cameraCallBack);
 	}
 
@@ -1311,7 +1304,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 		protected void onPostExecute(Prediction p) {
 			Address a = new Address(null);
-			Log.i("Reid", "onPostExecute latitude:" + p.getlatitude());
 			a.setLatitude(p.getlatitude());
 			a.setLongitude(p.getLongitude());
 			setMarkerFromSearch(p.getDescription(), a);
@@ -1368,7 +1360,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	@Override
 	public void editTextClicked() {
-		Log.i("Reid","expand panel all the way ");
 		slidePanelLayout.expandPanel(1f);
 	}
 	@Override
@@ -1409,11 +1400,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
-		Log.i(TAG,"Calling on Stop");
 		FlurryAgent.onEndSession(this);
 		navigateToMyLocation = false;
 		if (mLocationClient !=null && mLocationClient.isConnected()) {
-			Log.i(TAG,"stopping updates");
 			/*
 			 * Remove location updates for a listener.
 			 * The current Activity is the listener, so
