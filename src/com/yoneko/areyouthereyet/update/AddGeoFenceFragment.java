@@ -178,11 +178,14 @@ public class AddGeoFenceFragment extends DialogFragment  {
 						// Get Phone number
 						String phoneNumber =""+cur.getString(phoneNumberIndex);
 
+						phoneNumber = phoneNumber.replace("-", "").replace(".","").replace(" ","").toString();
 						// Add contacts names to adapter
-						adapter.add(name + "("+phoneLabel+")" + phoneNumber.toString());
+//						adapter.add(phoneNumber);
+						adapter.add(name + "("+phoneLabel+")");
+						adapter.add(phoneNumber + "|" + name + "("+phoneLabel+")");
 
 						// Add ArrayList names to adapter
-						phoneValueArr.add(phoneNumber.toString());
+						phoneValueArr.add(phoneNumber);
 						nameValueArr.add(name + "("+phoneLabel+")");
 					} // End if
 
@@ -253,10 +256,17 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 			public void onItemClick(AdapterView<?> adapterView, View view, int index, long arg3) {
 				// Get Array index value for selected name
-				String s = adapterView.getItemAtPosition(index).toString().substring(0,adapterView.getItemAtPosition(index).toString().lastIndexOf(")")+1);
+				String s = adapterView.getItemAtPosition(index).toString();
 				Log.i("Reid","OnItemClick string: " + s);
-				int i = nameValueArr.indexOf(s);
+				
 
+				//check if this is a phone number search or a name search
+				if(!Character.isDigit(s.charAt(0))) {
+					s = s.substring(0,s.lastIndexOf(")")+1);
+				} else {
+					s = s.substring(s.lastIndexOf("|") +1,s.length());
+				}
+				int i = nameValueArr.indexOf(s);
 				// Get Phone Number
 				emailOrPhone = phoneValueArr.get(i);
 				Log.i("Reid","phone number: " + emailOrPhone);
@@ -303,7 +313,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		//		});
 		return addGeoFenceView;
 	}
-
 	protected SimpleGeofence getItemInGeoFenceListByLatLng(LatLng _latLng) {
 		SimpleGeofence returnItem = null;
 		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
