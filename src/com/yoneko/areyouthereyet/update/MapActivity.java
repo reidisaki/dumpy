@@ -188,7 +188,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true, isLongClick = false;
 	public static String tag = "Reid";
-	int selectedRadius = 75, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 50;
+	int selectedRadius = 75, mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 50;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public static boolean isActive = false;
@@ -309,17 +309,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//				main_screen.setVisibility(View.VISIBLE); 
 		//			} 
 		//		}, 2000); 
+
+		adView = (AdView)findViewById(R.id.adView);
 		AdRequest adRequest = new AdRequest.Builder()
 		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 		.addTestDevice("deviceid")
 		.build();
-		adView = (AdView)findViewById(R.id.adView);
-		// Start loading the ad in the background.
-		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
-			adView.loadAd(adRequest);
-		} else {
-			adView.setVisibility(View.GONE);
-		}
+		adView.loadAd(adRequest);
 
 		//
 		initMap();
@@ -403,12 +399,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onWindowFocusChanged (boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
-			Log.i("Reid","on resume: "+appOpenNumber);
-
+			Log.i("Reid","on windowFocusedChanged: "+appOpenNumber);
 			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
 			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
-			appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
-			Log.i("Reid", "number of times app opened: " + appOpenNumber);
 			SharedPreferences.Editor editor = wmbPreference.edit();
 			// Code to run once
 			if (isFirstRun)
@@ -417,17 +410,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				editor.putBoolean("FIRSTRUN", false);
 			}
 			int newOpenAppNumber = appOpenNumber+1;
-			editor.putInt("numTimesAppOpened", newOpenAppNumber);
 			editor.commit();
-			if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
-				adView_layout.setVisibility(View.VISIBLE);
-			} else {
-				adView_layout.setVisibility(View.GONE);
-			}
 			LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
-			if (adView != null) {
-				adView.resume();
-			}
 		}
 
 	}
@@ -655,7 +639,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 							SimpleGeofence fence = ((SimpleGeofence)drawerAdapter.getItem(i));
 							if(fence.isChecked()) {
-//								Log.i("Reid","removing item");
+								//								Log.i("Reid","removing item");
 								drawerStringList.remove(i);
 								if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
 									isCurrentGeofenceAffected = true;
@@ -964,6 +948,24 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	public void onResume() {
 		super.onResume();
+		// Start loading the ad in the background.
+		
+		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
+			adView.setVisibility(View.VISIBLE);
+		} else {
+			 adView.setVisibility(View.GONE);
+		}
+		SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
+		appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
+		Log.i("Reid", "number of times app opened: " + appOpenNumber);
+		SharedPreferences.Editor editor = wmbPreference.edit();
+		int newOpenAppNumber = appOpenNumber+1;
+		editor.putInt("numTimesAppOpened", newOpenAppNumber);
+		editor.commit();
+		
+		if (adView != null) {
+			adView.resume();
+		}
 		isActive = true;
 		navigateToMyLocation = true;
 	}
