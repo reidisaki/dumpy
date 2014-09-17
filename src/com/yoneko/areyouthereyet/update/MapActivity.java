@@ -375,27 +375,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		
 		
-		//new position
-		  View myLocationParent = ((View)findViewById(1).getParent());
-
-		    // my position button
-		    int positionWidth = myLocationParent.getLayoutParams().width;
-		    int positionHeight = myLocationParent.getLayoutParams().height;
-
-		    // lay out position button
-		    FrameLayout.LayoutParams positionParams = new FrameLayout.LayoutParams(
-		            positionWidth, positionHeight);
-		    Log.i("Reid","height: " + screenHeight);
-		    int x = convertPixtoDip(screenHeight);
-		    Double d = (x)*.72;
-		    if (isTablet(this)){
-		       d = (x)*.8;
-		    }
-		    int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, d.floatValue(), getResources().getDisplayMetrics());
-		    
-		    positionParams.setMargins(0, height, 0, 0);
-
-		    myLocationParent.setLayoutParams(positionParams);
 		
 		//Position LocationButton
 		// Get the button view 
@@ -452,9 +431,39 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				initShowView();
 				editor.putBoolean("FIRSTRUN", false);
 			}
+			
+			if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
+				adView.setVisibility(View.VISIBLE);
+			} else {
+				 adView.setVisibility(View.GONE);
+			}
+			
 			int newOpenAppNumber = appOpenNumber+1;
 			editor.commit();
 			LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
+			//new position
+			  View myLocationParent = ((View)findViewById(1).getParent());
+
+			    // my position button
+			    int positionWidth = myLocationParent.getLayoutParams().width;
+			    int positionHeight = myLocationParent.getLayoutParams().height;
+
+			    // lay out position button
+			    FrameLayout.LayoutParams positionParams = new FrameLayout.LayoutParams(
+			            positionWidth, positionHeight);
+			    Log.i("Reid","height: " + screenHeight);
+			    int x = convertPixtoDip(screenHeight);
+			    int adViewHeight = adView.getHeight();
+			    Double d = (x)*.7;
+			    if (isTablet(this)){
+			       d = (x)*.8;
+			    }
+			    int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, d.floatValue(), getResources().getDisplayMetrics());
+			    height = appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1 ? height - adViewHeight : height;
+			    positionParams.setMargins(0, height, 0, 0);
+
+			    myLocationParent.setLayoutParams(positionParams);
+
 		}
 
 	}
@@ -995,7 +1004,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		super.onResume();
 		// Start loading the ad in the background.
 		
-		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
+		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 			adView.setVisibility(View.VISIBLE);
 		} else {
 			 adView.setVisibility(View.GONE);
