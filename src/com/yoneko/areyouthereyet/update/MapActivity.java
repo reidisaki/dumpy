@@ -182,13 +182,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	DrawerItemAdapter drawerAdapter;
 	AddGeoFenceFragment addGeofenceFragment;
 	RelativeLayout map_detail_layout,drawer_icon_layout;
-	int animateSpeed = 800, animateFast = 200, _radiusChanged =20, screenWidth, screenHeight;
+	int animateSpeed = 400, animateFast = 200, _radiusChanged =20, screenWidth, screenHeight;
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
-	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true;
+	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true, isLongClick = false;
 	public static String tag = "Reid";
-	int selectedRadius = 75, mapOffset, appOpenNumber=0, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 50;
+	int selectedRadius = 75, mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 50;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public static boolean isActive = false;
@@ -309,39 +309,22 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//				main_screen.setVisibility(View.VISIBLE); 
 		//			} 
 		//		}, 2000); 
+
+		adView = (AdView)findViewById(R.id.adView);
 		AdRequest adRequest = new AdRequest.Builder()
 		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 		.addTestDevice("deviceid")
 		.build();
-		adView = (AdView)findViewById(R.id.adView);
-		// Start loading the ad in the background.
-		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
-			adView.loadAd(adRequest);
-		} else {
-			adView.setVisibility(View.GONE);
-		}
+		adView.loadAd(adRequest);
 
-		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		mMap.getUiSettings().setRotateGesturesEnabled(false);
-		mMap.setMyLocationEnabled(true);
-		mMap.setOnMarkerClickListener(this);
-		mMap.setOnMyLocationChangeListener(this); 
-		mMap.setOnMyLocationButtonClickListener(this);
-		mMap.setOnMapLoadedCallback(this);
+		//
+		initMap();
+
 		geocoder = new Geocoder(getApplicationContext()) ;
 		Criteria criteria = new Criteria();
 		locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
 		location = locationManager.getLastKnownLocation(bestProvider);
-		Bundle b = getIntent().getExtras();
-		if(b != null){
-			editable = b.getBoolean("editable",true);
-			if(!editable) {
-				selectedRadius = (int) b.getFloat("radius");
-				LatLng p = new LatLng(b.getDouble("lat"),b.getDouble("lon"));
-				onMapLongClick(p);
-			}
-		}
 		fm = getFragmentManager();
 
 
@@ -351,7 +334,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		display.getSize(size);
 		screenWidth = size.x;
 		screenHeight = size.y;
-		mapOffset = (int)(screenHeight * -.25f) + 60;
+		mapOffset = (int)(screenHeight * -.25f) + 120;
 		initLeftDrawer();
 		initViews();
 		setListeners();
@@ -359,14 +342,29 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		fm.beginTransaction()
 		.hide(addGeofenceFragment)
 		.commit();
-		//		CameraPosition cameraPosition = new CameraPosition.Builder().target(
-		//                new LatLng(-118.256, 33.5847)).zoom(15).build();
-		//
-		//		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));       
-		//		
 	}
 
 
+	private void initMap() {
+		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		mMap.getUiSettings().setRotateGesturesEnabled(false);
+		mMap.setMyLocationEnabled(true);
+		mMap.setOnMarkerClickListener(this);
+		mMap.setOnMyLocationChangeListener(this); 
+		mMap.setOnMyLocationButtonClickListener(this);
+		mMap.setOnMapLoadedCallback(this);
+
+		//Position LocationButton
+		// Get the button view 
+		View locationButton = ((View)findViewById(1).getParent()).findViewById(2);
+		// and next place it, for exemple, on bottom right (as Google Maps app)
+		RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+		// position on right bottom
+		rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+		rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+		rlp.setMargins(0, 0, 20, 200);
+
+	}
 	private void initShowView() {
 
 		//		l.setBackgroundColor(Color.parseColor("#FF000000"));
@@ -401,12 +399,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onWindowFocusChanged (boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
-			Log.i("Reid","on resume: "+appOpenNumber);
-
+			Log.i("Reid","on windowFocusedChanged: "+appOpenNumber);
 			SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
 			boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
-			appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
-			Log.i("Reid", "number of times app opened: " + appOpenNumber);
 			SharedPreferences.Editor editor = wmbPreference.edit();
 			// Code to run once
 			if (isFirstRun)
@@ -415,17 +410,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				editor.putBoolean("FIRSTRUN", false);
 			}
 			int newOpenAppNumber = appOpenNumber+1;
-			editor.putInt("numTimesAppOpened", newOpenAppNumber);
 			editor.commit();
-			if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
-				adView_layout.setVisibility(View.VISIBLE);
-			} else {
-				adView_layout.setVisibility(View.GONE);
-			}
 			LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
-			if (adView != null) {
-				adView.resume();
-			}
 		}
 
 	}
@@ -522,7 +508,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		searchEdit.setText(p.getDescription());
 		title = p.getDescription();
 		usedAutoComplete = true;
-		//		onSearchEditButtonClicked();
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(searchEdit.getWindowToken(), 0);
 		new GeocoderAutoCompleteTask().execute(p);
 
 	}
@@ -541,11 +528,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onBackPressed() {
 
 		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelAnchored()) {
-			////			slidePanelLayout.expandPanel(.5f);
-			//			slidePanelLayout.setAnchorPoint(.5f);
-			//			slidePanelLayout.anchorPanel();
-			//			Log.i("Reid","half expand");
-			//		} else if (slidePanelLayout.isPanelAnchored()) {
 			slidePanelLayout.collapsePanel();
 			Log.i("Reid","closed");
 		}
@@ -562,10 +544,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		FlurryAgent.onStartSession(this, flurryKey);
 	}
 	private void showAddGeoFenceFragment() {
-		if(latLng != null) {
-			boolean panelWillExpand = true;
-			animateToLocation(panelWillExpand);
-		}
+
 		slide_tab_text.setText("");
 		arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
 		fm.beginTransaction()
@@ -623,6 +602,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			@Override
 			public void onClick(View v) {
 				Log.i("Reid", "clicked on arrow");
+				isLongClick = false;
 				if(isArrowUp) {
 
 					if(slidePanelLayout.isPanelAnchored()){
@@ -659,7 +639,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 							SimpleGeofence fence = ((SimpleGeofence)drawerAdapter.getItem(i));
 							if(fence.isChecked()) {
-								Log.i("Reid","removing item");
+								//								Log.i("Reid","removing item");
 								drawerStringList.remove(i);
 								if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
 									isCurrentGeofenceAffected = true;
@@ -854,7 +834,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			@Override
 			public void onClick(View v) {
 				if(slidePanelLayout.isPanelExpanded()) {
-					Log.i("Reid","collapsing panel closing keyboard");
 					slidePanelLayout.collapsePanel();
 				}
 
@@ -864,7 +843,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(editable) {
 			mMap.setOnMapLongClickListener(this);
 			mMap.setOnMarkerClickListener(this);
-					mMap.setOnMapClickListener(this);
+			mMap.setOnMapClickListener(this);
 
 			slidePanelLayout.setAnchorPoint(.5f);
 			slidePanelLayout.setPanelSlideListener(new PanelSlideListener() {
@@ -874,23 +853,19 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					slide_tab_text.setText("");
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.down));
 					isArrowUp =false;
-					//					Log.i("Reid","onPanelSlide: " + slideOffset);
 				}
 
 				@Override
 				public void onPanelHidden(View panel) {
-					Log.i("Reid","panel is hidden");
 				}
 
 				@Override
 				public void onPanelExpanded(View panel) {
-					Log.i("Reid","onPanelExpanded 332");
 					showAddGeoFenceFragment();
 				}
 
 				@Override
 				public void onPanelCollapsed(View panel) {
-					Log.i("Reid","panel is collapsed");
 
 					Animation fadeIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
 					searchBar.startAnimation(fadeIn);
@@ -920,14 +895,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					arrow.setImageDrawable(getResources().getDrawable(R.drawable.up));
 					isArrowUp =true;
 					if(latLng != null) {
-						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+						mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng),animateSpeed, null);
 					}
 
 				}
 
 				@Override
 				public void onPanelAnchored(View panel) {
-					Log.i("Reid","onPanelAnchored 352");
+					animateCameraOffset();
 					showAddGeoFenceFragment();
 					Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
 					searchBar.startAnimation(fadeOut);
@@ -960,14 +935,40 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			}
 		});
 	}
+
 	protected void hideKeyboard() {
 		InputMethodManager imm = (InputMethodManager)getSystemService(
 				Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(slidePanelLayout.getWindowToken(), 0);		
+		imm.hideSoftInputFromWindow(slidePanelLayout.getWindowToken(), 0);
+	}
+	protected void animateCameraOffset() {
+		Point p = mMap.getProjection().toScreenLocation(latLng);
+		p.set(p.x, p.y-mapOffset);
+
+		CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
+		mMap.animateCamera(update, animateSpeed, null);		
 	}
 	@Override
 	public void onResume() {
 		super.onResume();
+		// Start loading the ad in the background.
+		
+		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 0) {
+			adView.setVisibility(View.VISIBLE);
+		} else {
+			 adView.setVisibility(View.GONE);
+		}
+		SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
+		appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
+		Log.i("Reid", "number of times app opened: " + appOpenNumber);
+		SharedPreferences.Editor editor = wmbPreference.edit();
+		int newOpenAppNumber = appOpenNumber+1;
+		editor.putInt("numTimesAppOpened", newOpenAppNumber);
+		editor.commit();
+		
+		if (adView != null) {
+			adView.resume();
+		}
 		isActive = true;
 		navigateToMyLocation = true;
 	}
@@ -1035,6 +1036,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		@Override
 		public void onFinish() {
+
+			animateCameraOffset();
 
 			if(!slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelHidden()) {
 				map_detail_layout.setVisibility(View.VISIBLE);
@@ -1107,6 +1110,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override    
 	public void onMapLongClick(LatLng point) {
 		latLng = point;
+		isLongClick = true;
 		createRadiusCircle(point);
 		//		MarkerOptions mo = new MarkerOptions()
 		//		.position(point)
@@ -1157,9 +1161,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				Log.i("Reid","locality:" + address.getLocality());
 				if(!usedAutoComplete) {
 					title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
-				}
-				Log.i("Reid","title: " + title);
-				if(!usedAutoComplete) {
 					searchEdit.setText(title);
 				}
 				addGeofenceFragment.nicknameEdit.setText(title);
@@ -1205,31 +1206,29 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		addGeofenceFragment.radius_seek.setProgress(75);
 		addGeofenceFragment.emailEdit.setText("");		
 	}
-		@Override
-		public void onMapClick(LatLng point) {
-			slidePanelLayout.collapsePanel();
-			if(currentMarker != null) {
-				
-				if(mToggleInfoWindowShown) {
-					Log.i("Reid", "hiding window");
-					currentMarker.hideInfoWindow();
-					mToggleInfoWindowShown = false;
-				} else {
-					Log.i("Reid", "showing window");
-					currentMarker.showInfoWindow();
-					mToggleInfoWindowShown = true;
-				}
-				
+	@Override
+	public void onMapClick(LatLng point) {
+		slidePanelLayout.collapsePanel();
+		if(currentMarker != null) {
+
+			if(mToggleInfoWindowShown) {
+				currentMarker.hideInfoWindow();
+				mToggleInfoWindowShown = false;
+			} else {
+				currentMarker.showInfoWindow();
+				mToggleInfoWindowShown = true;
 			}
-//			CircleOptions circleOptions = new CircleOptions()
-//			.center(point)   //set center
-//			.radius(500)   //set radius in meters
-//			.fillColor(Color.TRANSPARENT)  //default
-//			.strokeColor(Color.MAGENTA)
-//			.strokeWidth(5);
-//			Log.i(TAG,"map clicked");
-//			myCircle = mMap.addCircle(circleOptions);
+
 		}
+		//			CircleOptions circleOptions = new CircleOptions()
+		//			.center(point)   //set center
+		//			.radius(500)   //set radius in meters
+		//			.fillColor(Color.TRANSPARENT)  //default
+		//			.strokeColor(Color.MAGENTA)
+		//			.strokeWidth(5);
+		//			Log.i(TAG,"map clicked");
+		//			myCircle = mMap.addCircle(circleOptions);
+	}
 	public void createRadiusCircle(LatLng latLng) {
 		if(myCircle != null) {
 			myCircle.remove();
@@ -1257,9 +1256,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
 		} 
-
-		//		CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
-		CameraUpdate update = CameraUpdateFactory.newCameraPosition(new CameraPosition(mMap.getProjection().fromScreenLocation(p), 15f, 0f, 0f));
+		//				CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
+		CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);
 
 		mMap.animateCamera(update, animateSpeed, cameraCallBack);
 	}
@@ -1275,7 +1273,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				sb.append("?key=" + PlacesAutoCompleteAdapter.API_KEY);
 				//	        sb.append("&components=country:uk");
 				sb.append("&placeid=" + p[0].getPlaceId());
-//				Log.i("Reid","API URL: " + sb.toString());
+				//				Log.i("Reid","API URL: " + sb.toString());
 				URL url = new URL(sb.toString());
 				conn = (HttpURLConnection) url.openConnection();
 				InputStreamReader in = new InputStreamReader(conn.getInputStream());
@@ -1311,7 +1309,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 		protected void onPostExecute(Prediction p) {
 			Address a = new Address(null);
-			Log.i("Reid", "onPostExecute latitude:" + p.getlatitude());
 			a.setLatitude(p.getlatitude());
 			a.setLongitude(p.getLongitude());
 			setMarkerFromSearch(p.getDescription(), a);
@@ -1369,7 +1366,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	@Override
 	public void editTextClicked() {
-		Log.i("Reid","expand panel all the way ");
 		slidePanelLayout.expandPanel(1f);
 	}
 	@Override
@@ -1410,11 +1406,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
-		Log.i(TAG,"Calling on Stop");
 		FlurryAgent.onEndSession(this);
 		navigateToMyLocation = false;
 		if (mLocationClient !=null && mLocationClient.isConnected()) {
-			Log.i(TAG,"stopping updates");
 			/*
 			 * Remove location updates for a listener.
 			 * The current Activity is the listener, so
