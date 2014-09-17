@@ -10,7 +10,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +23,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Address;
@@ -41,8 +41,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -58,6 +60,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -97,7 +100,6 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -317,7 +319,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		.build();
 		adView.loadAd(adRequest);
 
-		//
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		screenWidth = size.x;
+		screenHeight = size.y;
 		initMap();
 
 		geocoder = new Geocoder(getApplicationContext()) ;
@@ -329,11 +335,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 
 		//default display size width for device
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		screenWidth = size.x;
-		screenHeight = size.y;
+		
 		mapOffset = (int)(screenHeight * -.25f) + 120;
 		initLeftDrawer();
 		initViews();
@@ -343,8 +345,25 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		.hide(addGeofenceFragment)
 		.commit();
 	}
+	public static float getDensity(Context context){
+	    float scale = context.getResources().getDisplayMetrics().density;       
+	    return scale;
+	}
 
-
+	public  int convertDiptoPix(int dip){
+	    float scale = getDensity(this);
+	    return (int) (dip * scale + 0.5f);
+	}
+	public  int convertPixtoDip(int pixel){
+	    float scale = getDensity(this);
+	    return (int)((pixel - 0.5f)/scale);
+	}
+	
+	public  boolean isTablet(Context context) {
+	    return (context.getResources().getConfiguration().screenLayout
+	            & Configuration.SCREENLAYOUT_SIZE_MASK)
+	            >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+	}
 	private void initMap() {
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
@@ -354,15 +373,39 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mMap.setOnMyLocationButtonClickListener(this);
 		mMap.setOnMapLoadedCallback(this);
 
+		
+		
+		//new position
+		  View myLocationParent = ((View)findViewById(1).getParent());
+
+		    // my position button
+		    int positionWidth = myLocationParent.getLayoutParams().width;
+		    int positionHeight = myLocationParent.getLayoutParams().height;
+
+		    // lay out position button
+		    FrameLayout.LayoutParams positionParams = new FrameLayout.LayoutParams(
+		            positionWidth, positionHeight);
+		    Log.i("Reid","height: " + screenHeight);
+		    int x = convertPixtoDip(screenHeight);
+		    Double d = (x)*.72;
+		    if (isTablet(this)){
+		       d = (x)*.8;
+		    }
+		    int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, d.floatValue(), getResources().getDisplayMetrics());
+		    
+		    positionParams.setMargins(0, height, 0, 0);
+
+		    myLocationParent.setLayoutParams(positionParams);
+		
 		//Position LocationButton
 		// Get the button view 
-		View locationButton = ((View)findViewById(1).getParent()).findViewById(2);
-		// and next place it, for exemple, on bottom right (as Google Maps app)
-		RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-		// position on right bottom
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-		rlp.setMargins(0, 0, 20, 200);
+//		View locationButton = ((View)findViewById(1).getParent()).findViewById(2);
+//		// and next place it, for exemple, on bottom right (as Google Maps app)
+//		RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+//		// position on right bottom
+//		rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+//		rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+//		rlp.setMargins(0, 0, 0, 200);
 
 	}
 	private void initShowView() {
