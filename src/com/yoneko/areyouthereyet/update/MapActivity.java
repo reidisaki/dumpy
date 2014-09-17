@@ -1,4 +1,4 @@
-//showcase view background color : F02173AD
+	//showcase view background color : F02173AD
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
@@ -508,8 +508,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		searchEdit.setText(p.getDescription());
 		title = p.getDescription();
 		usedAutoComplete = true;
-		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(searchEdit.getWindowToken(), 0);
+		hideKeyboard();
 		new GeocoderAutoCompleteTask().execute(p);
 
 	}
@@ -1339,8 +1338,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			if(addresses==null || addresses.size()==0){
 				Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
 			}
-			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(searchEdit.getWindowToken(), 0);
+			hideKeyboard();
 			// Clears all the existing markers on the map
 
 			// Adding Markers on Google Map for each matching address
