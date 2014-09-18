@@ -1,4 +1,4 @@
-	//showcase view background color : F02173AD
+//showcase view background color : F02173AD
 package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
@@ -335,7 +335,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 
 		//default display size width for device
-		
+
 		mapOffset = (int)(screenHeight * -.25f) + 120;
 		initLeftDrawer();
 		initViews();
@@ -346,23 +346,23 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		.commit();
 	}
 	public static float getDensity(Context context){
-	    float scale = context.getResources().getDisplayMetrics().density;       
-	    return scale;
+		float scale = context.getResources().getDisplayMetrics().density;       
+		return scale;
 	}
 
 	public  int convertDiptoPix(int dip){
-	    float scale = getDensity(this);
-	    return (int) (dip * scale + 0.5f);
+		float scale = getDensity(this);
+		return (int) (dip * scale + 0.5f);
 	}
 	public  int convertPixtoDip(int pixel){
-	    float scale = getDensity(this);
-	    return (int)((pixel - 0.5f)/scale);
+		float scale = getDensity(this);
+		return (int)((pixel - 0.5f)/scale);
 	}
-	
+
 	public  boolean isTablet(Context context) {
-	    return (context.getResources().getConfiguration().screenLayout
-	            & Configuration.SCREENLAYOUT_SIZE_MASK)
-	            >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+		return (context.getResources().getConfiguration().screenLayout
+				& Configuration.SCREENLAYOUT_SIZE_MASK)
+				>= Configuration.SCREENLAYOUT_SIZE_LARGE;
 	}
 	private void initMap() {
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -373,18 +373,18 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mMap.setOnMyLocationButtonClickListener(this);
 		mMap.setOnMapLoadedCallback(this);
 
-		
-		
-		
+
+
+
 		//Position LocationButton
 		// Get the button view 
-//		View locationButton = ((View)findViewById(1).getParent()).findViewById(2);
-//		// and next place it, for exemple, on bottom right (as Google Maps app)
-//		RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-//		// position on right bottom
-//		rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-//		rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-//		rlp.setMargins(0, 0, 0, 200);
+		//		View locationButton = ((View)findViewById(1).getParent()).findViewById(2);
+		//		// and next place it, for exemple, on bottom right (as Google Maps app)
+		//		RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+		//		// position on right bottom
+		//		rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+		//		rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+		//		rlp.setMargins(0, 0, 0, 200);
 
 	}
 	private void initShowView() {
@@ -431,39 +431,28 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				initShowView();
 				editor.putBoolean("FIRSTRUN", false);
 			}
-			
+
 			if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 				adView.setVisibility(View.VISIBLE);
 			} else {
-				 adView.setVisibility(View.GONE);
+				adView.setVisibility(View.GONE);
 			}
-			
+
 			int newOpenAppNumber = appOpenNumber+1;
 			editor.commit();
 			LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
-			//new position
-			  View myLocationParent = ((View)findViewById(1).getParent());
-			  int locationOfZoomControls = ((View)findViewById(1).getParent()).getHeight();
-			  int locationOfZoomControlsWidth = ((View)findViewById(1).getParent()).getWidth();
-			    // my position button
-			    int positionWidth = myLocationParent.getLayoutParams().width;
-			    int positionHeight = myLocationParent.getLayoutParams().height;
+			View locationButton = ((View)findViewById(1).getParent()).findViewById(2);
+			// and next place it, for exemple, on bottom right (as Google Maps app)
+			RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+			// position on right bottom
+			rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+			rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+			rlp.setMargins(0, 0, convertDiptoPix(10), convertDiptoPix(100));
 
-			    // lay out position button
-			    FrameLayout.LayoutParams positionParams = new FrameLayout.LayoutParams(
-			            positionWidth, positionHeight);
-			    Log.i("Reid","height: " + screenHeight);
-			    int x = screenHeight;
-			    int adViewHeight = adView.getHeight();
-			    Double d = (x)*.70;
-			    if (isTablet(this)){
-			       d = (x)*.8;
-			    }
-			    int height = d.intValue();//(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, d.floatValue(), getResources().getDisplayMetrics());
-			    height = appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1 ? height - adViewHeight : height;
-			    positionParams.setMargins(0, height, 0, 0);
-
-			    myLocationParent.setLayoutParams(positionParams);
+//			DisplayMetrics metrics = new DisplayMetrics();
+//			getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//			String s= "Screen Density: " + String.valueOf(metrics.density) + " densityDPI: " + String.valueOf(metrics.densityDpi);
+//			Toast.makeText(this,s , Toast.LENGTH_LONG).show();
 
 		}
 
@@ -1004,11 +993,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onResume() {
 		super.onResume();
 		// Start loading the ad in the background.
-		
+
 		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 			adView.setVisibility(View.VISIBLE);
 		} else {
-			 adView.setVisibility(View.GONE);
+			adView.setVisibility(View.GONE);
 		}
 		SharedPreferences wmbPreference = PreferenceManager.getDefaultSharedPreferences(this);
 		appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
@@ -1017,7 +1006,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		int newOpenAppNumber = appOpenNumber+1;
 		editor.putInt("numTimesAppOpened", newOpenAppNumber);
 		editor.commit();
-		
+
 		if (adView != null) {
 			adView.resume();
 		}
@@ -1472,15 +1461,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			Log.i(TAG,"client is not connected()");
 		}
 		super.onStop();
-	}
-	//BEGINNING MERGE
-
-
-
-
-
-	public String createGeoFenceId(double lat, double lon) {
-		return lat + "|" + lon;
 	}
 
 	public void storeJSON(SimpleGeofenceList list, Context context)
