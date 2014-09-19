@@ -449,10 +449,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
 			rlp.setMargins(0, 0, convertDiptoPix(10), convertDiptoPix(100));
 
-//			DisplayMetrics metrics = new DisplayMetrics();
-//			getWindowManager().getDefaultDisplay().getMetrics(metrics);
-//			String s= "Screen Density: " + String.valueOf(metrics.density) + " densityDPI: " + String.valueOf(metrics.densityDpi);
-//			Toast.makeText(this,s , Toast.LENGTH_LONG).show();
+			//			DisplayMetrics metrics = new DisplayMetrics();
+			//			getWindowManager().getDefaultDisplay().getMetrics(metrics);
+			//			String s= "Screen Density: " + String.valueOf(metrics.density) + " densityDPI: " + String.valueOf(metrics.densityDpi);
+			//			Toast.makeText(this,s , Toast.LENGTH_LONG).show();
 
 		}
 
@@ -1402,7 +1402,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		markerOptions = new MarkerOptions();
 		markerOptions.position(latLng);
 		markerOptions.title(addressText);
-		createRadiusCircle(latLng);
+		if(latLng != null) {
+			createRadiusCircle(latLng);
+		} else {
+			Toast.makeText(context, "Can't find: " + addressText, Toast.LENGTH_LONG).show();
+		}
 	}
 	@Override
 	public void editTextClicked() {
@@ -1953,14 +1957,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	@Override
 	public boolean onMyLocationButtonClick() {
-		Point p = mMap.getProjection().toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-		boolean panelExpanded = true;
-		if(panelExpanded) {
-			p.set(p.x, p.y-mapOffset);
-		} 
+		if(location != null) {
+			Point p = mMap.getProjection().toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+			boolean panelExpanded = true;
+			if(panelExpanded) {
+				p.set(p.x, p.y-mapOffset);
+			} 
 
-		mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)));
-
+			mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p)));
+		}
 		boolean returnValue =  (slidePanelLayout.isPanelAnchored() || slidePanelLayout.isPanelExpanded()) ? true : false;
 		Log.i("Reid","Return value onMyLocationButtonClick  " + returnValue);
 		return returnValue;
