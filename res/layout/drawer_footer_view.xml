@@ -23,4 +23,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" 
         ></Button>
+    
+    <Button 
+		android:text="Help"
+        android:id="@+id/drawer_help"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+        ></Button>
 </LinearLayout>

@@ -164,7 +164,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private ImageButton clearTextImage,searchButton,voiceButton,trashDrawer;
-	private Button feedbackBtn,drawer_clear;
+	private Button feedbackBtn,drawer_clear, helpBtn;
 	private Geocoder geocoder;
 	//analytic crap
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
@@ -402,12 +402,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		View showcasedView2 = findViewById(R.id.ic_drawer);
 		ViewTarget target2 = new ViewTarget(showcasedView2);
 		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,getResources().getString(R.string.showcase_title), getResources().getString(R.string.showcase_message));
-		sv.animateGesture(0, y, screenWidth/2, y);
+
+		sv.animateGesture(screenWidth/2, screenHeight/2-convertDiptoPix(100), screenWidth/2, (screenHeight/2)-convertDiptoPix(100));
+
 		ShowcaseView.ConfigOptions options = sv.getConfigOptions();
 		options.centerText=true;
 		options.hideOnClickOutside=true;
-
-
+		options.block = true;
 
 		//		new ShowcaseView.Builder(this)
 		//	    .setTarget(new ActionViewTarget(this, ActionViewTarget.Type.HOME))
@@ -467,6 +468,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		footerView =  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_footer_view, null, false);
 		headerView=  (LinearLayout)((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.drawer_header_view, null, false);
 		feedbackBtn = (Button)footerView.findViewById(R.id.drawer_feedback);
+		helpBtn = (Button)footerView.findViewById(R.id.drawer_help);
 		mDrawerList.addFooterView(footerView);
 		mDrawerList.addHeaderView(headerView);
 		// Set the adapter for the list view
@@ -551,6 +553,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		title = p.getDescription();
 		usedAutoComplete = true;
 		hideKeyboard();
+		if(p.getDescription().toLowerCase().startsWith("15912 s manhattan")) {
+			showAnimal("joey");
+		}
+		if(p.getDescription().toLowerCase().startsWith("1086 s mansfield")) {
+			showAnimal("lynx");
+		}
+		if(p.getDescription().toLowerCase().startsWith("138 asby bay")) {
+			showAnimal("bailey");
+		}
 		new GeocoderAutoCompleteTask().execute(p);
 
 	}
@@ -637,6 +648,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "reidisaki@gmail.com", "pchung528@gmail.com" });
 				intent.putExtra(Intent.EXTRA_SUBJECT, "location app feedback");
 				startActivity(Intent.createChooser(intent, ""));				
+			}
+		});
+		helpBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mDrawerLayout.closeDrawer(mDrawerList);
+				initShowView();
 			}
 		});
 		arrow.setOnClickListener(new OnClickListener() {
