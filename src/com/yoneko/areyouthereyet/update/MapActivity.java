@@ -35,6 +35,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -1013,6 +1014,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		super.onResume();
 		// Start loading the ad in the background.
 
+		 final LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE );
+
+		 if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+			 displayPromptForEnablingGPS();
+		 }
 		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 			adView.setVisibility(View.VISIBLE);
 		} else {
@@ -1375,6 +1381,35 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			hideKeyboard();
 		}
 	}
+	
+	//Prompt user for gps if they have it disabled
+	public void displayPromptForEnablingGPS()
+	    {
+	        final AlertDialog.Builder builder =
+	            new AlertDialog.Builder(this);
+	        final String action = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+	        final String message = "Enable either GPS or any other location"
+	            + " service to find current location.  Click OK to go to"
+	            + " location services settings to let you do so.";
+	 
+	        builder.setMessage(message)
+	            .setPositiveButton("OK",
+	                new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface d, int id) {
+	                        startActivity(new Intent(action));
+	                        d.dismiss();
+	                    }
+	            })
+	            .setNegativeButton("Cancel",
+	                new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface d, int id) {
+	                        d.cancel();
+	                    }
+	            });
+	        builder.create().show();
+	    }
+	
+	
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
 
 		@Override
@@ -1424,7 +1459,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(latLng != null) {
 			createRadiusCircle(latLng);
 		} else {
-			Toast.makeText(context, "Can't find: " + addressText, Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "Can't find: " + addressText, Toast.LENGTH_LONG).show();
 		}
 	}
 	@Override
