@@ -36,16 +36,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -61,7 +60,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -329,8 +327,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		geocoder = new Geocoder(getApplicationContext()) ;
 		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
+		
 		location = locationManager.getLastKnownLocation(bestProvider);
 		fm = getFragmentManager();
 
@@ -1014,11 +1014,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		super.onResume();
 		// Start loading the ad in the background.
 
-		 final LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE );
+		final LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE );
+		try {
+			if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE) != 3) {
+				displayPromptForEnablingGPS();
+			} 
+		}catch (SettingNotFoundException e) {
+			e.printStackTrace();
+		}
 
-		 if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-			 displayPromptForEnablingGPS();
-		 }
 		if(appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 			adView.setVisibility(View.VISIBLE);
 		} else {
@@ -1381,35 +1385,34 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			hideKeyboard();
 		}
 	}
-	
+
 	//Prompt user for gps if they have it disabled
 	public void displayPromptForEnablingGPS()
-	    {
-	        final AlertDialog.Builder builder =
-	            new AlertDialog.Builder(this);
-	        final String action = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
-	        final String message = "Enable either GPS or any other location"
-	            + " service to find current location.  Click OK to go to"
-	            + " location services settings to let you do so.";
-	 
-	        builder.setMessage(message)
-	            .setPositiveButton("OK",
-	                new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface d, int id) {
-	                        startActivity(new Intent(action));
-	                        d.dismiss();
-	                    }
-	            })
-	            .setNegativeButton("Cancel",
-	                new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface d, int id) {
-	                        d.cancel();
-	                    }
-	            });
-	        builder.create().show();
-	    }
-	
-	
+	{
+		final AlertDialog.Builder builder =
+				new AlertDialog.Builder(this);
+		final String action = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+		final String message = "Enable GPS and set to High Accuracy";
+
+		builder.setMessage(message)
+		.setPositiveButton("OK",
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface d, int id) {
+				startActivity(new Intent(action));
+				d.dismiss();
+			}
+		})
+		.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface d, int id) {
+				d.cancel();
+				finish();
+			}
+		});
+		builder.create().show();
+	}
+
+
 	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
 
 		@Override
