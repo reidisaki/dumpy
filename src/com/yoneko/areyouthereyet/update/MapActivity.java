@@ -456,7 +456,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			SimpleGeofence item = mSimpleGeoFenceList.get(index);
 			latLng = new LatLng(item.getLatitude(),
 					item.getLongitude());
-			createRadiusCircle(latLng);
+			createRadiusCircle(latLng, item);
 			//check the View if they clicked hte text item or if they clicked the X icon.
 			mDrawerLayout.closeDrawers();
 		}
@@ -657,6 +657,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 								newCircle.remove();
 							}
 							clearAddGeoFenceFragment();
+							addGeofenceFragment.nicknameEdit.setText("");
 							searchEdit.setText("");
 						}
 
@@ -1081,7 +1082,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onMapLongClick(LatLng point) {
 		latLng = point;
 		isLongClick = true;
-		createRadiusCircle(point);
+		createRadiusCircle(point, null);
 	}
 	private void startVoiceRecognitionActivity()
 	{
@@ -1111,7 +1112,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
-	public void addMarker(LatLng latLng) {
+	public void addMarker(LatLng latLng, SimpleGeofence fence) {
 
 		int radius;
 		Geocoder geo = new Geocoder(getApplicationContext());
@@ -1127,11 +1128,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					searchEdit.setText(title);
 				}
 				addGeofenceFragment.nicknameEdit.setText(title);
+				addGeofenceFragment.radius_seek.setProgress((int) RADIUS_METER);
+				addGeofenceFragment.radius_text.setText("Radius " + (int)RADIUS_METER + "m");
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		//Editing an existing geoFence
 		usedAutoComplete = false;
 		MarkerOptions mo = new MarkerOptions()
 		.position(latLng)
@@ -1142,7 +1146,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 
 		//Check if the geofence item is in the cache/saved list by latLng, if it is populate the fragment_add_geo_fence
-		SimpleGeofence fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
+//		fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
 		//populate data drawer
 		if(fence != null) {
 			radius = (int)fence.getRadius();
@@ -1154,17 +1158,17 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			addGeofenceFragment.radius_seek.setProgress(radius);
 			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
 
-		} else {
-			//clear the drawer data to be empty except the title
-			clearAddGeoFenceFragment();
-		}
+		} 
+//		else {
+//			clear the drawer data to be empty except the title
+//			clearAddGeoFenceFragment();
+//		}
 
 		currentMarker = mMap.addMarker(mo);
 		boolean panelWillExpand = true;
 		animateToLocation(panelWillExpand);
 	}
 	private void clearAddGeoFenceFragment() {
-		addGeofenceFragment.nicknameEdit.setText("");
 		addGeofenceFragment.messageEdit.setText("");
 		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
 		addGeofenceFragment.radius_seek.setProgress(75);
@@ -1185,7 +1189,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		}
 	}
-	public void createRadiusCircle(LatLng latLng) {
+	public void createRadiusCircle(LatLng latLng, SimpleGeofence fence) {
 		if(myCircle != null) {
 			myCircle.remove();
 		}
@@ -1193,7 +1197,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			newCircle.remove();
 		}
 		//		mMap.clear();
-		addMarker(latLng);
+		addMarker(latLng, fence);
 
 		currentMarker.showInfoWindow();
 		o("selected radius in createRadiusCircle " + selectedRadius);
@@ -1345,7 +1349,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		markerOptions.position(latLng);
 		markerOptions.title(addressText);
 		if(latLng != null) {
-			createRadiusCircle(latLng);
+			createRadiusCircle(latLng,null);
 		} else {
 			Toast.makeText(this, "Can't find: " + addressText, Toast.LENGTH_LONG).show();
 		}
@@ -1933,5 +1937,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(name.toLowerCase().startsWith("138 asby bay")) {
 			showAnimal("bailey");
 		}
+	}
+	public LatLng getLatLng() {
+		return latLng;
 	}
 }
