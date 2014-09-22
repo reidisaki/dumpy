@@ -504,15 +504,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		title = p.getDescription();
 		usedAutoComplete = true;
 		hideKeyboard();
-		if(p.getDescription().toLowerCase().startsWith("15912 s manhattan")) {
-			showAnimal("joey");
-		}
-		if(p.getDescription().toLowerCase().startsWith("1086 s mansfield")) {
-			showAnimal("lynx");
-		}
-		if(p.getDescription().toLowerCase().startsWith("138 asby bay")) {
-			showAnimal("bailey");
-		}
+		showEasterEggs(p.getDescription());
 		new GeocoderAutoCompleteTask().execute(p);
 
 	}
@@ -537,9 +529,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		else {
 			super.onBackPressed();
 		}
-	}
-	public LatLng getLatLng() {
-		return latLng;
 	}
 
 	protected void onStart() {
@@ -668,7 +657,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 								newCircle.remove();
 							}
 							clearAddGeoFenceFragment();
-							addGeofenceFragment.nicknameEdit.setText("");
 							searchEdit.setText("");
 						}
 
@@ -977,15 +965,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	protected void onSearchEditButtonClicked() {
 		String location = searchEdit.getText().toString();
 		if(location!=null && !location.equals("")){
-			if(location.toLowerCase().startsWith("15912 s manhattan")) {
-				showAnimal("joey");
-			}
-			if(location.toLowerCase().startsWith("1086 s mansfield")) {
-				showAnimal("lynx");
-			}
-			if(location.toLowerCase().startsWith("138 asby bay")) {
-				showAnimal("bailey");
-			}
+			showEasterEggs(location);
 			//if it's from the placesApi, then just use the address data back otherwise users didn't select the drop down list
 			new GeocoderTask().execute(location);
 		}				
@@ -1023,7 +1003,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			public void onClick(View v) {
 				alert.dismiss();
 			}
-		}) ;
+		});
 
 	}
 	@Override
@@ -1035,7 +1015,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 
 	public CancelableCallback cameraCallBack = new CancelableCallback() {
-
 		@Override
 		public void onFinish() {
 
@@ -1069,7 +1048,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void handlePoint(Marker marker) {
 		slidePanelLayout.expandPanel(.5f);
 	}
-
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
@@ -1186,6 +1164,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		animateToLocation(panelWillExpand);
 	}
 	private void clearAddGeoFenceFragment() {
+		addGeofenceFragment.nicknameEdit.setText("");
 		addGeofenceFragment.messageEdit.setText("");
 		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
 		addGeofenceFragment.radius_seek.setProgress(75);
@@ -1943,5 +1922,16 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		return (context.getResources().getConfiguration().screenLayout
 				& Configuration.SCREENLAYOUT_SIZE_MASK)
 				>= Configuration.SCREENLAYOUT_SIZE_LARGE;
+	}
+	public void showEasterEggs(String name) {
+		if(name.toLowerCase().startsWith("15912 s manhattan")) {
+			showAnimal("joey");
+		}
+		if(name.toLowerCase().startsWith("1086 s mansfield")) {
+			showAnimal("lynx");
+		}
+		if(name.toLowerCase().startsWith("138 asby bay")) {
+			showAnimal("bailey");
+		}
 	}
 }
