@@ -3,10 +3,12 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
+    android:paddingTop="100dip"
     android:padding="5dip"
     tools:context="com.yoneko.areyouthereyet.update.AddGeoFenceFragment" >
 
     <LinearLayout
+        android:paddingTop="10dip"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
