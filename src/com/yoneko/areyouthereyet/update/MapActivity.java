@@ -361,7 +361,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		ViewTarget target2 = new ViewTarget(showcasedView2);
 		ShowcaseView sv = ShowcaseView.insertShowcaseView(target2, this,getResources().getString(R.string.showcase_title), getResources().getString(R.string.showcase_message));
 
-		sv.animateGesture(screenWidth/2, screenHeight/2-convertDiptoPix(100), screenWidth/2, (screenHeight/2)-convertDiptoPix(100));
+		sv.animateGesture(screenWidth/2, screenHeight/2-YonekoUtils.convertDiptoPix(100, getApplication()), screenWidth/2, (screenHeight/2)-YonekoUtils.convertDiptoPix(100, getApplication()));
 
 		ShowcaseView.ConfigOptions options = sv.getConfigOptions();
 		options.centerText=true;
@@ -405,7 +405,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			// position on right bottom
 			rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
 			rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-			rlp.setMargins(0, 0, convertDiptoPix(10), convertDiptoPix(100));
+			rlp.setMargins(0, 0, YonekoUtils.convertDiptoPix(10,getApplication()), YonekoUtils.convertDiptoPix(100, getApplication()));
 		}
 
 	}
@@ -1907,21 +1907,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		isMapLoaded = true; 	
 	}
 	
-	///helper methods
-	public static float getDensity(Context context){
-		float scale = context.getResources().getDisplayMetrics().density;       
-		return scale;
-	}
-
-	public  int convertDiptoPix(int dip){
-		float scale = getDensity(this);
-		return (int) (dip * scale + 0.5f);
-	}
-	public  int convertPixtoDip(int pixel){
-		float scale = getDensity(this);
-		return (int)((pixel - 0.5f)/scale);
-	}
-
 	public  boolean isTablet(Context context) {
 		return (context.getResources().getConfiguration().screenLayout
 				& Configuration.SCREENLAYOUT_SIZE_MASK)
@@ -1938,6 +1923,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			showAnimal("bailey");
 		}
 	}
+	
 	public LatLng getLatLng() {
 		return latLng;
 	}
