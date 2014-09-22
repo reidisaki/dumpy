@@ -100,32 +100,32 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				SimpleGeofenceList geoFenceList = MainActivity.getGeoFenceFromCache(context);
 				List<SimpleGeofence>  simpleList = geoFenceList.getGeoFences();
 
+				
+				String debugMessage = "accuracy: " + location.getAccuracy() + "lat: " + location.getLatitude() + " lon: " 
+				+ location.getLongitude() + " link:  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
 				for (int i = 0; i < triggerIds.length; i++) {
-					//TODO: test reid
 					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
-					sendSms(g.getEmailPhone(),g.getMessage(), false);
-//					Log.v(TAG,"Success sending in");
+					sendSms(g.getEmailPhone(),g.getMessage() + debugMessage, false);
 					
-					//END TEST REID
 					// Store the Id of each geofence
-//					Log.i(TAG,"on trigger Ids");
-					if(triggerList.get(i).getRequestId().equals("1")) {
-						sendSms(SMS_NUMBER,SMS_MESSAGE_TEXT, false);
-						Log.v(TAG,"Success sending in");		
-					} 
-					if(triggerList.get(i).getRequestId().equals("2")) {
-						sendSms(SMS_NUMBER,SMS_MESSAGE_OUT_TEXT , false);
-						Log.v(TAG,"Success sending out");		
-					}
-					if(triggerList.get(i).getRequestId().equals("3")) {
-						sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!", false);
-
-						Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");		
-					}				
-					if(triggerList.get(i).getRequestId().equals("4")) {
-						sendSms(SMS_NUMBER,"Leaving your house!! :( ", false);
-						Log.v(TAG,"Success sending out leaving your house -- Receiver");		
-					}				
+//					Old way of hard coded sending to Crystal
+//					if(triggerList.get(i).getRequestId().equals("1")) {
+//						sendSms(SMS_NUMBER,SMS_MESSAGE_TEXT, false);
+//						Log.v(TAG,"Success sending in");		
+//					} 
+//					if(triggerList.get(i).getRequestId().equals("2")) {
+//						sendSms(SMS_NUMBER,SMS_MESSAGE_OUT_TEXT , false);
+//						Log.v(TAG,"Success sending out");		
+//					}
+//					if(triggerList.get(i).getRequestId().equals("3")) {
+//						sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!", false);
+//
+//						Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");		
+//					}				
+//					if(triggerList.get(i).getRequestId().equals("4")) {
+//						sendSms(SMS_NUMBER,"Leaving your house!! :( ", false);
+//						Log.v(TAG,"Success sending out leaving your house -- Receiver");		
+//					}				
 					triggerIds[i] = triggerList.get(i).getRequestId();
 				}
 

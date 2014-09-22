@@ -1159,10 +1159,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
 
 		} 
-//		else {
+		else {
 //			clear the drawer data to be empty except the title
-//			clearAddGeoFenceFragment();
-//		}
+			//you are long pressing the map to add a new geofence.
+			clearAddGeoFenceFragment();
+		}
 
 		currentMarker = mMap.addMarker(mo);
 		boolean panelWillExpand = true;
