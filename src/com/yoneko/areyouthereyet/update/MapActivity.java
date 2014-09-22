@@ -276,7 +276,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		// Set the update interval to 50 seconds
 		mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
-//		mGeofenceStorage = new SimpleGeofenceStore(this);
+		//		mGeofenceStorage = new SimpleGeofenceStore(this);
 
 		int resultCode =
 				GooglePlayServicesUtil.
@@ -307,7 +307,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(criteria, true);
-		
+
 		location = locationManager.getLastKnownLocation(bestProvider);
 		fm = getFragmentManager();
 
@@ -322,7 +322,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		.hide(addGeofenceFragment)
 		.commit();
 	}
-	
+
 	private void initMap() {
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
@@ -1068,7 +1068,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			intent.putExtra("sms_body", currentLocationText + "\n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);
+
+			//DEBUG STATEMENT - Reid Isaki
+			intent.putExtra("sms_body", currentLocationText + "\n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude + " accuracy: " + location.getAccuracy());
 			startActivityForResult(intent, 1234);
 
 			//Send out text message to someone who your location
@@ -1146,7 +1148,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 
 		//Check if the geofence item is in the cache/saved list by latLng, if it is populate the fragment_add_geo_fence
-//		fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
+		//		fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
 		//populate data drawer
 		if(fence != null) {
 			radius = (int)fence.getRadius();
@@ -1160,7 +1162,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		} 
 		else {
-//			clear the drawer data to be empty except the title
+			//			clear the drawer data to be empty except the title
 			//you are long pressing the map to add a new geofence.
 			clearAddGeoFenceFragment();
 		}
@@ -1905,9 +1907,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	@Override
 	public void onMapLoaded() {
+		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if(location != null) {
+			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+		}
 		isMapLoaded = true; 	
 	}
-	
+
 	public  boolean isTablet(Context context) {
 		return (context.getResources().getConfiguration().screenLayout
 				& Configuration.SCREENLAYOUT_SIZE_MASK)
@@ -1924,7 +1931,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			showAnimal("bailey");
 		}
 	}
-	
+
 	public LatLng getLatLng() {
 		return latLng;
 	}

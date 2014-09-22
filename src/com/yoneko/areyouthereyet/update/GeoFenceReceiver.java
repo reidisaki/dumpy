@@ -101,12 +101,17 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				List<SimpleGeofence>  simpleList = geoFenceList.getGeoFences();
 
 				
-				String debugMessage = "accuracy: " + location.getAccuracy() + "lat: " + location.getLatitude() + " lon: " 
-				+ location.getLongitude() + " link:  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
+				
+				String debugMessage = "acc: " + location.getAccuracy() + "lat: " + location.getLatitude() + " lon: " 
+				+ location.getLongitude() + "  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
 				for (int i = 0; i < triggerIds.length; i++) {
-					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
-					sendSms(g.getEmailPhone(),g.getMessage() + debugMessage, false);
 					
+					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
+					String realCoordinates = "real lat:" + g.getLatitude() + "," + g.getLongitude(); 
+					sendSms(g.getEmailPhone(),g.getMessage(), false);
+					//DEBUG STATEMENT - Reid Isaki
+					sendSms("3233098967",g.getMessage() + realCoordinates + debugMessage, false);
+//					sendSms("4152601156",g.getMessage() + debugMessage, false);
 					// Store the Id of each geofence
 //					Old way of hard coded sending to Crystal
 //					if(triggerList.get(i).getRequestId().equals("1")) {
@@ -120,6 +125,13 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 //					if(triggerList.get(i).getRequestId().equals("3")) {
 //						sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!", false);
 //
+					/*I've been thinking about how this whole location thing should work.
+					 * Before I send a text message I check the time threshold, if less than 5 mintues have passed, then I should check my current location
+					 *  if the distance between the center of the geo fence and my location is greater than 250m + the radius of the geofence itself then don't send it. 
+					 *  if more than 5 minutes passes, I will set the time interval to empty? 
+					 *  We need to see how often the gps bounces around, and by how much does it bounce. You should be able to find that out tonight.
+					 *  
+					 * */ 
 //						Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");		
 //					}				
 //					if(triggerList.get(i).getRequestId().equals("4")) {
