@@ -118,7 +118,7 @@ onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationC
 OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback, OnItemClickListener, OnMapClickListener {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
-	private static final long LOCATION_UPDATE_INTERVAL = 30;
+	private static final long LOCATION_UPDATE_INTERVAL = 1;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
 	private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
 	public static  String GEO_FENCES = "geofences";
@@ -177,7 +177,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true, isLongClick = false;
 	public static String tag = "Reid";
-	int selectedRadius = 75, mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 50;
+	int selectedRadius = 75, mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 100;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public static boolean isActive = false;
@@ -564,7 +564,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						addGeofenceFragment.nicknameEdit.setText("");
 						addGeofenceFragment.messageEdit.setText("");
 						addGeofenceFragment.emailEdit.setText("");
-						addGeofenceFragment.radius_seek.setProgress(75);
+						addGeofenceFragment.radius_seek.setProgress(selectedRadius);
 						searchEdit.setText("");
 						mMap.clear();
 						dialog.dismiss();
@@ -934,7 +934,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onResume() {
 		super.onResume();
 		// Start loading the ad in the background.
-
+		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if(location != null) {
+			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+		}
 		final LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE );
 		try {
 			if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE) != 3) {
@@ -1174,7 +1178,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private void clearAddGeoFenceFragment() {
 		addGeofenceFragment.messageEdit.setText("");
 		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
-		addGeofenceFragment.radius_seek.setProgress(75);
+		addGeofenceFragment.radius_seek.setProgress(selectedRadius);
 		addGeofenceFragment.emailEdit.setText("");		
 	}
 	@Override
@@ -1535,7 +1539,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 		//		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
 		//		    mMap.animateCamera(cameraUpdate);
-
+		location = mLocationClient.getLastLocation();
 		mLocationClient.requestLocationUpdates(mLocationRequest,this);
 		Log.v(TAG,"onConnected request type: " + mRequestType);
 		switch (mRequestType) {
@@ -1871,12 +1875,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	public void onMyLocationChange(Location _location) {
-		//		Log.i("Reid","location changed!");
+				Log.i("Reid","location changed!");
 		location = _location;
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
 			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+//			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
 
 			//cool animation but kinda slow.
 			//			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
@@ -1907,11 +1911,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	@Override
 	public void onMapLoaded() {
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if(location != null) {
-			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
-		}
+		Log.i("Reid","map is loaded");
+		
 		isMapLoaded = true; 	
 	}
 
