@@ -212,14 +212,16 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 	}
 	private SimpleGeofence getSimpleGeofence (List<SimpleGeofence> list, Geofence g) {
 		SimpleGeofence retFence = null;
+		
 		for(SimpleGeofence geo : list) {
 			geo.setShouldSend(false);
+			long currentTime = new Date().getTime();
 			if(geo.getId().equals(g.getRequestId())) {
 				//if the dateLastSent is -1 then you set it to current date
 				//if the dateLastSent is > 0 , add 15 minutes to the date then compare the times to dateTime.now. 
 				//if the date lastsent + threshold minutes is > dateTime now then you should send it
-				if(geo.getLastSent() == -1 || geo.getLastSent() + (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) <= new Date().getTime()) {
-					geo.setLastSent(new Date().getTime());
+				if(geo.getLastSent() == -1 || geo.getLastSent() + (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) <= currentTime) {
+					geo.setLastSent(currentTime);
 					geo.setShouldSend(true);
 				} 
 				retFence = geo;
