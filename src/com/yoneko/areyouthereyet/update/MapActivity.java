@@ -936,7 +936,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		super.onResume();
 		// Start loading the ad in the background.
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		
+
 		//get fresh data if location was updated within the last 5 minutes.
 		if(location != null ) {
 			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
@@ -944,7 +944,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 		final LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE );
 		try {
-			
+
 			if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE) != 3) {
 				displayPromptForEnablingGPS();
 			} 
@@ -1231,8 +1231,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		} else {
 			update = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);	
 		}
-						
-		
+
+
 
 		mMap.animateCamera(update, animateSpeed, cameraCallBack);
 	}
@@ -1397,6 +1397,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		} else {
 			drawerStringList.add(newItem);
 		}
+		if(isUpdate) {
+			if(mGeofencesToRemove != null) {
+				mGeofencesToRemove.clear();
+				mGeofencesToRemove.add(newItem.getId());
+			}
+		}
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		//		drawerStringList.remove(drawerStringList.size()-2);
 		drawerAdapter.notifyDataSetChanged();
@@ -1542,7 +1548,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	public void onConnected(Bundle arg0) {
 		// Request a connection from the client to Location Services
-		Log.v(TAG," For reals connected");
 		//		Location location = mLocationClient.getLastLocation();
 		//		LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 		//		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
@@ -1583,7 +1588,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			//			geoFences.add(exitReid.toGeofence());
 			if(geoFences.size() > 0) {
 				Log.i("Reid","adding all geofences to GOOGLE");
-
+				//remove old geoFences if isUpdate
+				if(mGeofencesToRemove.size() > 0) {
+					mLocationClient.removeGeofences(mGeofencesToRemove, this);
+				}
 				mLocationClient.addGeofences(
 						geoFences, mTransitionPendingIntent, this);
 			}
@@ -1883,7 +1891,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	public void onMyLocationChange(Location _location) {
-				Log.i("Reid","location changed!");
+		Log.i("Reid","location changed!");
 		location = _location;
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
@@ -1920,7 +1928,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	public void onMapLoaded() {
 		Log.i("Reid","map is loaded");
-		
+
 		isMapLoaded = true;
 		navigateToMyLocation = true;
 	}

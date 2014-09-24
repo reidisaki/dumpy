@@ -151,16 +151,6 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 					triggerIds[i] = triggerList.get(i).getRequestId();
 				}
 				
-				
-				//debugging code here.
-				for (int i = 0; i < triggerIds.length; i++) {
-					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
-					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR ) {						
-						sendSms(g.getEmailPhone(),"Sending second messsage.. should not happen", false);
-					}
-				}
-
-
 				/*
 				 * At this point, you can store the IDs for further use
 				 * display them, or display the details associated with
