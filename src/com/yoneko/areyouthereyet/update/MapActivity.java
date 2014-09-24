@@ -941,6 +941,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 		final LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE );
 		try {
+			
 			if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE) != 3) {
 				displayPromptForEnablingGPS();
 			} 
@@ -1155,7 +1156,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
 		//populate data drawer
 		if(fence != null) {
-			radius = (int)fence.getRadius();
+			radius = (int)(fence.getRadius() *.9f);
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
 			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
@@ -1419,7 +1420,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		super.onStop();
 	}
 
-	public void storeJSON(SimpleGeofenceList list, Context context)
+	public static void storeJSON(SimpleGeofenceList list, Context context)
 	{
 		//clear out the stuff first
 		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);

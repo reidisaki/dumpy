@@ -26,12 +26,14 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 	static final long TIME_THRESHOLD_TO_SEND_MESSAGE=15;//Time threshold to send the same alert in inutes
 	private SimpleGeofenceList geoFenceList;
 	private List<SimpleGeofence> simpleList;
+	private float MAX_ACCURACY_ERROR = 250f;
 	public static String SMS_SENT = "ConfirmSentActivity";
 	public static String SMS_DELIVERED = "DevliveredActivty";
 	public static int MAX_SMS_MESSAGE_LENGTH = 160;
 	public static int SMS_PORT = 21;
 	public static int ACCURACY_METER_THRESHOLD = 150;
 	public static String SMS_NUMBER = "3233098967";
+	
 	//Crystals - public static String SMS_NUMBER = "3104647957";
 	public static String SMS_MESSAGE_TEXT = "Hi Baby, I made it home safely! ";// + String.valueOf(MainActivity.RADIUS_METER);
 	public static String SMS_MESSAGE_OUT_TEXT = "Hi Baby, I'm leaving my house now!!!! ";// + String.valueOf(MainActivity.RADIUS_METER);
@@ -114,7 +116,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 					
 					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
 					String realCoordinates = "  real lat:" + g.getLatitude() + "," + g.getLongitude(); 
-					if(g.isShouldSend()) {
+					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR ) {
 						sendSms(g.getEmailPhone(),g.getMessage(), false);
 						//DEBUG STATEMENT - Reid Isaki
 						sendSms("3233098967",g.getMessage() + realCoordinates + debugMessage, false);	
@@ -216,6 +218,8 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				retFence = geo;
 			}
 		}
+		geoFenceList.setGeofences(list);
+		MapActivity.storeJSON(geoFenceList, context);
 		return retFence;		
 	}
 	
