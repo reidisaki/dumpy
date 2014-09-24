@@ -1159,6 +1159,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
 		//populate data drawer
 		if(fence != null) {
+			Log.i("Reid","radius in add circle: " + fence.getRadius());
 			radius = (int)(fence.getRadius() *(10/12f)); //this will revert the 20% rule.
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
@@ -1396,7 +1397,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		} else {
 			drawerStringList.add(newItem);
 		}
-		mSimpleGeoFenceList = drawerStringList;
+		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		//		drawerStringList.remove(drawerStringList.size()-2);
 		drawerAdapter.notifyDataSetChanged();
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);

@@ -318,7 +318,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	}
 	protected SimpleGeofence getItemInGeoFenceListByLatLng(LatLng _latLng) {
 		SimpleGeofence returnItem = null;
-		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+//		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 
 		for( SimpleGeofence i :  cachedList.getGeoFences()) {
 			if(i.getLatitude() == _latLng.latitude && i.getLongitude() == _latLng.longitude) {
@@ -331,13 +331,14 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	protected SimpleGeofence getItemInGeoFenceList(SimpleGeofence item) {
 		SimpleGeofence returnItem = null;
-		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+//		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
 			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
 			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude() && item.getTitle().equals(currentGeofence.getTitle())) {
 				returnItem = currentGeofence;
 				//exists update the item
 				if(cachedList.getGeoFences() != null) {
+					Toast.makeText(getActivity(), "updating existingItem" ,Toast.LENGTH_SHORT).show();
 					cachedList.getGeoFences().set(i, item);
 					MainActivity.storeJSON(cachedList, getActivity());
 				};
@@ -363,6 +364,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 
 		r = radius_seek.getProgress();
+		Log.i("Reid", "radius in saveGeoFence: "  + r);
 		expiration = Geofence.NEVER_EXPIRE;
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
 		Log.i("Reid", "Transition type: " + transition);
@@ -383,18 +385,17 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			return;
 		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, (r+MapActivity.MIN_RADIUS)*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
-
+		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
 		//Adding a new item
 		if(oldfence == null) {
-			cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 			Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
 			cachedList.getGeoFences().add(geofence);
 			MainActivity.storeJSON(cachedList, getActivity());
 		} else {
 			isUpdate = true;
-			//			Toast.makeText(getActivity(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
+			
 		}
 
 		if(geofence.getEmailPhone().equals("")) {
