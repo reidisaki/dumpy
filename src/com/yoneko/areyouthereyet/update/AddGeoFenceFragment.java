@@ -3,6 +3,8 @@ package com.yoneko.areyouthereyet.update;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mockito.asm.tree.MethodInsnNode;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.ContentResolver;
@@ -380,7 +382,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
+		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, (r+MapActivity.MIN_RADIUS)*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
 
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);

@@ -218,7 +218,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				//if the dateLastSent is -1 then you set it to current date
 				//if the dateLastSent is > 0 , add 15 minutes to the date then compare the times to dateTime.now. 
 				//if the date lastsent + threshold minutes is > dateTime now then you should send it
-				if(geo.getLastSent() == -1 || geo.getLastSent() + (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) > new Date().getTime()) {
+				if(geo.getLastSent() == -1 || geo.getLastSent() + (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) <= new Date().getTime()) {
 					geo.setLastSent(new Date().getTime());
 					geo.setShouldSend(true);
 				} 

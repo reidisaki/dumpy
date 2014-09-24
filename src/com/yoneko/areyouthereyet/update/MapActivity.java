@@ -177,7 +177,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true, isLongClick = false;
 	public static String tag = "Reid";
-	int mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 150;
+	int mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2;
+	public static final int MIN_RADIUS = 150;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public static boolean isActive = false;
@@ -1158,13 +1159,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
 		//populate data drawer
 		if(fence != null) {
-			radius = (int)(fence.getRadius() *(10/12)); //this will revert the 20% rule.
+			radius = (int)(fence.getRadius() *(10/12f)); //this will revert the 20% rule.
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
 			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
 			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_exit);
-			addGeofenceFragment.radius_seek.setProgress(radius);
+			addGeofenceFragment.radius_seek.setProgress((int)Math.ceil(radius-MIN_RADIUS));
 			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
 
 		} 
