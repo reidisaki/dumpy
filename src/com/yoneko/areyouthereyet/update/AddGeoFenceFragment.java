@@ -50,7 +50,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	TextView radius_text;
 	SeekBar radius_seek;
 	boolean enter = true;
-	int radius = 100;
+	int radius = 150;
 	public String TAG = "Reid";
 	public final static int MAP_RESULT_CODE  = 99;
 	private ArrayAdapter<String> adapter;
@@ -72,7 +72,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	private onEditTextClicked mListener;
 	private SimpleGeofenceList cachedList;
-	private float radiusPercentage = 1.1f;
+	private float radiusPercentage = 1.2f;
 
 	/**
 	 * Use this factory method to create a new instance of this fragment using
@@ -437,7 +437,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			longitude = data.getDoubleExtra("lon", 0.0);
 			//			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
 			//			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
-			radius = data.getIntExtra("radius", 100);
+			radius = data.getIntExtra("radius", 150);
 			radius_text.setText("Radius " + radius + "meters");
 			break;
 		}

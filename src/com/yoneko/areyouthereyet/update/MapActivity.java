@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
@@ -111,7 +112,6 @@ import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
 import com.yoneko.models.Prediction;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
-import com.yoneko.models.SimpleGeofenceStore;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
 onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
@@ -177,7 +177,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	float EXPANDED_PERCENT =  .7f;
 	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true, isLongClick = false;
 	public static String tag = "Reid";
-	int selectedRadius = 75, mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 100;
+	int mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2, MIN_RADIUS = 150;
 	Spinner spinner;
 	private List<SimpleGeofence> mSimpleGeoFenceList;     
 	public static boolean isActive = false;
@@ -564,7 +564,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						addGeofenceFragment.nicknameEdit.setText("");
 						addGeofenceFragment.messageEdit.setText("");
 						addGeofenceFragment.emailEdit.setText("");
-						addGeofenceFragment.radius_seek.setProgress(selectedRadius);
+						addGeofenceFragment.radius_seek.setProgress(MIN_RADIUS);
 						searchEdit.setText("");
 						mMap.clear();
 						dialog.dismiss();
@@ -935,7 +935,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		super.onResume();
 		// Start loading the ad in the background.
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if(location != null) {
+		
+		//get fresh data if location was updated within the last 5 minutes.
+		if(location != null ) {
 			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
 		}
@@ -1135,8 +1137,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					searchEdit.setText(title);
 				}
 				addGeofenceFragment.nicknameEdit.setText(title);
-				addGeofenceFragment.radius_seek.setProgress((int) RADIUS_METER);
-				addGeofenceFragment.radius_text.setText("Radius " + (int)RADIUS_METER + "m");
+				addGeofenceFragment.radius_seek.setProgress(MIN_RADIUS);
+				addGeofenceFragment.radius_text.setText("Radius " + (int)MIN_RADIUS + "m");
 			}
 
 		} catch (IOException e) {
@@ -1156,7 +1158,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//		fence = addGeofenceFragment.getItemInGeoFenceListByLatLng(latLng);
 		//populate data drawer
 		if(fence != null) {
-			radius = (int)(fence.getRadius() *.9f);
+			radius = (int)(fence.getRadius() *(10/12)); //this will revert the 20% rule.
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
 			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
@@ -1179,7 +1181,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private void clearAddGeoFenceFragment() {
 		addGeofenceFragment.messageEdit.setText("");
 		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
-		addGeofenceFragment.radius_seek.setProgress(selectedRadius);
+		addGeofenceFragment.radius_seek.setProgress(0);
 		addGeofenceFragment.emailEdit.setText("");		
 	}
 	@Override
@@ -1208,7 +1210,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		addMarker(latLng, fence);
 
 		currentMarker.showInfoWindow();
-		o("selected radius in createRadiusCircle " + selectedRadius);
 		CircleOptions circleOptions = new CircleOptions()
 		.center(latLng)   //set center
 		.radius(_radiusChanged)   //set radius in meters  make this configurable
@@ -1221,11 +1222,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	public void animateToLocation(boolean panelExpanded) {
 		Point p = mMap.getProjection().toScreenLocation(latLng);
+		CameraUpdate update;
 		if(panelExpanded) {
 			p.set(p.x, p.y-mapOffset);
-		} 
-		//				CameraUpdate update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
-		CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);
+			update = CameraUpdateFactory.newLatLng(mMap.getProjection().fromScreenLocation(p));
+		} else {
+			update = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);	
+		}
+						
+		
 
 		mMap.animateCamera(update, animateSpeed, cameraCallBack);
 	}
@@ -1881,7 +1886,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
 			LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
-//			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
 
 			//cool animation but kinda slow.
 			//			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
@@ -1914,7 +1919,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onMapLoaded() {
 		Log.i("Reid","map is loaded");
 		
-		isMapLoaded = true; 	
+		isMapLoaded = true;
+		navigateToMyLocation = true;
 	}
 
 	public  boolean isTablet(Context context) {

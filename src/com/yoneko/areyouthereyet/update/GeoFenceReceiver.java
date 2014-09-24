@@ -113,16 +113,15 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				+ location.getLongitude() + "  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
 				
 				for (int i = 0; i < triggerIds.length; i++) {
-					
 					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
 					String realCoordinates = "  real lat:" + g.getLatitude() + "," + g.getLongitude(); 
 					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR ) {
 						sendSms(g.getEmailPhone(),g.getMessage(), false);
 						//DEBUG STATEMENT - Reid Isaki
-						sendSms("3233098967",g.getMessage() + realCoordinates + debugMessage, false);	
+//						sendSms("3233098967",g.getMessage() + realCoordinates + debugMessage, false);	
 //					sendSms("4152601156",g.getMessage() + debugMessage, false);
 					}
-					
+
 					// Store the Id of each geofence
 //					Old way of hard coded sending to Crystal
 //					if(triggerList.get(i).getRequestId().equals("1")) {
@@ -151,7 +150,15 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 //					}				
 					triggerIds[i] = triggerList.get(i).getRequestId();
 				}
-
+				
+				
+				//debugging code here.
+				for (int i = 0; i < triggerIds.length; i++) {
+					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
+					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR ) {						
+						sendSms(g.getEmailPhone(),"Sending second messsage.. should not happen", false);
+					}
+				}
 
 
 				/*
@@ -206,8 +213,8 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 	private SimpleGeofence getSimpleGeofence (List<SimpleGeofence> list, Geofence g) {
 		SimpleGeofence retFence = null;
 		for(SimpleGeofence geo : list) {
+			geo.setShouldSend(false);
 			if(geo.getId().equals(g.getRequestId())) {
-				geo.setShouldSend(false);
 				//if the dateLastSent is -1 then you set it to current date
 				//if the dateLastSent is > 0 , add 15 minutes to the date then compare the times to dateTime.now. 
 				//if the date lastsent + threshold minutes is > dateTime now then you should send it
