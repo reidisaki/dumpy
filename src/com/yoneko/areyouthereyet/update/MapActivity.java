@@ -500,7 +500,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
 		Prediction p = (Prediction) adapterView.getItemAtPosition(position);
-		Log.i("Reid","item selected" + p.getDescription() + " latitude: " + p.getlatitude());
+//		Log.i("Reid","item selected" + p.getDescription() + " latitude: " + p.getlatitude());
 		searchEdit.setText(p.getDescription());
 		title = p.getDescription();
 		usedAutoComplete = true;
@@ -515,7 +515,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		SharedPreferences.Editor spe = sp.edit();
 		spe.clear();
 		spe.commit();
-		Log.i("Reid", "clearing list");
+//		Log.i("Reid", "clearing list");
 		//remove geo fences
 		drawerAdapter.notifyDataSetChanged();
 		removeGeofences(getTransitionPendingIntent());
@@ -525,7 +525,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelAnchored()) {
 			slidePanelLayout.collapsePanel();
-			Log.i("Reid","closed");
+//			Log.i("Reid","closed");
 		}
 		else {
 			super.onBackPressed();
@@ -1130,9 +1130,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			List<Address> addressList = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
 			if(addressList.size() > 0) {
 				Address address = addressList.get(0);
-				Log.i("Reid","thoroughfare: " + address.getThoroughfare());
-				Log.i("Reid","premises:" + address.getPremises());
-				Log.i("Reid","locality:" + address.getLocality());
+//				Log.i("Reid","thoroughfare: " + address.getThoroughfare());
+//				Log.i("Reid","premises:" + address.getPremises());
+//				Log.i("Reid","locality:" + address.getLocality());
 				if(!usedAutoComplete) {
 					title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
 					searchEdit.setText(title);
@@ -1631,9 +1631,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			 * You can send out a broadcast intent or update the UI.
 			 * geofences into the Intent's extended data.
 			 */
-			Log.v(TAG,"GEO FENCE SUCCESS RADIUS is: " + String.valueOf(RADIUS_METER));
+//			Log.v(TAG,"GEO FENCE SUCCESS RADIUS is: " + String.valueOf(RADIUS_METER));
 		} else {
-			Log.v(TAG,"GEO FENCE FAILURE YOU SUCK" + statusCode);
+//			Log.v(TAG,"GEO FENCE FAILURE YOU SUCK" + statusCode);
 			// If adding the geofences failed
 			/*
 			 * Report errors here.
