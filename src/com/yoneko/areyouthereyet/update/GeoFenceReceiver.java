@@ -1,6 +1,7 @@
 package com.yoneko.areyouthereyet.update;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.app.PendingIntent;
@@ -21,11 +22,18 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 	Context context;
 	Intent broadcastIntent = new Intent();
 	public static String TAG = "Reid";
+	static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
+	static final long TIME_THRESHOLD_TO_SEND_MESSAGE=15;//Time threshold to send the same alert in inutes
+	private SimpleGeofenceList geoFenceList;
+	private List<SimpleGeofence> simpleList;
+	private float MAX_ACCURACY_ERROR = 250f;
 	public static String SMS_SENT = "ConfirmSentActivity";
 	public static String SMS_DELIVERED = "DevliveredActivty";
 	public static int MAX_SMS_MESSAGE_LENGTH = 160;
 	public static int SMS_PORT = 21;
+	public static int ACCURACY_METER_THRESHOLD = 150;
 	public static String SMS_NUMBER = "3233098967";
+	
 	//Crystals - public static String SMS_NUMBER = "3104647957";
 	public static String SMS_MESSAGE_TEXT = "Hi Baby, I made it home safely! ";// + String.valueOf(MainActivity.RADIUS_METER);
 	public static String SMS_MESSAGE_OUT_TEXT = "Hi Baby, I'm leaving my house now!!!! ";// + String.valueOf(MainActivity.RADIUS_METER);
@@ -53,6 +61,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		}
 		double longitude = location.getLongitude();
 		double latitude = location.getLatitude();
+		
 		String locationString =  "http://maps.google.com/?q=" + String.valueOf(latitude) + "," +String.valueOf(longitude) ;
 
 		//		Log.v(TAG,"handling intent");
@@ -63,6 +72,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		//		if(intent.getExtras().getString("transitionType").equals("2")) {
 		//			sendSms("3233098967",SMS_MESSAGE_OUT_TEXT + locationString , false);	
 		//		}
+		
 		if (LocationClient.hasError(intent)) {
 			Log.v(TAG,"onHandleIntent Error");
 			// Get the error code with a static method
@@ -97,40 +107,50 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 						LocationClient.getTriggeringGeofences(intent);
 
 				String[] triggerIds = new String[triggerList.size()];
-				SimpleGeofenceList geoFenceList = MainActivity.getGeoFenceFromCache(context);
-				List<SimpleGeofence>  simpleList = geoFenceList.getGeoFences();
-
+				geoFenceList = MainActivity.getGeoFenceFromCache(context);
+				simpleList = geoFenceList.getGeoFences();
+				String debugMessage = "acc: " + location.getAccuracy() + "lat: " + location.getLatitude() + " lon: " 
+				+ location.getLongitude() + "  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
+				
 				for (int i = 0; i < triggerIds.length; i++) {
-					//TODO: test reid
 					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
-					sendSms(g.getEmailPhone(),g.getMessage(), false);
-//					Log.v(TAG,"Success sending in");
-					
-					//END TEST REID
-					// Store the Id of each geofence
-//					Log.i(TAG,"on trigger Ids");
-					if(triggerList.get(i).getRequestId().equals("1")) {
-						sendSms(SMS_NUMBER,SMS_MESSAGE_TEXT, false);
-						Log.v(TAG,"Success sending in");		
-					} 
-					if(triggerList.get(i).getRequestId().equals("2")) {
-						sendSms(SMS_NUMBER,SMS_MESSAGE_OUT_TEXT , false);
-						Log.v(TAG,"Success sending out");		
+					String realCoordinates = "  real lat:" + g.getLatitude() + "," + g.getLongitude(); 
+					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR ) {
+						sendSms(g.getEmailPhone(),g.getMessage(), false);
+						//DEBUG STATEMENT - Reid Isaki
+//						sendSms("3233098967",g.getMessage() + realCoordinates + debugMessage, false);	
+//					sendSms("4152601156",g.getMessage() + debugMessage, false);
 					}
-					if(triggerList.get(i).getRequestId().equals("3")) {
-						sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!", false);
 
-						Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");		
-					}				
-					if(triggerList.get(i).getRequestId().equals("4")) {
-						sendSms(SMS_NUMBER,"Leaving your house!! :( ", false);
-						Log.v(TAG,"Success sending out leaving your house -- Receiver");		
-					}				
+					// Store the Id of each geofence
+//					Old way of hard coded sending to Crystal
+//					if(triggerList.get(i).getRequestId().equals("1")) {
+//						sendSms(SMS_NUMBER,SMS_MESSAGE_TEXT, false);
+//						Log.v(TAG,"Success sending in");		
+//					} 
+//					if(triggerList.get(i).getRequestId().equals("2")) {
+//						sendSms(SMS_NUMBER,SMS_MESSAGE_OUT_TEXT , false);
+//						Log.v(TAG,"Success sending out");		
+//					}
+//					if(triggerList.get(i).getRequestId().equals("3")) {
+//						sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!", false);
+//
+					/*I've been thinking about how this whole location thing should work.
+					 * Before I send a text message I check the time threshold, if less than 5 mintues have passed, then I should check my current location
+					 *  if the distance between the center of the geo fence and my location is greater than 250m + the radius of the geofence itself then don't send it. 
+					 *  if more than 5 minutes passes, I will set the time interval to empty? 
+					 *  We need to see how often the gps bounces around, and by how much does it bounce. You should be able to find that out tonight.
+					 *  
+					 * */ 
+//						Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");		
+//					}				
+//					if(triggerList.get(i).getRequestId().equals("4")) {
+//						sendSms(SMS_NUMBER,"Leaving your house!! :( ", false);
+//						Log.v(TAG,"Success sending out leaving your house -- Receiver");		
+//					}				
 					triggerIds[i] = triggerList.get(i).getRequestId();
 				}
-
-
-
+				
 				/*
 				 * At this point, you can store the IDs for further use
 				 * display them, or display the details associated with
@@ -147,7 +167,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
 		PendingIntent piSend = PendingIntent.getBroadcast(context, 0, new Intent(SMS_SENT), 0);
 		PendingIntent piDelivered = PendingIntent.getBroadcast(context, 0, new Intent(SMS_DELIVERED), 0);
-		Toast.makeText(context, "SENDING A TEXT fat pat using this file!!!" + message + " phone number: " + phonenumber,
+		Toast.makeText(context, "SENDING A TEXT " + message + " phone number: " + phonenumber,
 				Toast.LENGTH_LONG).show();
 		if(isBinary)
 		{
@@ -182,11 +202,24 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 	}
 	private SimpleGeofence getSimpleGeofence (List<SimpleGeofence> list, Geofence g) {
 		SimpleGeofence retFence = null;
+		
 		for(SimpleGeofence geo : list) {
+			geo.setShouldSend(false);
+			long currentTime = new Date().getTime();
 			if(geo.getId().equals(g.getRequestId())) {
+				//if the dateLastSent is -1 then you set it to current date
+				//if the dateLastSent is > 0 , add 15 minutes to the date then compare the times to dateTime.now. 
+				//if the date lastsent + threshold minutes is > dateTime now then you should send it
+				if(geo.getLastSent() == -1 || geo.getLastSent() + (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) <= currentTime) {
+					geo.setLastSent(currentTime);
+					geo.setShouldSend(true);
+				} 
 				retFence = geo;
 			}
 		}
+		geoFenceList.setGeofences(list);
+		MapActivity.storeJSON(geoFenceList, context);
 		return retFence;		
 	}
+	
 }

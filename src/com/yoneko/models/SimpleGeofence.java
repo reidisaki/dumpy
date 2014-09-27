@@ -1,5 +1,7 @@
 package com.yoneko.models;
 
+
+
 import java.util.List;
 
 import com.google.android.gms.location.Geofence;
@@ -69,7 +71,7 @@ public SimpleGeofence(
         String message,
         String email,
         String title,
-        String phoneDisplay) {
+        String phoneDisplay, long lastSent) {
     // Set the instance fields from the constructor
     this.mId = geofenceId;
     this.mLatitude = latitude;
@@ -81,6 +83,7 @@ public SimpleGeofence(
     this.emailPhone = email;
     this.title = title;
     this.phoneDisplay = phoneDisplay;
+    this.lastSent = lastSent;
 }
 public SimpleGeofence(String string) {
 	this.title = string;
@@ -93,6 +96,7 @@ public SimpleGeofence(String string) {
     this.message = "";
     this.emailPhone = "";
     this.phoneDisplay = "";
+    this.lastSent = -1;
 }
 // Instance field getters
 public String getId() {
@@ -134,5 +138,11 @@ public Geofence toGeofence() {
                     getLatitude(), getLongitude(), getRadius())
             .setExpirationDuration(mExpirationDuration)
             .build();
+}
+public boolean isShouldSend() {
+	return shouldSend;
+}
+public void setShouldSend(boolean shouldSend) {
+	this.shouldSend = shouldSend;
 }
 }

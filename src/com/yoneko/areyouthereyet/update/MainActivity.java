@@ -231,8 +231,8 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 		slide = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
 	}
 
-	public static String createGeoFenceId(double lat, double lon) {
-		return lat + "|" + lon;
+	public static String createGeoFenceId(String nickname, double lat, double lon) {
+		return nickname + "|" + lat + "|" + lon;
 	}
 
 	public static void storeJSON(SimpleGeofenceList list, Context context)

@@ -3,6 +3,8 @@ package com.yoneko.areyouthereyet.update;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mockito.asm.tree.MethodInsnNode;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.ContentResolver;
@@ -51,7 +53,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	TextView radius_text;
 	SeekBar radius_seek;
 	boolean enter = true;
-	int radius = 100;
+	int radius = 150;
 	public String TAG = "Reid";
 	public final static int MAP_RESULT_CODE  = 99;
 	private ArrayAdapter<String> adapter;
@@ -73,6 +75,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	private onEditTextClicked mListener;
 	private SimpleGeofenceList cachedList;
+	private float radiusPercentage = 1.2f;
 
 	/**
 	 * Use this factory method to create a new instance of this fragment using
@@ -102,18 +105,18 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		if (getArguments() != null) {
 			mParam1 = getArguments().getString(ARG_PARAM1);
 			mParam2 = getArguments().getString(ARG_PARAM2);
 		}
 
 	}
-	
+
 	private static final String[] PROJECTION = new String[] {
-	    ContactsContract.Contacts._ID,
-	    ContactsContract.Contacts.DISPLAY_NAME,
-	    ContactsContract.Contacts.HAS_PHONE_NUMBER,
+		ContactsContract.Contacts._ID,
+		ContactsContract.Contacts.DISPLAY_NAME,
+		ContactsContract.Contacts.HAS_PHONE_NUMBER,
 		ContactsContract.CommonDataKinds.Phone.NUMBER,
 		ContactsContract.CommonDataKinds.Phone.TYPE,
 		ContactsContract.CommonDataKinds.Phone.LABEL
@@ -124,47 +127,47 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 			/*********** Reading Contacts Name And Number **********/
 
-			
+
 			ContentResolver cr = getActivity()
 					.getContentResolver();
 
 
 			//Query to get contact name
 			Cursor cur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-							PROJECTION,
-							null,
-							null,
-							null);
+					PROJECTION,
+					null,
+					null,
+					null);
 
 			// If data data found in contacts 
 			if (cur.getCount() > 0) {
 
 				Log.i("AutocompleteContacts", "Reading   contacts........");
 
-//				//edit
-//				final int contactIdIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
-//		        final int displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-//		        final int emailIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
-//		        long contactId;
-//		        String displayName, address;
-//		        while (cursor.moveToNext()) {
-//		            contactId = cursor.getLong(contactIdIndex);
-//		            displayName = cursor.getString(displayNameIndex);
-//		            address = cursor.getString(emailIndex);
-//		            
-		        //end edit
-		            int contactId;
-		            final int contactIdIndex = cur.getColumnIndex(ContactsContract.Contacts._ID);
-		            final int displayNameIndex =cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-		            final int phoneNumberIndex= cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-					final int phoneTypeIndex  = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
-					final int customLabelIndex = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL);
-					final int hasPhoneNumberIndex = cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
-					
+				//				//edit
+				//				final int contactIdIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
+				//		        final int displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+				//		        final int emailIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+				//		        long contactId;
+				//		        String displayName, address;
+				//		        while (cursor.moveToNext()) {
+				//		            contactId = cursor.getLong(contactIdIndex);
+				//		            displayName = cursor.getString(displayNameIndex);
+				//		            address = cursor.getString(emailIndex);
+				//		            
+				//end edit
+				int contactId;
+				final int contactIdIndex = cur.getColumnIndex(ContactsContract.Contacts._ID);
+				final int displayNameIndex =cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+				final int phoneNumberIndex= cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+				final int phoneTypeIndex  = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+				final int customLabelIndex = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL);
+				final int hasPhoneNumberIndex = cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
+
 				while (cur.moveToNext()) 
 				{
 
-					
+
 					//Check contact have phone number
 					if (cur.getLong(hasPhoneNumberIndex) > 0) 
 					{
@@ -173,18 +176,21 @@ public class AddGeoFenceFragment extends DialogFragment  {
 						String phoneNumbers = cur.getString(phoneNumberIndex);
 						String phoneLabel = (String) ContactsContract.CommonDataKinds.Phone.getTypeLabel(this.getResources(), phonetype, customLabel); 
 						String name  = cur.getString(displayNameIndex);
-//							Log.e(TAG, "Phone Number: " + phoneNumbers + " Selected Phone Label: " + phoneLabel);
+						//							Log.e(TAG, "Phone Number: " + phoneNumbers + " Selected Phone Label: " + phoneLabel);
 
-							// Sometimes get multiple data 
-								// Get Phone number
-								String phoneNumber =""+cur.getString(phoneNumberIndex);
+						// Sometimes get multiple data 
+						// Get Phone number
+						String phoneNumber =""+cur.getString(phoneNumberIndex);
 
-								// Add contacts names to adapter
-								adapter.add(name + "("+phoneLabel+")");
+						phoneNumber = phoneNumber.replace("-", "").replace(".","").replace(" ","").toString();
+						// Add contacts names to adapter
+//						adapter.add(phoneNumber);
+						adapter.add(name + "("+phoneLabel+")");
+						adapter.add(phoneNumber + "|" + name + "("+phoneLabel+")");
 
-								// Add ArrayList names to adapter
-								phoneValueArr.add(phoneNumber.toString());
-								nameValueArr.add(name + "("+phoneLabel+")");
+						// Add ArrayList names to adapter
+						phoneValueArr.add(phoneNumber);
+						nameValueArr.add(name + "("+phoneLabel+")");
 					} // End if
 
 				}  // End while loop
@@ -230,7 +236,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
-				
+
 				if(hasFocus)
 				{
 					Log.i("Reid","View has focus");
@@ -242,7 +248,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		nicknameEdit.setOnFocusChangeListener(expandPanelListener);
 		messageEdit.setOnFocusChangeListener(expandPanelListener);
 		emailEdit.setOnFocusChangeListener(expandPanelListener);
-		
+
 
 		//Create adapter    
 		adapter = new ArrayAdapter<String>
@@ -254,19 +260,25 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 			public void onItemClick(AdapterView<?> adapterView, View view, int index, long arg3) {
 				// Get Array index value for selected name
-				int i = nameValueArr.indexOf(""+adapterView.getItemAtPosition(index));
+				String s = adapterView.getItemAtPosition(index).toString();
+				Log.i("Reid","OnItemClick string: " + s);
 				
-				// If name exist in name ArrayList
-				if (i >= 0) {
-					// Get Phone Number
-					toNumberValue = phoneValueArr.get(i);
+
+				//check if this is a phone number search or a name search
+				if(!Character.isDigit(s.charAt(0))) {
+					s = s.substring(0,s.lastIndexOf(")")+1);
+				} else {
+					s = s.substring(s.lastIndexOf("|") +1,s.length());
 				}
-				String toPhone = "";
-				emailOrPhone = toNumberValue;
-				String outputString = toNumberValue + " (" + nameValueArr.get(i).toString() + ")";
-//				String addComma = emailEdit.getText().toString().equals("") ? "" : ",";
-//				toPhone = emailEdit.getT + outputString; 
+				int i = nameValueArr.indexOf(s);
+				// Get Phone Number
+				emailOrPhone = phoneValueArr.get(i);
+				Log.i("Reid","phone number: " + emailOrPhone);
+				String outputString = nameValueArr.get(i).toString();
+				//					String addComma = emailEdit.getText().toString().equals("") ? "" : ",";
+				//					toPhone = emailEdit.getT + outputString; 
 				emailEdit.setText(outputString);
+
 			}
 		});
 		//        emailEdit.setOnItemSelectedListener(this);
@@ -305,10 +317,9 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		//		});
 		return addGeoFenceView;
 	}
-
 	protected SimpleGeofence getItemInGeoFenceListByLatLng(LatLng _latLng) {
 		SimpleGeofence returnItem = null;
-		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+//		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 
 		for( SimpleGeofence i :  cachedList.getGeoFences()) {
 			if(i.getLatitude() == _latLng.latitude && i.getLongitude() == _latLng.longitude) {
@@ -321,13 +332,14 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	protected SimpleGeofence getItemInGeoFenceList(SimpleGeofence item) {
 		SimpleGeofence returnItem = null;
-		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+//		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
 			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
-			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude()) {
+			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude() && item.getTitle().equals(currentGeofence.getTitle())) {
 				returnItem = currentGeofence;
 				//exists update the item
 				if(cachedList.getGeoFences() != null) {
+					Toast.makeText(getActivity(), "updating existingItem" ,Toast.LENGTH_SHORT).show();
 					cachedList.getGeoFences().set(i, item);
 					MainActivity.storeJSON(cachedList, getActivity());
 				};
@@ -353,6 +365,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 
 		r = radius_seek.getProgress();
+		Log.i("Reid", "radius in saveGeoFence: "  + r);
 		expiration = Geofence.NEVER_EXPIRE;
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
 		Log.i("Reid", "Transition type: " + transition);
@@ -364,7 +377,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		displayPhone = emailEdit.getText().toString();
 		Log.i("Reid","Nickname is: " + nickname);
 		LatLng latLng = ((MapActivity)getActivity()).getLatLng();
-		
+
 		if(!emailEdit.getText().toString().contains("(")) {
 			emailOrPhone = emailEdit.getText().toString();
 		}
@@ -372,13 +385,12 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, r, expiration, transition, message, emailOrPhone, nickname,displayPhone);
-
+		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, (r+MapActivity.MIN_RADIUS)*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
+		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
 		//Adding a new item
 		if(oldfence == null) {
-			cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 			Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
 			
 			/*testing multi contacts.. they work with the upgrade from people 
@@ -394,7 +406,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			MainActivity.storeJSON(cachedList, getActivity());
 		} else {
 			isUpdate = true;
-			//			Toast.makeText(getActivity(), "Item already exists, updating instead of creating a new one!!" ,Toast.LENGTH_SHORT).show();
+			
 		}
 
 		if(geofence.getEmailPhone().equals("")) {
@@ -413,7 +425,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 		//		mListener.dialogDismissed();
 
-		
+
 	}
 
 
@@ -439,7 +451,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			longitude = data.getDoubleExtra("lon", 0.0);
 			//			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
 			//			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
-			radius = data.getIntExtra("radius", 100);
+			radius = data.getIntExtra("radius", 150);
 			radius_text.setText("Radius " + radius + "meters");
 			break;
 		}
