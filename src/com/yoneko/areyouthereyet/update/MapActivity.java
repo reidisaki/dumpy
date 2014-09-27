@@ -71,7 +71,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.yoneko.areyouthereyet.update.debug.R;
 import com.espian.showcaseview.ShowcaseView;
 import com.espian.showcaseview.targets.ViewTarget;
 import com.flurry.android.FlurryAgent;
@@ -680,7 +680,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			}
 		});
 		searchEdit.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.places_list_item));
-		searchEdit.setThreshold(4);
+		searchEdit.setThreshold(2);
 		searchEdit.addTextChangedListener(new TextWatcher() {
 
 			@Override

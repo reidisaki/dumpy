@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+import com.yoneko.areyouthereyet.update.debug.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
