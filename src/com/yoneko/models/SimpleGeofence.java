@@ -1,5 +1,7 @@
 package com.yoneko.models;
 
+import java.util.List;
+
 import com.google.android.gms.location.Geofence;
 
 public class SimpleGeofence {
@@ -9,7 +11,22 @@ public class SimpleGeofence {
     private final double mLongitude;
     private final float mRadius;
     private boolean checked; 
-    public void setChecked(boolean b) {
+    private long lastSent;
+    private boolean shouldSend;
+    private List<PhoneContact> phoneContacts; //send to multiple contacts if needed
+    public List<PhoneContact> getPhoneContacts() {
+		return phoneContacts;
+	}
+	public void setPhoneContacts(List<PhoneContact> phoneContacts) {
+		this.phoneContacts = phoneContacts;
+	}
+	public long getLastSent() {
+		return lastSent;
+	}
+	public void setLastSent(long lastSent) {
+		this.lastSent = lastSent;
+	}
+	public void setChecked(boolean b) {
     	checked = b;
 	}
     public boolean isChecked() {

@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
+import com.yoneko.models.PhoneContact;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 
@@ -379,7 +380,17 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		if(oldfence == null) {
 			cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 			Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
+			
+			/*testing multi contacts.. they work with the upgrade from people 
+			 * 
+			 * loop over the button list and save each phoneContact, back end will be a list of contacts you manage, and buttons are the front end to add/delete from that backing store
+			 * */
+			List<PhoneContact> contacts = new ArrayList<PhoneContact>();
+			contacts.add(new PhoneContact("reid", "3233098967", "Reiddizzle"));
+			geofence.setPhoneContacts(contacts);
+			
 			cachedList.getGeoFences().add(geofence);
+			
 			MainActivity.storeJSON(cachedList, getActivity());
 		} else {
 			isUpdate = true;

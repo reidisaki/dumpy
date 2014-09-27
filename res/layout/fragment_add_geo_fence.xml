@@ -3,15 +3,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:paddingTop="100dip"
     android:padding="5dip"
+    android:paddingTop="100dip"
     tools:context="com.yoneko.areyouthereyet.update.AddGeoFenceFragment" >
 
     <LinearLayout
-        android:paddingTop="10dip"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingTop="10dip" >
 
         <TextView
             android:id="@+id/nickname_text"
@@ -86,12 +86,23 @@
             android:paddingLeft="20dip"
             android:text="@string/email_phone" />
 
-        <AutoCompleteTextView
-            android:id="@+id/email_edit"
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="Jane Doe 999-999-9999"
-            android:nextFocusDown="@+id/message_edit" />
+            android:orientation="vertical" >
+
+            <Button
+                style="@style/wrapAll"
+                android:layout_marginLeft="20dip"
+                android:text="Reid Isaki (home)" />
+
+            <AutoCompleteTextView
+                android:id="@+id/email_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Jane Doe 999-999-9999"
+                android:nextFocusDown="@+id/message_edit" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

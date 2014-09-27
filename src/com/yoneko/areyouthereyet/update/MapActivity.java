@@ -275,7 +275,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		// Set the update interval to 50 seconds
 		mLocationRequest.setInterval(60);
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
-		mGeofenceStorage = new SimpleGeofenceStore(this);
+		//		mGeofenceStorage = new SimpleGeofenceStore(this);
 
 		int resultCode =
 				GooglePlayServicesUtil.
@@ -1300,6 +1300,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			drawerStringList.add(newItem);
 		}
 		mSimpleGeoFenceList = drawerStringList;
+		if(isUpdate) {
+			if(mGeofencesToRemove != null) {
+				mGeofencesToRemove.clear();
+				mGeofencesToRemove.add(newItem.getId());
+			}
+		}
+		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
+		
 		//		drawerStringList.remove(drawerStringList.size()-2);
 		drawerAdapter.notifyDataSetChanged();
 		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
