@@ -1,7 +1,9 @@
-package com.yoneko.areyouthereyet.update;
+package com.yoneko.areyouthereyet.update.debug;
 
 import java.util.List;
+
 import com.yoneko.areyouthereyet.update.debug.R;
+
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;

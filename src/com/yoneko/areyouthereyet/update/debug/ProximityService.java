@@ -1,5 +1,6 @@
-package com.yoneko.areyouthereyet.update;
+package com.yoneko.areyouthereyet.update.debug;
 import com.yoneko.areyouthereyet.update.debug.R;
+
 import java.util.ArrayList;
 
 import android.app.Notification;

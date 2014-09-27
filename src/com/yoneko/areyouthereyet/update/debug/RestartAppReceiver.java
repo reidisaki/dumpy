@@ -1,4 +1,4 @@
-package com.yoneko.areyouthereyet.update;
+package com.yoneko.areyouthereyet.update.debug;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

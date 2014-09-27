@@ -1,5 +1,5 @@
 //showcase view background color : F02173AD
-package com.yoneko.areyouthereyet.update;
+package com.yoneko.areyouthereyet.update.debug;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
@@ -71,7 +70,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.yoneko.areyouthereyet.update.debug.R;
+
 import com.espian.showcaseview.ShowcaseView;
 import com.espian.showcaseview.targets.ViewTarget;
 import com.flurry.android.FlurryAgent;
@@ -108,7 +107,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.debug.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
@@ -500,7 +500,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
 		Prediction p = (Prediction) adapterView.getItemAtPosition(position);
-//		Log.i("Reid","item selected" + p.getDescription() + " latitude: " + p.getlatitude());
+		//		Log.i("Reid","item selected" + p.getDescription() + " latitude: " + p.getlatitude());
 		searchEdit.setText(p.getDescription());
 		title = p.getDescription();
 		usedAutoComplete = true;
@@ -515,7 +515,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		SharedPreferences.Editor spe = sp.edit();
 		spe.clear();
 		spe.commit();
-//		Log.i("Reid", "clearing list");
+		//		Log.i("Reid", "clearing list");
 		//remove geo fences
 		drawerAdapter.notifyDataSetChanged();
 		removeGeofences(getTransitionPendingIntent());
@@ -525,7 +525,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 		if(slidePanelLayout != null && slidePanelLayout.isPanelExpanded() || slidePanelLayout.isPanelAnchored()) {
 			slidePanelLayout.collapsePanel();
-//			Log.i("Reid","closed");
+			//			Log.i("Reid","closed");
 		}
 		else {
 			super.onBackPressed();
@@ -1130,9 +1130,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			List<Address> addressList = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
 			if(addressList.size() > 0) {
 				Address address = addressList.get(0);
-//				Log.i("Reid","thoroughfare: " + address.getThoroughfare());
-//				Log.i("Reid","premises:" + address.getPremises());
-//				Log.i("Reid","locality:" + address.getLocality());
+				//				Log.i("Reid","thoroughfare: " + address.getThoroughfare());
+				//				Log.i("Reid","premises:" + address.getPremises());
+				//				Log.i("Reid","locality:" + address.getLocality());
 				if(!usedAutoComplete) {
 					title =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
 					searchEdit.setText(title);
@@ -1163,7 +1163,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			radius = (int)(fence.getRadius() *(10/12f)); //this will revert the 20% rule.
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
-			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
+			//need to populate the contacts here as buttons since we are handling Multi text sending
+			o("fence size: " + fence.getPhoneContacts().size());
+			populateReceipientList(fence);
+			//			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
+
 			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_exit);
 			addGeofenceFragment.radius_seek.setProgress((int)Math.ceil(radius-MIN_RADIUS));
@@ -1180,11 +1184,42 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		boolean panelWillExpand = true;
 		animateToLocation(panelWillExpand);
 	}
+	private void populateReceipientList(SimpleGeofence fence) {
+		if(fence.getPhoneContacts() == null) {
+			return;
+		}
+		clearContacts();
+		for(PhoneContact p : fence.getPhoneContacts()) {
+			addGeofenceFragment.contactMap.put(p.getNumber(),p);
+			Button b = new Button(this);
+			b.setText(p.getDisplayName());
+			b.setTag(p.getNumber());
+			b.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					addGeofenceFragment.contactMap.remove(v.getTag());
+					addGeofenceFragment.contact_button_layout.removeView(v);
+				}
+			});
+			addGeofenceFragment.contact_button_layout.addView(b,0);
+		}
+//		addGeofenceFragment.contacts.addAll(addGeofenceFragment.contactMap.values());
+
+	}
+	private void clearContacts() {
+		addGeofenceFragment.contactMap.clear();
+		addGeofenceFragment.contacts.clear();
+		//remove all views except the autoCompleteTextView
+		if(addGeofenceFragment.contact_button_layout.getChildCount() > 1) {
+			addGeofenceFragment.contact_button_layout.removeViews(0, addGeofenceFragment.contact_button_layout.getChildCount() -1);
+		}		
+	}
 	private void clearAddGeoFenceFragment() {
 		addGeofenceFragment.messageEdit.setText("");
 		addGeofenceFragment.enter_exit.check(R.id.radio_enter);
 		addGeofenceFragment.radius_seek.setProgress(0);
-		addGeofenceFragment.emailEdit.setText("");		
+		addGeofenceFragment.emailEdit.setText("");
+		clearContacts();
 	}
 	@Override
 	public void onMapClick(LatLng point) {
@@ -1632,9 +1667,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			 * You can send out a broadcast intent or update the UI.
 			 * geofences into the Intent's extended data.
 			 */
-//			Log.v(TAG,"GEO FENCE SUCCESS RADIUS is: " + String.valueOf(RADIUS_METER));
+			//			Log.v(TAG,"GEO FENCE SUCCESS RADIUS is: " + String.valueOf(RADIUS_METER));
 		} else {
-//			Log.v(TAG,"GEO FENCE FAILURE YOU SUCK" + statusCode);
+			//			Log.v(TAG,"GEO FENCE FAILURE YOU SUCK" + statusCode);
 			// If adding the geofences failed
 			/*
 			 * Report errors here.
@@ -1892,7 +1927,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	public void onMyLocationChange(Location _location) {
-		Log.i("Reid","location changed!");
+//		Log.i("Reid","location changed!");
 		location = _location;
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;

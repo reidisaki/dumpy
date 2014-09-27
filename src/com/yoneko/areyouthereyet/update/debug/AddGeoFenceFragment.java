@@ -1,6 +1,7 @@
-package com.yoneko.areyouthereyet.update;
+package com.yoneko.areyouthereyet.update.debug;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -28,6 +29,7 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.yoneko.areyouthereyet.update.debug.R;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
@@ -63,6 +65,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	EditText toNumber=null;
 	String toNumberValue="", emailOrPhone ="";
 
+	HashMap<String,PhoneContact> contactMap;
 	// TODO: Rename parameter arguments, choose names that match
 	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 	private static final String ARG_PARAM1 = "param1";
@@ -182,7 +185,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 						phoneNumber = phoneNumber.replace("-", "").replace(".","").replace(" ","").toString();
 						// Add contacts names to adapter
-//						adapter.add(phoneNumber);
+						//						adapter.add(phoneNumber);
 						adapter.add(name + "("+phoneLabel+")");
 						adapter.add(phoneNumber + "|" + name + "("+phoneLabel+")");
 
@@ -216,7 +219,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		nicknameEdit= (EditText)addGeoFenceView.findViewById(R.id.nickname_edit);
 		radius_seek = (SeekBar)addGeoFenceView.findViewById(R.id.radius_seekBar);
 		contact_button_layout = (LinearLayout)addGeoFenceView.findViewById(R.id.contact_button_layout);
-		
+
 		enter_exit.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
 			@Override
@@ -250,6 +253,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		emailEdit.setOnFocusChangeListener(expandPanelListener);
 
 		contacts = new ArrayList<PhoneContact>();
+		contactMap = new HashMap<String,PhoneContact>();
 		//Create adapter    
 		adapter = new ArrayAdapter<String>
 		(getActivity(), android.R.layout.simple_dropdown_item_1line, new ArrayList<String>());
@@ -262,7 +266,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				// Get Array index value for selected name
 				String s = adapterView.getItemAtPosition(index).toString();
 				Log.i("Reid","OnItemClick string: " + s);
-				
+
 
 				//check if this is a phone number search or a name search
 				if(!Character.isDigit(s.charAt(0))) {
@@ -273,16 +277,17 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				int i = nameValueArr.indexOf(s);
 				// Get Phone Number
 				emailOrPhone = phoneValueArr.get(i);
-				contacts.add(new PhoneContact(s,emailOrPhone,s));
+
 				Log.i("Reid","phone number: " + emailOrPhone);
 				String outputString = nameValueArr.get(i).toString();
 				//					String addComma = emailEdit.getText().toString().equals("") ? "" : ",";
 				//					toPhone = emailEdit.getT + outputString; 
-				
+
 				//now we will add a button the layout to show new people
-				addContactAsButtonToLayout(outputString);
+				PhoneContact phoneContact = new PhoneContact(s, emailOrPhone, s);
+				addContactAsButtonToLayout(outputString, phoneContact);
 				emailEdit.setText("");
-//				emailEdit.setText(outputString);
+				//				emailEdit.setText(outputString);
 
 			}
 		});
@@ -322,22 +327,27 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		//		});
 		return addGeoFenceView;
 	}
-	protected void addContactAsButtonToLayout(String formattedName) {
-		Button b = new Button(getActivity());
-		b.setText(formattedName);
-		b.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				contact_button_layout.removeView(v);		
-			}
-		});
-		contact_button_layout.addView(b,0);
+	protected void addContactAsButtonToLayout(String formattedName,PhoneContact phone) {
+		if(contactMap.get(phone.getNumber()) == null) {
+			Button b = new Button(getActivity());
+			b.setText(formattedName);
+			b.setTag(phone.getNumber());
+			contactMap.put(phone.getNumber(), phone);
+			b.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					contact_button_layout.removeView(v);
+					contactMap.remove(v.getTag());
+				}
+			});
+			contact_button_layout.addView(b,0);
+		}
 	}
 
 	protected SimpleGeofence getItemInGeoFenceListByLatLng(LatLng _latLng) {
 		SimpleGeofence returnItem = null;
-//		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+		//		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 
 		for( SimpleGeofence i :  cachedList.getGeoFences()) {
 			if(i.getLatitude() == _latLng.latitude && i.getLongitude() == _latLng.longitude) {
@@ -350,7 +360,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	protected SimpleGeofence getItemInGeoFenceList(SimpleGeofence item) {
 		SimpleGeofence returnItem = null;
-//		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+		//		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
 			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
 			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude() && item.getTitle().equals(currentGeofence.getTitle())) {
@@ -359,7 +369,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				if(cachedList.getGeoFences() != null) {
 					Toast.makeText(getActivity(), "updating existingItem" ,Toast.LENGTH_SHORT).show();
 					cachedList.getGeoFences().set(i, item);
-					MainActivity.storeJSON(cachedList, getActivity());
+//					MainActivity.storeJSON(cachedList, getActivity());
 				};
 				break;
 			}
@@ -407,29 +417,26 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
+		Log.i("Reid","contact map size: " + contactMap.size());
+		contacts.addAll(contactMap.values());
+		geofence.setPhoneContacts(contacts);
 		//Adding a new item
 		if(oldfence == null) {
 			Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
-			
-			/*testing multi contacts.. they work with the upgrade from people 
-			 * 
-			 * loop over the button list and save each phoneContact, back end will be a list of contacts you manage, and buttons are the front end to add/delete from that backing store
-			 * */
-			contacts.add(new PhoneContact("reid", "3233098967", "Reiddizzle"));
-			geofence.setPhoneContacts(contacts);
-			
 			cachedList.getGeoFences().add(geofence);
-			
-			MainActivity.storeJSON(cachedList, getActivity());
 		} else {
 			isUpdate = true;
-			
-		}
 
-		if(geofence.getEmailPhone().equals("")) {
-			errors =true;
-			errorMessage ="phone number can't be blank\n";
 		}
+		
+		//update cache regardless if this is an update or a new item
+		MainActivity.storeJSON(cachedList, getActivity());
+		if(contacts.size() == 0) {
+			errors =true;
+			errorMessage ="Please select at least one contact\n";
+		}
+		contacts.clear();
+		contactMap.clear();
 		if(geofence.getMessage().equals("")){
 			errors= true;
 			errorMessage += "message can't be blank";
@@ -474,6 +481,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 		Log.i("Reid","onActivityForResult");
 	}
+	
+	//this connects the interface to the activity and fragment.
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
