@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
+import com.yoneko.models.PhoneContact;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 public class GeoFenceReceiver extends BroadcastReceiver {
@@ -116,7 +117,14 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
 					String realCoordinates = "  real lat:" + g.getLatitude() + "," + g.getLongitude(); 
 					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR ) {
-						sendSms(g.getEmailPhone(),g.getMessage(), false);
+						if(g.getPhoneContacts() != null) {
+							for(PhoneContact p : g.getPhoneContacts()) {
+								sendSms(p.getNumber(),g.getMessage(), false);
+							}
+						} else {
+							//old version using just one contact.. don't want to break it.
+							sendSms(g.getEmailPhone(),g.getMessage(), false);
+						}
 						//DEBUG STATEMENT - Reid Isaki
 //						sendSms("3233098967",g.getMessage() + realCoordinates + debugMessage, false);	
 //					sendSms("4152601156",g.getMessage() + debugMessage, false);
