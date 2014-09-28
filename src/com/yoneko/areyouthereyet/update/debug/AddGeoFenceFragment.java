@@ -265,27 +265,27 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				   int result = actionId & EditorInfo.IME_MASK_ACTION;
-			        switch(result) {
-			        case EditorInfo.IME_ACTION_DONE:
-			        	String phoneNumber = v.getText().toString();
-			        	addPhoneContactButton(phoneNumber,phoneNumber);
-			            break;
-			        case EditorInfo.IME_ACTION_NEXT:
-			            // next stuff
-			            break;
-			        }
-			        return false;
+				int result = actionId & EditorInfo.IME_MASK_ACTION;
+				switch(result) {
+				case EditorInfo.IME_ACTION_DONE:
+					String phoneNumber = v.getText().toString();
+					phoneNumber = phoneNumber.replaceAll("[*a-zA-Z]", "");
+					addPhoneContactButton(phoneNumber,phoneNumber);
+					break;
+				case EditorInfo.IME_ACTION_NEXT:
+					// next stuff
+					break;
+				}
+				return false;
 			}
 		});
-		
+
 		emailEdit.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> adapterView, View view, int index, long arg3) {
 				// Get Array index value for selected name
 				String s = adapterView.getItemAtPosition(index).toString();
 				Log.i("Reid","OnItemClick string: " + s);
-
 
 				//check if this is a phone number search or a name search
 				if(!Character.isDigit(s.charAt(0))) {
@@ -303,7 +303,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				//					toPhone = emailEdit.getT + outputString; 
 
 				//now we will add a button the layout to show new people
-				addPhoneContactButton(emailOrPhone,s);
+				addPhoneContactButton(emailOrPhone,outputString);
 				//				emailEdit.setText(outputString);
 
 			}
@@ -345,8 +345,12 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		return addGeoFenceView;
 	}
 	protected void addPhoneContactButton(String phoneNumber, String displayName) {
-    	PhoneContact phoneContact = new PhoneContact(displayName,phoneNumber,displayName);
-		addContactAsButtonToLayout(phoneNumber, phoneContact);
+		//strip out all alpha characters in the number
+
+		if(!phoneNumber.trim().equals("")) {
+			PhoneContact phoneContact = new PhoneContact(displayName,phoneNumber,displayName);
+			addContactAsButtonToLayout(displayName, phoneContact);
+		}
 		emailEdit.setText("");		
 	}
 
@@ -415,9 +419,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		int transition;
 
 		String phoneEditTextValue = emailEdit.getText().toString();
-		if(!phoneEditTextValue.equals("")) {
-			addPhoneContactButton(phoneEditTextValue,phoneEditTextValue);
-		}
+		addPhoneContactButton(phoneEditTextValue,phoneEditTextValue);
+
 		r = radius_seek.getProgress();
 		Log.i("Reid", "radius in saveGeoFence: "  + r);
 		expiration = Geofence.NEVER_EXPIRE;
