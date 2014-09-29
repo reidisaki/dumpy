@@ -110,7 +110,7 @@ public class SimpleGeofenceStore {
 			// Return a true Geofence object
 			return new SimpleGeofence(
 					id, lat, lng, radius, expirationDuration,
-					transitionType, message, email, nickname, displayPhone);
+					transitionType, message, email, nickname, displayPhone,-1);
 			// Otherwise, return null.
 //		} else {
 //			return null;

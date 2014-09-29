@@ -1,9 +1,10 @@
-package com.yoneko.areyouthereyet.update;
+package com.yoneko.areyouthereyet.update.debug;
 
 import java.util.HashMap;
 
 import android.app.Application;
 
+import com.yoneko.areyouthereyet.update.debug.R;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 

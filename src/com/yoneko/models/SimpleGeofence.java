@@ -1,5 +1,9 @@
 package com.yoneko.models;
 
+
+
+import java.util.List;
+
 import com.google.android.gms.location.Geofence;
 
 public class SimpleGeofence {
@@ -9,7 +13,22 @@ public class SimpleGeofence {
     private final double mLongitude;
     private final float mRadius;
     private boolean checked; 
-    public void setChecked(boolean b) {
+    private long lastSent;
+    private boolean shouldSend;
+    private List<PhoneContact> phoneContacts; //send to multiple contacts if needed
+    public List<PhoneContact> getPhoneContacts() {
+		return phoneContacts;
+	}
+	public void setPhoneContacts(List<PhoneContact> phoneContacts) {
+		this.phoneContacts = phoneContacts;
+	}
+	public long getLastSent() {
+		return lastSent;
+	}
+	public void setLastSent(long lastSent) {
+		this.lastSent = lastSent;
+	}
+	public void setChecked(boolean b) {
     	checked = b;
 	}
     public boolean isChecked() {
@@ -52,7 +71,7 @@ public SimpleGeofence(
         String message,
         String email,
         String title,
-        String phoneDisplay) {
+        String phoneDisplay, long lastSent) {
     // Set the instance fields from the constructor
     this.mId = geofenceId;
     this.mLatitude = latitude;
@@ -64,6 +83,7 @@ public SimpleGeofence(
     this.emailPhone = email;
     this.title = title;
     this.phoneDisplay = phoneDisplay;
+    this.lastSent = lastSent;
 }
 public SimpleGeofence(String string) {
 	this.title = string;
@@ -76,6 +96,7 @@ public SimpleGeofence(String string) {
     this.message = "";
     this.emailPhone = "";
     this.phoneDisplay = "";
+    this.lastSent = -1;
 }
 // Instance field getters
 public String getId() {
@@ -117,5 +138,11 @@ public Geofence toGeofence() {
                     getLatitude(), getLongitude(), getRadius())
             .setExpirationDuration(mExpirationDuration)
             .build();
+}
+public boolean isShouldSend() {
+	return shouldSend;
+}
+public void setShouldSend(boolean shouldSend) {
+	this.shouldSend = shouldSend;
 }
 }
