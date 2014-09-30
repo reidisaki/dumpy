@@ -2,7 +2,9 @@ package com.yoneko.areyouthereyet.update;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -14,6 +16,7 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.flurry.android.FlurryAgent;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.yoneko.models.SimpleGeofence;
@@ -82,6 +85,10 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			Log.v(TAG,"onHandleIntent Error");
 			// Get the error code with a static method
 			int errorCode = LocationClient.getErrorCode(intent);
+			
+		    Map<String, String> errorParams = new HashMap<String, String>();
+		    errorParams.put("ErrorCode", ""+errorCode); 
+	        FlurryAgent.logEvent("Error occured in onReceive GeoFence Receiver", errorParams);
 			// Log the error
 			Log.e("ReceiveTransitionsIntentService",
 					"Location Services error: " +
