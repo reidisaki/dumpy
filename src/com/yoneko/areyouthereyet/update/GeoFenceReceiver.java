@@ -42,7 +42,12 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		this.context = context;
 
 		Log.i("yoneko","in on Receive");
-
+		//start on boot
+		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+            Intent i = new Intent(context, MapActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(i);
+        }
 		//		broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
 		//		if (LocationClient.hasError(intent)) {
