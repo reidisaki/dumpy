@@ -72,8 +72,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
-        <MultiAutoCompleteTextView
-            android:id="@+id/email_edit"
             <SeekBar
                 android:id="@+id/radius_seekBar"
                 android:layout_width="fill_parent"
