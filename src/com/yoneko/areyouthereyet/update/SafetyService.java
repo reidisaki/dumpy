@@ -1,5 +1,7 @@
 package com.yoneko.areyouthereyet.update;
 
+import com.flurry.android.FlurryAgent;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -29,6 +31,7 @@ public class SafetyService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("Reid1","OnStartCommand");
 		if(!MapActivity.isActive) {
+			FlurryAgent.logEvent("Restarted the app for some reason..");
 			Intent i = new Intent(getApplicationContext(), MapActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			Bundle b = new Bundle();
