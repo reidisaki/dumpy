@@ -465,8 +465,8 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			errors =true;
 			errorMessage ="Please select at least one contact\n";
 		}
-		contacts.clear();
-		contactMap.clear();
+//		contacts.clear();
+//		contactMap.clear();
 		if(geofence.getMessage().equals("")){
 			errors= true;
 			errorMessage += "message can't be blank";
