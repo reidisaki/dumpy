@@ -9,7 +9,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -192,6 +194,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
+		Map<String, String> errorParams = new HashMap<String, String>();
+	    errorParams.put("ErrorCode", "This is just a test"); 
+        FlurryAgent.logEvent("teting error capture", errorParams);
 		Log.i("Reid1", "movetoback is null? " + String.valueOf(getIntent().getExtras() == null));
 		if(getIntent().getExtras() != null && getIntent().getExtras().getBoolean("moveToBack")) {
 			moveTaskToBack(true);
