@@ -26,6 +26,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -357,8 +358,14 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	protected void addContactAsButtonToLayout(String formattedName,PhoneContact phone) {
 		if(contactMap.get(phone.getNumber()) == null) {
 			Button b = new Button(getActivity());
+			
+			
+			b.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.clear), null);
+//			b.setBackground(getResources().getDrawable(R.id.clearTextImage));
+			
 			b.setText(formattedName);
 			b.setTag(phone.getNumber());
+			b.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
 			contactMap.put(phone.getNumber(), phone);
 			b.setOnClickListener(new OnClickListener() {
 
