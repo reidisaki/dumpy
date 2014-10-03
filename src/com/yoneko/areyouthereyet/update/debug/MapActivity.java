@@ -8,7 +8,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -122,6 +124,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private static final long MILLISECONDS_PER_SECOND = 1000;
 	private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
 	public static  String GEO_FENCES = "geofences";
+	public static String REREGISTER_GEOFENCE = "reregister_geofence";
 	public static final int DIALOG_FRAGMENT = 100;
 	public static String GEO_FENCE_KEY_LIST = "geoFenceList";
 	private IntentFilter mIntentFilter;
@@ -175,7 +178,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	SlidingUpPanelLayout slidePanelLayout;
 	LatLng latLng = null;
 	float EXPANDED_PERCENT =  .7f;
-	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true, isLongClick = false;
+	boolean editable = true, isMapLoaded = false, isPanelExpanded,isArrowUp = true,navigateToMyLocation = true, isLongClick = false, reRegisterGeoFences = false;
 	public static String tag = "Reid";
 	int mapOffset, appOpenNumber=1, NUM_TIMES_TO_SHOW_ADD =2;
 	public static final int MIN_RADIUS = 150;
@@ -192,9 +195,23 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
+		Map<String, String> errorParams = new HashMap<String, String>();
+	    errorParams.put("ErrorCode", "This is just a test"); 
+        FlurryAgent.logEvent("teting error capture", errorParams);
 		Log.i("Reid1", "movetoback is null? " + String.valueOf(getIntent().getExtras() == null));
-		if(getIntent().getExtras() != null && getIntent().getExtras().getBoolean("moveToBack")) {
-			moveTaskToBack(true);
+		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
+		
+		if(getIntent().getExtras() != null) {
+			Log.i("Reid","get extras is not null!!! :) ");
+			if(getIntent().getExtras().getBoolean("moveToBack")) {
+				moveTaskToBack(true);
+			} else if(getIntent().getExtras().getBoolean(REREGISTER_GEOFENCE,false)) {
+				Log.i("Reid","oncreate device reboot ");
+				reRegisterGeoFences= true;
+				addGeofences();
+				
+			}
 		} else {
 			Log.i("Reid1","keep the app in front as normal");
 		}
@@ -276,7 +293,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mLocationRequest.setFastestInterval(1);
 		// Set the update interval to 50 seconds
 		mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
-		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
+		
 		//		mGeofenceStorage = new SimpleGeofenceStore(this);
 
 		int resultCode =
@@ -1600,7 +1617,16 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			//			for(int i=0; i<mSimpleGeoFenceList.size();i++) {
 			//add items to geoFences;
 			try {
-				geoFences.add(mSimpleGeoFenceList.get(mSimpleGeoFenceList.size() -1).toGeofence());
+				if(reRegisterGeoFences) {
+					for(SimpleGeofence g : mSimpleGeoFenceList) {
+						Log.i("Reid","geofence number registerd:" + g.getEmailPhone());
+						geoFences.add(g.toGeofence());
+						mGeofencesToRemove.add(g.getId());
+					}
+					reRegisterGeoFences = false;
+				} else {
+					geoFences.add(mSimpleGeoFenceList.get(mSimpleGeoFenceList.size() -1).toGeofence());
+				}
 			} catch (IllegalArgumentException e) {
 				Log.v(TAG,"illegal long/ lat combination not found...");	
 			}

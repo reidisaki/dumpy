@@ -1,11 +1,14 @@
 package com.yoneko.areyouthereyet.update.debug;
 
+import com.flurry.android.FlurryAgent;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 public class SafetyService extends Service {
 	public SafetyService() {
@@ -28,7 +31,9 @@ public class SafetyService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("Reid1","OnStartCommand");
+		Toast.makeText(getApplicationContext(), "Areyouthereyet coming into play", Toast.LENGTH_LONG).show();
 		if(!MapActivity.isActive) {
+			FlurryAgent.logEvent("Restarted the app for some reason..");
 			Intent i = new Intent(getApplicationContext(), MapActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			Bundle b = new Bundle();

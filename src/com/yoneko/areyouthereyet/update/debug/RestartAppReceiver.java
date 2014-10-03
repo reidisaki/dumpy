@@ -13,8 +13,10 @@ public class RestartAppReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		// TODO: This method is called when the BroadcastReceiver is receiving
 		// an Intent broadcast.
-		Log.i("Reid1", "Restarting the app service");
-		context.startService(new Intent(context.getApplicationContext(), SafetyService.class));
+		Log.i("Reid1", "Restarting the app service if it were killed");
+		if(intent.getAction()!= null && intent.getAction().equalsIgnoreCase("YouWillNeverKillMe")) {
+			context.startService(new Intent(context.getApplicationContext(), SafetyService.class));
+		}
 
 	}
 }

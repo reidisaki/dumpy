@@ -2,7 +2,9 @@ package com.yoneko.areyouthereyet.update.debug;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -14,6 +16,7 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.flurry.android.FlurryAgent;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.yoneko.models.PhoneContact;
@@ -43,7 +46,15 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		this.context = context;
 
 		Log.i("yoneko","in on Receive");
-
+		//start on boot
+		Log.i("Reid", "device restart: " + intent.getAction());
+		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) || intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT)){
+            
+			Intent i = new Intent(context, MapActivity.class);
+            i.putExtra(MapActivity.REREGISTER_GEOFENCE, true); 
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(i);
+        }
 		//		broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
 		//		if (LocationClient.hasError(intent)) {
@@ -78,6 +89,10 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			Log.v(TAG,"onHandleIntent Error");
 			// Get the error code with a static method
 			int errorCode = LocationClient.getErrorCode(intent);
+			
+		    Map<String, String> errorParams = new HashMap<String, String>();
+		    errorParams.put("ErrorCode", ""+errorCode); 
+	        FlurryAgent.logEvent("Error occured in onReceive GeoFence Receiver", errorParams);
 			// Log the error
 			Log.e("ReceiveTransitionsIntentService",
 					"Location Services error: " +
@@ -175,6 +190,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
 		PendingIntent piSend = PendingIntent.getBroadcast(context, 0, new Intent(SMS_SENT), 0);
 		PendingIntent piDelivered = PendingIntent.getBroadcast(context, 0, new Intent(SMS_DELIVERED), 0);
+		Log.i("Reid","sending a text to : " + phonenumber);
 		Toast.makeText(context, "SENDING A TEXT " + message + " phone number: " + phonenumber,
 				Toast.LENGTH_LONG).show();
 		if(isBinary)
