@@ -46,8 +46,11 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
 		Log.i("yoneko","in on Receive");
 		//start on boot
-		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-            Intent i = new Intent(context, MapActivity.class);
+		Log.i("Reid", "device restart: " + intent.getAction());
+		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) || intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT)){
+            
+			Intent i = new Intent(context, MapActivity.class);
+            i.putExtra(MapActivity.REREGISTER_GEOFENCE, true); 
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
@@ -179,6 +182,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
 		PendingIntent piSend = PendingIntent.getBroadcast(context, 0, new Intent(SMS_SENT), 0);
 		PendingIntent piDelivered = PendingIntent.getBroadcast(context, 0, new Intent(SMS_DELIVERED), 0);
+		Log.i("Reid","sending a text to : " + phonenumber);
 		Toast.makeText(context, "SENDING A TEXT " + message + " phone number: " + phonenumber,
 				Toast.LENGTH_LONG).show();
 		if(isBinary)
