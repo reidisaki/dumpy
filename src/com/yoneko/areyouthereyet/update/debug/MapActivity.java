@@ -68,6 +68,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -1181,7 +1182,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			addGeofenceFragment.nicknameEdit.setText(fence.getTitle());
 			addGeofenceFragment.messageEdit.setText(fence.getMessage());
 			//need to populate the contacts here as buttons since we are handling Multi text sending
-			o("fence size: " + fence.getPhoneContacts().size());
+			o("fence contact size: " + fence.getPhoneContacts().size());
 			populateReceipientList(fence);
 			//			addGeofenceFragment.emailEdit.setText(fence.getPhoneDisplay());
 
@@ -1209,6 +1210,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		for(PhoneContact p : fence.getPhoneContacts()) {
 			addGeofenceFragment.contactMap.put(p.getNumber(),p);
 			Button b = new Button(this);
+			b.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+			b.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.clear), null);
 			b.setText(p.getDisplayName());
 			b.setTag(p.getNumber());
 			b.setOnClickListener(new OnClickListener() {

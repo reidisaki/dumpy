@@ -426,7 +426,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		int transition;
 
 		String phoneEditTextValue = emailEdit.getText().toString();
-		addPhoneContactButton(phoneEditTextValue,phoneEditTextValue);
+//		addPhoneContactButton(phoneEditTextValue,phoneEditTextValue);
 
 		r = radius_seek.getProgress();
 		Log.i("Reid", "radius in saveGeoFence: "  + r);
@@ -452,10 +452,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, (r+MapActivity.MIN_RADIUS)*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
 		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
+		contacts.clear();
 		contacts.addAll(contactMap.values());
 		geofence.setPhoneContacts(contacts);
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
-		Log.i("Reid","contact map size: " + contactMap.size());
 
 		//Adding a new item
 		if(oldfence == null) {

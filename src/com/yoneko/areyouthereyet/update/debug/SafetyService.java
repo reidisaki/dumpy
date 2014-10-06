@@ -31,7 +31,7 @@ public class SafetyService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("Reid1","OnStartCommand");
-		Toast.makeText(getApplicationContext(), "Areyouthereyet coming into play", Toast.LENGTH_LONG).show();
+//		Toast.makeText(getApplicationContext(), "Areyouthereyet coming into play", Toast.LENGTH_LONG).show();
 		if(!MapActivity.isActive) {
 			FlurryAgent.logEvent("Restarted the app for some reason..");
 			Intent i = new Intent(getApplicationContext(), MapActivity.class);
