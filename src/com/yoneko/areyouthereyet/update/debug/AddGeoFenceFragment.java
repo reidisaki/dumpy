@@ -426,7 +426,9 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		int transition;
 
 		String phoneEditTextValue = emailEdit.getText().toString();
-//		addPhoneContactButton(phoneEditTextValue,phoneEditTextValue);
+		if(phoneEditTextValue.length() > 0 && Character.isDigit(phoneEditTextValue.charAt(0))) {
+			addPhoneContactButton(phoneEditTextValue,phoneEditTextValue);
+		}
 
 		r = radius_seek.getProgress();
 		Log.i("Reid", "radius in saveGeoFence: "  + r);
