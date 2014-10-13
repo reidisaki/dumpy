@@ -26,6 +26,7 @@
 
             <EditText
                 android:id="@+id/nickname_edit"
+                android:selectAllOnFocus="true"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:nextFocusDown="@+id/radio_enter" />
