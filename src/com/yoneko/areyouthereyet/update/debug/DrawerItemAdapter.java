@@ -45,7 +45,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 
 		// get the TextView and then set the text (item name) and tag (item ID) values
 		TextView textViewItem = (TextView) convertView.findViewById(R.id.drawer_text);
-		textViewItem.setText(objectItem.getTitle());
+		textViewItem.setText(objectItem.getTitle() + " - " + (objectItem.getTransitionType() == 1 ? "enter" : "exit") ); // this could be 4 which is enter and exit
 
 		final CheckBox checkbox = (CheckBox)convertView.findViewById(R.id.drawer_check_box);
 		checkbox.setChecked(objectItem.isChecked());

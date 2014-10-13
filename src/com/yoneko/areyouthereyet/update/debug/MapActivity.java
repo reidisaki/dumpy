@@ -1083,20 +1083,20 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			Uri uri = Uri.parse("smsto:");
 			Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
 			Geocoder geo = new Geocoder(getApplicationContext());
-			String currentLocationText = "";
+			String currentLocationText = "I'm currently here: ";
 			List<Address> addressList;
 			try {
 				addressList = geo.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
 				if(addressList.size() > 0) {
 					Address address = addressList.get(0);
-					currentLocationText =  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
+					currentLocationText +=  address.getAddressLine(0) + " " + address.getLocality() + " " + (address.getPostalCode() == null ? "" : address.getPostalCode());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
 			//DEBUG STATEMENT - Reid Isaki
-			intent.putExtra("sms_body", currentLocationText + "\n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude + " accuracy: " + location.getAccuracy());
+			intent.putExtra("sms_body", currentLocationText + "\n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude + " \nAccuracy within: " + Math.ceil(location.getAccuracy()) + " meters");
 			startActivityForResult(intent, 1234);
 
 			//Send out text message to someone who your location
