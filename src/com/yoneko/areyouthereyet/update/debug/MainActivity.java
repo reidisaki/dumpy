@@ -645,7 +645,7 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 
 			Log.v(TAG,"received");
 			// Intent contains information about errors in adding or removing geofences
-			Toast.makeText(context, "something triggered" + action, Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, "something triggered" + action, Toast.LENGTH_LONG).show();
 		}
 
 		/**
@@ -671,7 +671,7 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 			 * user that a transition has occurred.
 			 */
 			Log.v(TAG,"geofence transitioned");
-			Toast.makeText(context, "something transitioned!!", Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, "something transitioned!!", Toast.LENGTH_LONG).show();
 		}
 
 		/**
@@ -681,7 +681,7 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 		 */
 		private void handleGeofenceError(Context context, Intent intent) {
 
-			Toast.makeText(context, "error", Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, "error", Toast.LENGTH_LONG).show();
 		}
 	}
 	@Override
@@ -765,7 +765,7 @@ OnAddGeofencesResultListener, LocationListener, onEditTextClicked, OnRemoveGeofe
 		@Override
 		protected void onPostExecute(String address) {
 			Log.v(TAG, " Address is: " + address);
-			Toast.makeText(getApplicationContext(), address, Toast.LENGTH_LONG);
+			//Toast.makeText(getApplicationContext(), address, Toast.LENGTH_LONG);
 		}
 	}
 //	@Override

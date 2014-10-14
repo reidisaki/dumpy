@@ -1394,7 +1394,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		protected void onPostExecute(List<Address> addresses) {
 
 			if(addresses==null || addresses.size()==0){
-				Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
 			}
 			hideKeyboard();
 			// Clears all the existing markers on the map
@@ -1421,7 +1421,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(latLng != null) {
 			createRadiusCircle(latLng,null);
 		} else {
-			Toast.makeText(this, "Can't find: " + addressText, Toast.LENGTH_LONG).show();
+			//Toast.makeText(this, "Can't find: " + addressText, Toast.LENGTH_LONG).show();
 		}
 	}
 	@Override
@@ -1854,7 +1854,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 			Log.v(TAG,"received");
 			// Intent contains information about errors in adding or removing geofences
-			Toast.makeText(context, "something triggered" + action, Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, "something triggered" + action, Toast.LENGTH_LONG).show();
 		}
 
 		/**
@@ -1880,7 +1880,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			 * user that a transition has occurred.
 			 */
 			Log.v(TAG,"geofence transitioned");
-			Toast.makeText(context, "something transitioned!!", Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, "something transitioned!!", Toast.LENGTH_LONG).show();
 		}
 
 		/**
@@ -1890,7 +1890,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		 */
 		private void handleGeofenceError(Context context, Intent intent) {
 
-			Toast.makeText(context, "error", Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, "error", Toast.LENGTH_LONG).show();
 		}
 	}
 	@Override

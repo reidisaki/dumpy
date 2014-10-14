@@ -401,7 +401,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 				returnItem = currentGeofence;
 				//exists update the item
 				if(cachedList.getGeoFences() != null) {
-					Toast.makeText(getActivity(), "updating existingItem" ,Toast.LENGTH_SHORT).show();
+					//Toast.makeText(getActivity(), "updating existingItem" ,Toast.LENGTH_SHORT).show();
 					cachedList.getGeoFences().set(i, item);
 					//					MainActivity.storeJSON(cachedList, getActivity());
 				};
@@ -448,7 +448,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			emailOrPhone = emailEdit.getText().toString();
 		}
 		if(latLng == null) {
-			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
+			//Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, (r+MapActivity.MIN_RADIUS)*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
@@ -461,7 +461,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 		//Adding a new item
 		if(oldfence == null) {
-			Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
+			//Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
 			cachedList.getGeoFences().add(geofence);
 		} else {
 			isUpdate = true;
@@ -481,10 +481,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			errorMessage += "message can't be blank";
 		}
 		if(!errors) {
-			Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
+			//Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
 			mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);
 		} else {
-			Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_SHORT).show();
+			//Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_SHORT).show();
 		}
 		//		mListener.dialogDismissed();
 

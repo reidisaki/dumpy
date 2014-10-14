@@ -67,7 +67,7 @@ public class ProximityService extends Service{
 
 	@Override
 	public void onDestroy() {
-		Toast.makeText(this, "Proximity Service Stopped", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "Proximity Service Stopped", Toast.LENGTH_LONG).show();
 		try{
 			unregisterReceiver(mybroadcast);
 		}catch(IllegalArgumentException e){
@@ -78,7 +78,7 @@ public class ProximityService extends Service{
 	}
 	@Override
 	public void onStart(Intent intent, int startid) {
-		Toast.makeText(this, "Proximity Service Started", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "Proximity Service Started", Toast.LENGTH_LONG).show();
 		Log.v(TAG,"prox service started");
 	}
 	
@@ -182,7 +182,7 @@ public class ProximityService extends Service{
 	}
 	public class MyLocationListener implements LocationListener {
 		public void onLocationChanged(Location location) {
-			Toast.makeText(getApplicationContext(), "I was here", Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), "I was here", Toast.LENGTH_LONG).show();
 		}
 
 		public void onProviderDisabled(String s) {
