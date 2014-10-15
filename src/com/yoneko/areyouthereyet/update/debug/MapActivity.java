@@ -196,10 +196,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+
+		/*
+		 * error testing here useful but not used right now.
 		Map<String, String> errorParams = new HashMap<String, String>();
 	    errorParams.put("ErrorCode", "This is just a test"); 
         FlurryAgent.logEvent("teting error capture", errorParams);
+        */
 		Log.i("Reid1", "movetoback is null? " + String.valueOf(getIntent().getExtras() == null));
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		
