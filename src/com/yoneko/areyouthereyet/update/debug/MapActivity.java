@@ -474,7 +474,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		public void onItemClick(AdapterView<?> arg0, View view, int position,
 				long arg3) {
 			String selectedItemTitle = ((TextView)(view).findViewById(R.id.drawer_text)).getText().toString();
-			int index = indexOfItemInGeofenceList(selectedItemTitle);
+			int index = indexOfItemInGeofenceList(selectedItemTitle.replace(" - enter", "").replace(" - exit", ""));
 			SimpleGeofence item = mSimpleGeoFenceList.get(index);
 			latLng = new LatLng(item.getLatitude(),
 					item.getLongitude());
