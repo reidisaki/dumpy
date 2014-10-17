@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="5dip"
     android:paddingTop="100dip"
-    tools:context="com.yoneko.areyouthereyet.update.debug.AddGeoFenceFragment" >
+    tools:context="com.yoneko.areyouthereyet.update.AddGeoFenceFragment" >
 
     <LinearLayout
         android:layout_width="fill_parent"

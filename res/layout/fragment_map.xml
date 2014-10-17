@@ -175,7 +175,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:id="@+id/fragment_add_geo_fence"
                     android:layout_width="match_parent"
                     android:layout_height="fill_parent"
-                    class="com.yoneko.areyouthereyet.update.debug.AddGeoFenceFragment"
+                    class="com.yoneko.areyouthereyet.update.AddGeoFenceFragment"
                     android:windowSoftInputMode="adjustPan" >
                 </fragment>
             </RelativeLayout>

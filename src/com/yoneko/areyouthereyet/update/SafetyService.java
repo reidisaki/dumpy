@@ -1,4 +1,4 @@
-package com.yoneko.areyouthereyet.update.debug;
+package com.yoneko.areyouthereyet.update;
 
 import com.flurry.android.FlurryAgent;
 

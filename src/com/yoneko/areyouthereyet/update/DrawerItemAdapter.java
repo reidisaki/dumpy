@@ -1,11 +1,10 @@
-package com.yoneko.areyouthereyet.update.debug;
+package com.yoneko.areyouthereyet.update;
 
 import java.util.List;
 
-import com.yoneko.areyouthereyet.update.debug.R;
-
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -56,13 +55,13 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 				{
 					v.setSelected(true);
 					objectItem.setChecked(true);
-					data.set(position, objectItem);
+//					objectItem.setTitle("THIS IS FUCKED UP");
 				} else {
 					v.setSelected(false);
 					objectItem.setChecked(false);
-					data.set(position, objectItem);
-
-				}	
+				}
+				Log.i("Reid","Setting new title: " + objectItem.getTitle());
+				data.set(position, objectItem);
 			}
 		});
 		if(objectItem.getTitle().equals(mContext.getResources().getString(R.string.clear_all_text))) {

@@ -1,4 +1,4 @@
-package com.yoneko.areyouthereyet.update.debug;
+package com.yoneko.areyouthereyet.update;
 //package com.yoneko.areyouthereyet;
 //
 //import android.graphics.Canvas;

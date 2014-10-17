@@ -1,4 +1,4 @@
-package com.yoneko.areyouthereyet.update.debug;
+package com.yoneko.areyouthereyet.update;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
+import com.yoneko.areyouthereyet.update.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
@@ -258,7 +259,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		contactMap = new HashMap<String,PhoneContact>();
 		//Create adapter    
 		adapter = new ArrayAdapter<String>
-		(getActivity(), android.R.layout.simple_dropdown_item_1line, new ArrayList<String>());
+		(getActivity(), R.layout.simple_contact_dropdown, new ArrayList<String>());
 		emailEdit.setThreshold(1);
 		//Set adapter to AutoCompleteTextView
 		emailEdit.setAdapter(adapter);

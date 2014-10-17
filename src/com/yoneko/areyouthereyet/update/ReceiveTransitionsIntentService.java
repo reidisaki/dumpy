@@ -1,4 +1,4 @@
-package com.yoneko.areyouthereyet.update.debug;
+package com.yoneko.areyouthereyet.update;
 
 import java.util.ArrayList;
 import java.util.List;

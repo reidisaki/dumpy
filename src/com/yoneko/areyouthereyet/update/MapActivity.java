@@ -1,5 +1,5 @@
 //showcase view background color : F02173AD
-package com.yoneko.areyouthereyet.update.debug;
+package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,9 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,14 +63,13 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.espian.showcaseview.ShowcaseView;
 import com.espian.showcaseview.targets.ViewTarget;
@@ -110,7 +107,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import com.yoneko.areyouthereyet.update.debug.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.R;
+import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
 import com.yoneko.models.SimpleGeofence;
@@ -202,10 +200,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		Map<String, String> errorParams = new HashMap<String, String>();
 	    errorParams.put("ErrorCode", "This is just a test"); 
         FlurryAgent.logEvent("teting error capture", errorParams);
-        */
+		 */
 		Log.i("Reid1", "movetoback is null? " + String.valueOf(getIntent().getExtras() == null));
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
-		
+
 		if(getIntent().getExtras() != null) {
 			Log.i("Reid","get extras is not null!!! :) ");
 			if(getIntent().getExtras().getBoolean("moveToBack")) {
@@ -214,7 +212,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				Log.i("Reid","oncreate device reboot ");
 				reRegisterGeoFences= true;
 				addGeofences();
-				
+
 			}
 		} else {
 			Log.i("Reid1","keep the app in front as normal");
@@ -297,7 +295,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mLocationRequest.setFastestInterval(1);
 		// Set the update interval to 50 seconds
 		mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
-		
+
 		//		mGeofenceStorage = new SimpleGeofenceStore(this);
 
 		int resultCode =
@@ -651,17 +649,20 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
 					public void onClick(DialogInterface dialog, int whichButton) { 
-						drawerStringList.size();
+						drawerAdapter.notifyDataSetChanged();
 						ArrayList<String> geoFenceIdToRemoveList = new ArrayList<String>();
 						SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
 						o(sbArray.size() + "sparseBoolean array");
 						boolean isCurrentGeofenceAffected = false;
 						for(int i=drawerStringList.size()-1; i >= 0; i--){
-							o("i IS: " + i);
+//							o("i IS: " + i);
 
-							SimpleGeofence fence = ((SimpleGeofence)drawerAdapter.getItem(i));
+							
+							SimpleGeofence fence = drawerAdapter.data.get(i);//((SimpleGeofence)drawerAdapter.getItem(i));
+							
 							if(fence.isChecked()) {
-								//								Log.i("Reid","removing item");
+								Log.i("Reid", "name: " + fence.getTitle());
+								Log.i("Reid","removing item");
 								drawerStringList.remove(i);
 								if(addGeofenceFragment.nicknameEdit.getText().toString().equals(fence.getTitle())){
 									isCurrentGeofenceAffected = true;
@@ -686,7 +687,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerStringList);
 						storeJSON(mSimpleGeofenceList, getApplicationContext());
 						removeGeofences(geoFenceIdToRemoveList);
-
+//						drawerAdapter.data = drawerStringList;
 						drawerAdapter.notifyDataSetChanged();
 						mDrawerList.clearChoices();
 					}   
@@ -1226,7 +1227,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			});
 			addGeofenceFragment.contact_button_layout.addView(b,0);
 		}
-//		addGeofenceFragment.contacts.addAll(addGeofenceFragment.contactMap.values());
+		//		addGeofenceFragment.contacts.addAll(addGeofenceFragment.contactMap.values());
 
 	}
 	private void clearContacts() {
@@ -1455,6 +1456,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		} else {
 			drawerStringList.add(newItem);
 		}
+		//		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem), true);
 		mSimpleGeoFenceList = drawerStringList;
 		if(isUpdate) {
 			if(mGeofencesToRemove != null) {
@@ -1464,8 +1466,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		}
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		//		drawerStringList.remove(drawerStringList.size()-2);
+		drawerAdapter.data = mSimpleGeoFenceList;
 		drawerAdapter.notifyDataSetChanged();
-		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem.getTitle()), true);
+
 		addGeofences();
 	}
 
@@ -1959,7 +1962,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	public void onMyLocationChange(Location _location) {
-//		Log.i("Reid","location changed!");
+		//		Log.i("Reid","location changed!");
 		location = _location;
 		if(location != null && navigateToMyLocation) {
 			navigateToMyLocation = false;
