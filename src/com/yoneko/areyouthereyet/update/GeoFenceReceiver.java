@@ -191,8 +191,8 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		PendingIntent piSend = PendingIntent.getBroadcast(context, 0, new Intent(SMS_SENT), 0);
 		PendingIntent piDelivered = PendingIntent.getBroadcast(context, 0, new Intent(SMS_DELIVERED), 0);
 		Log.i("Reid","sending a text to : " + phonenumber);
-		//Toast.makeText(context, "SENDING A TEXT " + message + " phone number: " + phonenumber,
-//				Toast.LENGTH_LONG).show();
+		Toast.makeText(context, "SENDING A TEXT " + message + " phone number: " + phonenumber,
+				Toast.LENGTH_LONG).show();
 		if(isBinary)
 		{
 			byte[] data = new byte[message.length()];

@@ -649,17 +649,18 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
 					public void onClick(DialogInterface dialog, int whichButton) { 
-						drawerAdapter.notifyDataSetChanged();
 						ArrayList<String> geoFenceIdToRemoveList = new ArrayList<String>();
 						SparseBooleanArray sbArray = mDrawerList.getCheckedItemPositions();
 						o(sbArray.size() + "sparseBoolean array");
 						boolean isCurrentGeofenceAffected = false;
-						for(int i=drawerStringList.size()-1; i >= 0; i--){
+						//whenever something is updated on the data adapter side. ie: if something got checked. you need to get data from the adapter. not the cahced data list.
+						drawerStringList = drawerAdapter.data;
+						int drawerStringListSize =drawerStringList.size() -1;
+						Log.i("Reid", "size before: " + drawerStringListSize);
+						for(int i= drawerStringListSize; i >= 0; i--){
 //							o("i IS: " + i);
-
-							
-							SimpleGeofence fence = drawerAdapter.data.get(i);//((SimpleGeofence)drawerAdapter.getItem(i));
-							
+							SimpleGeofence fence = drawerStringList.get(i);//((SimpleGeofence)drawerAdapter.getItem(i));
+							Log.i("Reid", fence.getTitle() + " is " + (fence.isChecked() ? "checked": "not checked"));
 							if(fence.isChecked()) {
 								Log.i("Reid", "name: " + fence.getTitle());
 								Log.i("Reid","removing item");
@@ -684,10 +685,13 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 							searchEdit.setText("");
 						}
 
+						
 						SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerStringList);
 						storeJSON(mSimpleGeofenceList, getApplicationContext());
 						removeGeofences(geoFenceIdToRemoveList);
-//						drawerAdapter.data = drawerStringList;
+						Log.i("Reid", "Draer item list : " + drawerStringList.size());
+						drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, drawerStringList);
+						mDrawerList.setAdapter(drawerAdapter);
 						drawerAdapter.notifyDataSetChanged();
 						mDrawerList.clearChoices();
 					}   
@@ -1464,9 +1468,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				mGeofencesToRemove.add(newItem.getId());
 			}
 		}
-		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
+		Log.i("Reid","New list size: " + newList.size());
+		mSimpleGeoFenceList = newList;//getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		//		drawerStringList.remove(drawerStringList.size()-2);
-		drawerAdapter.data = mSimpleGeoFenceList;
+		drawerAdapter.data = newList;
 		drawerAdapter.notifyDataSetChanged();
 
 		addGeofences();

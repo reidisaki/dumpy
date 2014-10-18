@@ -40,6 +40,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		}
 
 		// object item based on the position
+		Log.i("Reid","data size: " + data.size() + " position: " + position);
 		final SimpleGeofence objectItem = data.get(position);
 
 		// get the TextView and then set the text (item name) and tag (item ID) values

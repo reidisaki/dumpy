@@ -449,7 +449,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			emailOrPhone = emailEdit.getText().toString();
 		}
 		if(latLng == null) {
-			//Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
 			return;
 		}
 		SimpleGeofence geofence = new SimpleGeofence(MainActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, (r+MapActivity.MIN_RADIUS)*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
@@ -470,7 +470,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 
 		//update cache regardless if this is an update or a new item
-		MainActivity.storeJSON(cachedList, getActivity());
+		MapActivity.storeJSON(cachedList, getActivity());
 		if(contacts.size() == 0) {
 			errors =true;
 			errorMessage ="Please select at least one contact\n";
@@ -485,7 +485,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			//Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
 			mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);
 		} else {
-			//Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_SHORT).show();
 		}
 		//		mListener.dialogDismissed();
 
