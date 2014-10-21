@@ -474,6 +474,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			String selectedItemTitle = ((TextView)(view).findViewById(R.id.drawer_text)).getText().toString();
 			int index = indexOfItemInGeofenceList(selectedItemTitle.replace(" - enter", "").replace(" - exit", ""));
 			SimpleGeofence item = mSimpleGeoFenceList.get(index);
+			Log.i("Reid","477 contact size: " + item.getPhoneContacts().get(0).getDisplayName());
 			latLng = new LatLng(item.getLatitude(),
 					item.getLongitude());
 			createRadiusCircle(latLng, item);
@@ -1212,9 +1213,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	private void populateReceipientList(SimpleGeofence fence) {
 		if(fence.getPhoneContacts() == null) {
+			Log.i("Reid","phone contacts was null or empty");
 			return;
 		}
+		Log.i("Reid","fence.getPhoneContats size" + fence.getPhoneContacts().size());
 		clearContacts();
+		Log.i("Reid","fence.getPhoneContats size" + fence.getPhoneContacts().size());
 		for(PhoneContact p : fence.getPhoneContacts()) {
 			addGeofenceFragment.contactMap.put(p.getNumber(),p);
 			Button b = new Button(this);
@@ -1229,14 +1233,16 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					addGeofenceFragment.contact_button_layout.removeView(v);
 				}
 			});
+			Log.i("Reid","adding button : " + p.getDisplayName());
 			addGeofenceFragment.contact_button_layout.addView(b,0);
+			
 		}
 		//		addGeofenceFragment.contacts.addAll(addGeofenceFragment.contactMap.values());
 
 	}
 	private void clearContacts() {
 		addGeofenceFragment.contactMap.clear();
-		addGeofenceFragment.contacts.clear();
+//		addGeofenceFragment.contacts.clear();
 		//remove all views except the autoCompleteTextView
 		if(addGeofenceFragment.contact_button_layout.getChildCount() > 1) {
 			addGeofenceFragment.contact_button_layout.removeViews(0, addGeofenceFragment.contact_button_layout.getChildCount() -1);

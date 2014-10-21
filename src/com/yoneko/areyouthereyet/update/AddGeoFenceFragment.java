@@ -457,6 +457,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
 		contacts.clear();
 		contacts.addAll(contactMap.values());
+		Log.i("Reid","Saving contacts size: " + contacts.size());
 		geofence.setPhoneContacts(contacts);
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
 
@@ -475,8 +476,6 @@ public class AddGeoFenceFragment extends DialogFragment  {
 			errors =true;
 			errorMessage ="Please select at least one contact\n";
 		}
-//		contacts.clear();
-//		contactMap.clear();
 		if(geofence.getMessage().equals("")){
 			errors= true;
 			errorMessage += "message can't be blank";
