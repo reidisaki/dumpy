@@ -436,7 +436,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		expiration = Geofence.NEVER_EXPIRE;
 		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
 		Log.i("Reid", "Transition type: " + transition);
-		message =  messageEdit.getText().toString() + "\n -via ThereYet http://goo.gl/yDWo8o";
+		message =  messageEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
 		if(nickname.equals("")) {
 			nickname = ((MapActivity)getActivity()).getNickName();
