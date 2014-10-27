@@ -219,7 +219,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 //				Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "  + phonenumber);
 				Log.i(TAG,"Sending texts are SSENDING!!:  "  + phonenumber);
 				if(phonenumber != null && message != null && phonenumber != "" && message != "") {
-					manager.sendTextMessage(phonenumber, null, message + "\n -via ThereYet http://goo.gl/yDWo8o", null, null);
+					manager.sendTextMessage(phonenumber, null, message + context.getResources().getString(R.string.short_there_yet_link), null, null);
 				}
 			}
 		}

@@ -2030,6 +2030,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(name.toLowerCase().startsWith("138 asby bay")) {
 			showAnimal("bailey");
 		}
+		if(name.toLowerCase().startsWith("5007 stoney creek")) {
+			showAnimal("lynx");
+		}
 	}
 
 	public LatLng getLatLng() {
