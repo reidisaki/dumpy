@@ -80,7 +80,7 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	private onEditTextClicked mListener;
 	private SimpleGeofenceList cachedList;
-	private float radiusPercentage = 1.2f;
+	private float radiusPercentage = 1.1f;
 
 	/**
 	 * Use this factory method to create a new instance of this fragment using
