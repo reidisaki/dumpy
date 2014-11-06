@@ -32,21 +32,22 @@ public class SafetyService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("Reid1","OnStartCommand");
 //		//Toast.makeText(getApplicationContext(), "Areyouthereyet coming into play", Toast.LENGTH_LONG).show();
-		if(!MapActivity.isActive) {
-			FlurryAgent.logEvent("Restarted the app for some reason..");
-			Intent i = new Intent(getApplicationContext(), MapActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			Bundle b = new Bundle();
-			b.putBoolean("moveToBack", true);
-			i.putExtras(b);
-			startActivity(i);
-		}
+//		if(!MapActivity.isActive) {
+//			FlurryAgent.logEvent("Restarted the app for some reason..");
+//			Intent i = new Intent(getApplicationContext(), MapActivity.class);
+//			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//			Bundle b = new Bundle();
+//			b.putBoolean("moveToBack", true);
+//			i.putExtras(b);
+//			startActivity(i);
+//		}
 		return Service.START_STICKY;
 	}
 	@Override
 	public void onDestroy() {
 		Log.i("Reid1","Killing safety service");
-		sendBroadcast(new Intent("YouWillNeverKillMe"));
+		//todo: remove this to restart the app if you dont want it ever to be killed
+//		sendBroadcast(new Intent("YouWillNeverKillMe"));
 		super.onDestroy();
 		
 	}

@@ -57,11 +57,18 @@ public class GeoFenceReceiver extends BroadcastReceiver {
         }
 		//		broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
-		//		if (LocationClient.hasError(intent)) {
-		//			handleError(intent);
-		//		} else {
-		//			handleEnterExit(intent);
-		//		}
+				if (LocationClient.hasError(intent)) {
+//					handleError(intent);
+					 int errorCode = LocationClient.getErrorCode(intent);
+
+				        // Get the error message
+				        
+
+				        // Log the error
+				        Log.i("Reid", "FAILED!! Error code: " + errorCode);
+				} else {
+//					handleEnterExit(intent);
+				}
 		//	}
 
 		LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
