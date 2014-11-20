@@ -107,7 +107,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import com.yoneko.areyouthereyet.update.R;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
@@ -454,14 +453,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			/** Called when a drawer has settled in a completely closed state. */
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
-				getActionBar().setTitle("areyou there yet clsoed");
+				getActionBar().setTitle("are you there yet closed");
 				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 
 			/** Called when a drawer has settled in a completely open state. */
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				getActionBar().setTitle("are you ther eyet open");
+				getActionBar().setTitle("are you there yet open");
 				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 		};		
@@ -471,13 +470,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View view, int position,
 				long arg3) {
-			String selectedItemTitle = ((TextView)(view).findViewById(R.id.drawer_text)).getText().toString();
-			int index = indexOfItemInGeofenceList(selectedItemTitle.replace(" - enter", "").replace(" - exit", ""));
-			SimpleGeofence item = mSimpleGeoFenceList.get(index);
-			Log.i("Reid","477 contact size: " + item.getPhoneContacts().get(0).getDisplayName());
-			latLng = new LatLng(item.getLatitude(),
-					item.getLongitude());
-			createRadiusCircle(latLng, item);
+            if(position > 0) {
+                String selectedItemTitle = ((TextView) (view).findViewById(R.id.drawer_text)).getText().toString();
+                int index = indexOfItemInGeofenceList(selectedItemTitle.replace(" - enter", "").replace(" - exit", ""));
+                SimpleGeofence item = mSimpleGeoFenceList.get(index);
+                Log.i("Reid", "477 contact size: " + item.getPhoneContacts().get(0).getDisplayName());
+                latLng = new LatLng(item.getLatitude(),
+                        item.getLongitude());
+                createRadiusCircle(latLng, item);
+            }
 			//check the View if they clicked hte text item or if they clicked the X icon.
 			mDrawerLayout.closeDrawers();
 		}
