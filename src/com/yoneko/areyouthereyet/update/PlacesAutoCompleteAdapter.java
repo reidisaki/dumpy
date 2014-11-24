@@ -1,5 +1,5 @@
 package com.yoneko.areyouthereyet.update;
-import com.yoneko.areyouthereyet.update.R;
+import com.yoneko.areyouthereyet.update.debug.R;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

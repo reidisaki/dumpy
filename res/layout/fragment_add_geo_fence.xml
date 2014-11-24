@@ -30,6 +30,7 @@
                 android:id="@+id/nickname_text"
                 style="@style/wrapAll"
                 android:paddingLeft="20dip"
+                android:paddingRight="0dip"
                 android:text="@string/nickname_text" />
 
             <EditText
@@ -52,7 +53,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:gravity="center"
+                android:visibility="invisible"
                 android:paddingLeft="20dip"
+                android:paddingRight="0dip"
                 android:text="@string/radius" />
 
             <RadioGroup
@@ -87,6 +90,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:max="500"
+                android:paddingRight="0dip"
                 android:paddingLeft="20dip" />
         </LinearLayout>
 
@@ -99,6 +103,7 @@
                 android:id="@+id/message_text"
                 style="@style/wrapAll"
                 android:paddingLeft="20dip"
+                android:paddingRight="0dip"
                 android:text="@string/message" />
 
             <EditText
@@ -121,6 +126,7 @@
                 android:id="@+id/email_text"
                 style="@style/wrapAll"
                 android:paddingLeft="20dip"
+                android:paddingRight="0dip"
                 android:text="@string/email_phone" />
 
             <LinearLayout
