@@ -3,25 +3,44 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
 
-    <CheckBox
-        android:id="@+id/drawer_check_box"
+    <Switch
+        android:id="@+id/toggle_switch"
         android:layout_width="wrap_content"
-        style="@android:style/Theme.Black"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical" />
+        android:textOff="off"
+        android:textOn="on" />
 
-    <TextView
-        android:id="@+id/drawer_text"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/activatedBackgroundIndicator"
-        android:gravity="center_vertical"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:textColor="#fff" />
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="horizontal" >
+
+        <CheckBox
+            android:id="@+id/drawer_check_box"
+            style="@android:style/Theme.Black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/drawer_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/activatedBackgroundIndicator"
+            android:minHeight="?android:attr/listPreferredItemHeightSmall"
+            android:paddingLeft="16dip"
+            android:paddingRight="16dip"
+            android:textAppearance="?android:attr/textAppearanceListItemSmall"
+            android:textColor="#fff" />
+    </LinearLayout>
+
+    <View
+        android:paddingTop="5dip"
+        android:paddingBottom="5dip"
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@android:color/white" />
 
 </LinearLayout>
