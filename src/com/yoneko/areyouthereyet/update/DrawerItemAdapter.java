@@ -67,6 +67,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 				} else {
 					objectItem.setActive(false);
 				}
+				MapActivity.isDirty = true;
 				data.set(position, objectItem);
 			}
 		});

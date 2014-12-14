@@ -13,8 +13,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.yoneko.areyouthereyet.update.debug.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -43,6 +41,7 @@ import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -110,6 +109,7 @@ import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
 import com.yoneko.models.SimpleGeofence;
@@ -144,6 +144,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	private REQUEST_TYPE mRequestType;
 	// Flag that indicates if a request is underway.
 	private boolean mInProgress, mToggleInfoWindowShown = false,usedAutoComplete = false;
+	public static boolean isDirty = false;
 	private List<SimpleGeofence> drawerStringList;
 	private GeofenceSampleReceiver mBroadcastReceiver;
 	private Intent pendingIntent;
@@ -449,6 +450,34 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mDrawerList.setAdapter(drawerAdapter);
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
+		mDrawerLayout.setDrawerListener(new DrawerListener() {
+			
+			@Override
+			public void onDrawerStateChanged(int arg0) {
+			}
+			@Override
+			public void onDrawerSlide(View arg0, float arg1) {
+			}
+			
+			@Override
+			public void onDrawerOpened(View arg0) {
+			}
+			
+			@Override
+			public void onDrawerClosed(View arg0) {
+				//at this point save the geofence stuff if things have been modified
+				if(isDirty){
+					//save the modified geoFences here.
+					SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerAdapter.data);
+					storeJSON(mSimpleGeofenceList, getApplicationContext());
+					drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, drawerAdapter.data);
+					mDrawerList.setAdapter(drawerAdapter);
+					drawerAdapter.notifyDataSetChanged();
+					
+				}
+				isDirty = false;
+			}
+		});
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 
@@ -456,6 +485,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
 				getActionBar().setTitle("are you there yet closed");
+				
 				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 
@@ -689,7 +719,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 							searchEdit.setText("");
 						}
 
-						
 						SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerStringList);
 						storeJSON(mSimpleGeofenceList, getApplicationContext());
 						removeGeofences(geoFenceIdToRemoveList);
