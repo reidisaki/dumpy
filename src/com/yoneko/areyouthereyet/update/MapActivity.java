@@ -12,7 +12,9 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import com.yoneko.areyouthereyet.update.debug.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -1524,7 +1526,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	 * 	 need to create an alarm manager to be able to enable /disable when the geo fences are being sent (every friday at 4pm - 10 pm
 	 */
 
-	public SimpleGeofenceList getGeoFenceFromCache(Context context)
+	public static SimpleGeofenceList getGeoFenceFromCache(Context context)
 	{
 		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 		String jsonString = sp.getString(GEO_FENCE_KEY_LIST, null);
@@ -2038,5 +2040,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	public LatLng getLatLng() {
 		return latLng;
+	}
+	public static String createGeoFenceId(String nickname, double lat, double lon) {
+		return nickname + "|" + lat + "|" + lon;
 	}
 }

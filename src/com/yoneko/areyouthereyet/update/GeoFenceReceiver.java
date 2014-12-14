@@ -130,7 +130,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 						LocationClient.getTriggeringGeofences(intent);
 
 				String[] triggerIds = new String[triggerList.size()];
-				geoFenceList = MainActivity.getGeoFenceFromCache(context);
+				geoFenceList = MapActivity.getGeoFenceFromCache(context);
 				simpleList = geoFenceList.getGeoFences();
 				String debugMessage = "acc: " + location.getAccuracy() + "lat: " + location.getLatitude() + " lon: " 
 				+ location.getLongitude() + "  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();

@@ -60,7 +60,7 @@ public class ProximityService extends Service{
 //        intent.putExtra("alert", what);
 //        intent.putExtra("type", how);
         PendingIntent proximityIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        locationManager.addProximityAlert(34.054932 , -118.342929, MainActivity.RADIUS_METER, -1, proximityIntent);
+        locationManager.addProximityAlert(34.054932 , -118.342929, MapActivity.RADIUS_METER, -1, proximityIntent);
 //        sendBroadcast(new Intent(intent));
         
 	}

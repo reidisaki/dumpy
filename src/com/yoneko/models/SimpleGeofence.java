@@ -15,6 +15,21 @@ public class SimpleGeofence {
     private boolean checked; 
     private long lastSent;
     private boolean shouldSend;
+    private boolean isActive = true; //default to active
+    public boolean isActive() {
+		return isActive;
+	}
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+	public fencetype getFenceType() {
+		return fenceType;
+	}
+	public void setFenceType(fencetype fenceType) {
+		this.fenceType = fenceType;
+	}
+	public fencetype fenceType = fencetype.RECURRING; //default to recurring
+    public enum fencetype {ONE_TIME, RECURRING, SCHEDULED};
     private List<PhoneContact> phoneContacts; //send to multiple contacts if needed
     public List<PhoneContact> getPhoneContacts() {
 		return phoneContacts;
@@ -84,6 +99,8 @@ public SimpleGeofence(
     this.title = title;
     this.phoneDisplay = phoneDisplay;
     this.lastSent = lastSent;
+    this.isActive = true;
+    this.fenceType = fenceType.SCHEDULED;
 }
 public SimpleGeofence(String string) {
 	this.title = string;
@@ -97,6 +114,8 @@ public SimpleGeofence(String string) {
     this.emailPhone = "";
     this.phoneDisplay = "";
     this.lastSent = -1;
+    this.isActive = true;
+    this.fenceType = fenceType.SCHEDULED;
 }
 // Instance field getters
 public String getId() {

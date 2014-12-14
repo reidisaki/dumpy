@@ -1,7 +1,7 @@
 package com.yoneko.areyouthereyet.update;
 
 import java.util.List;
-import com.yoneko.areyouthereyet.update.debug.R;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -11,14 +11,19 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Switch;
 import android.widget.TextView;
 
+import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.SimpleGeofence;
 
 public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 	Context mContext;
 	int layoutResourceId;
 	List<SimpleGeofence> data = null;
+	Switch toggleSwitch;
 	public DrawerItemAdapter(Context context, int resource) {
 		super(context, resource);
 	}
@@ -42,11 +47,29 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		// object item based on the position
 		Log.i("Reid","data size: " + data.size() + " position: " + position);
 		final SimpleGeofence objectItem = data.get(position);
-
+		Log.i("Reid",objectItem.isActive() + " is active?" + " fenceType: " + objectItem.getFenceType().toString());
 		// get the TextView and then set the text (item name) and tag (item ID) values
 		TextView textViewItem = (TextView) convertView.findViewById(R.id.drawer_text);
 		textViewItem.setText(objectItem.getTitle() + " - " + (objectItem.getTransitionType() == 1 ? "enter" : "exit") ); // this could be 4 which is enter and exit
-
+		toggleSwitch = (Switch)convertView.findViewById(R.id.toggle_switch);
+		toggleSwitch.setChecked(false);
+		
+		if(objectItem.isActive()) {
+			toggleSwitch.setChecked(true);
+		}
+		
+		toggleSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked) {
+					objectItem.setActive(true);
+				} else {
+					objectItem.setActive(false);
+				}
+				data.set(position, objectItem);
+			}
+		});
 		final CheckBox checkbox = (CheckBox)convertView.findViewById(R.id.drawer_check_box);
 		checkbox.setChecked(objectItem.isChecked());
 		checkbox.setOnClickListener(new OnClickListener() {
@@ -56,7 +79,6 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 				{
 					v.setSelected(true);
 					objectItem.setChecked(true);
-//					objectItem.setTitle("THIS IS FUCKED UP");
 				} else {
 					v.setSelected(false);
 					objectItem.setChecked(false);
