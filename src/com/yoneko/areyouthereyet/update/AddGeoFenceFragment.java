@@ -44,14 +44,14 @@ import com.yoneko.models.SimpleGeofenceList;
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass. Activities that
  * contain this fragment must implement the
- * {@link AddGeoFenceFragment.onDialogDismissed} interface to handle
- * interaction events. Use the {@link AddGeoFenceFragment#newInstance} factory
- * method to create an instance of this fragment.
+ * {@link AddGeoFenceFragment.onDialogDismissed} interface to handle interaction
+ * events. Use the {@link AddGeoFenceFragment#newInstance} factory method to
+ * create an instance of this fragment.
  * 
  */
-public class AddGeoFenceFragment extends DialogFragment  {
+public class AddGeoFenceFragment extends DialogFragment {
 	Button mapButton;
-	EditText latEdit, lonEdit, radiusEdit,messageEdit,nicknameEdit;
+	EditText latEdit, lonEdit, radiusEdit, messageEdit, nicknameEdit;
 	AutoCompleteTextView emailEdit;
 	RadioGroup enter_exit;
 	TextView radius_text;
@@ -60,23 +60,24 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	boolean enter = true;
 	int radius = 150;
 	public String TAG = "Reid";
-	public final static int MAP_RESULT_CODE  = 99;
+	public final static int MAP_RESULT_CODE = 99;
 	private ArrayAdapter<String> adapter;
 
 	// Store contacts values in these arraylist
-	public static ArrayList<String> phoneValueArr = new ArrayList<String>(),nameValueArr = new ArrayList<String>();
+	public static ArrayList<String> phoneValueArr = new ArrayList<String>(),
+			nameValueArr = new ArrayList<String>();
 	List<PhoneContact> contacts;
-	EditText toNumber=null;
-	String toNumberValue="", emailOrPhone ="";
+	EditText toNumber = null;
+	String toNumberValue = "", emailOrPhone = "";
 
-	HashMap<String,PhoneContact> contactMap;
+	HashMap<String, PhoneContact> contactMap;
 	// TODO: Rename parameter arguments, choose names that match
 	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 	private static final String ARG_PARAM1 = "param1";
 	private static final String ARG_PARAM2 = "param2";
 	double latitude, longitude;
 	// TODO: Rename and change types of parameters
-	private String mParam1, title,mParam2;
+	private String mParam1, title, mParam2;
 
 	private onEditTextClicked mListener;
 	private SimpleGeofenceList cachedList;
@@ -119,133 +120,145 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	}
 
 	private static final String[] PROJECTION = new String[] {
-		ContactsContract.Contacts._ID,
-		ContactsContract.Contacts.DISPLAY_NAME,
-		ContactsContract.Contacts.HAS_PHONE_NUMBER,
-		ContactsContract.CommonDataKinds.Phone.NUMBER,
-		ContactsContract.CommonDataKinds.Phone.TYPE,
-		ContactsContract.CommonDataKinds.Phone.LABEL
-	};
+			ContactsContract.Contacts._ID,
+			ContactsContract.Contacts.DISPLAY_NAME,
+			ContactsContract.Contacts.HAS_PHONE_NUMBER,
+			ContactsContract.CommonDataKinds.Phone.NUMBER,
+			ContactsContract.CommonDataKinds.Phone.TYPE,
+			ContactsContract.CommonDataKinds.Phone.LABEL };
+
 	private void readContactData() {
 
 		try {
 
 			/*********** Reading Contacts Name And Number **********/
 
+			ContentResolver cr = getActivity().getContentResolver();
 
-			ContentResolver cr = getActivity()
-					.getContentResolver();
+			// Query to get contact name
+			Cursor cur = cr.query(
+					ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+					PROJECTION, null, null, null);
 
-
-			//Query to get contact name
-			Cursor cur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-					PROJECTION,
-					null,
-					null,
-					null);
-
-			// If data data found in contacts 
+			// If data data found in contacts
 			if (cur.getCount() > 0) {
 
 				Log.i("AutocompleteContacts", "Reading   contacts........");
 
-				//				//edit
-				//				final int contactIdIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
-				//		        final int displayNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-				//		        final int emailIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
-				//		        long contactId;
-				//		        String displayName, address;
-				//		        while (cursor.moveToNext()) {
-				//		            contactId = cursor.getLong(contactIdIndex);
-				//		            displayName = cursor.getString(displayNameIndex);
-				//		            address = cursor.getString(emailIndex);
-				//		            
-				//end edit
+				// //edit
+				// final int contactIdIndex =
+				// cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
+				// final int displayNameIndex =
+				// cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+				// final int emailIndex =
+				// cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+				// long contactId;
+				// String displayName, address;
+				// while (cursor.moveToNext()) {
+				// contactId = cursor.getLong(contactIdIndex);
+				// displayName = cursor.getString(displayNameIndex);
+				// address = cursor.getString(emailIndex);
+				//
+				// end edit
 				int contactId;
-				final int contactIdIndex = cur.getColumnIndex(ContactsContract.Contacts._ID);
-				final int displayNameIndex =cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-				final int phoneNumberIndex= cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-				final int phoneTypeIndex  = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
-				final int customLabelIndex = cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL);
-				final int hasPhoneNumberIndex = cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
+				final int contactIdIndex = cur
+						.getColumnIndex(ContactsContract.Contacts._ID);
+				final int displayNameIndex = cur
+						.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+				final int phoneNumberIndex = cur
+						.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+				final int phoneTypeIndex = cur
+						.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+				final int customLabelIndex = cur
+						.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL);
+				final int hasPhoneNumberIndex = cur
+						.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
 
-				while (cur.moveToNext()) 
-				{
+				while (cur.moveToNext()) {
 
-
-					//Check contact have phone number
-					if (cur.getLong(hasPhoneNumberIndex) > 0) 
-					{
+					// Check contact have phone number
+					if (cur.getLong(hasPhoneNumberIndex) > 0) {
 						int phonetype = cur.getInt(phoneTypeIndex);
-						String customLabel = cur.getString(customLabelIndex);	  
+						String customLabel = cur.getString(customLabelIndex);
 						String phoneNumbers = cur.getString(phoneNumberIndex);
-						String phoneLabel = (String) ContactsContract.CommonDataKinds.Phone.getTypeLabel(this.getResources(), phonetype, customLabel); 
-						String name  = cur.getString(displayNameIndex);
-						//							Log.e(TAG, "Phone Number: " + phoneNumbers + " Selected Phone Label: " + phoneLabel);
+						String phoneLabel = (String) ContactsContract.CommonDataKinds.Phone
+								.getTypeLabel(this.getResources(), phonetype,
+										customLabel);
+						String name = cur.getString(displayNameIndex);
+						// Log.e(TAG, "Phone Number: " + phoneNumbers +
+						// " Selected Phone Label: " + phoneLabel);
 
-						// Sometimes get multiple data 
+						// Sometimes get multiple data
 						// Get Phone number
-						String phoneNumber =""+cur.getString(phoneNumberIndex);
+						String phoneNumber = ""
+								+ cur.getString(phoneNumberIndex);
 
-						phoneNumber = phoneNumber.replace("(","").replace(")","").replace("-", "").replace(".","").replace(" ","").toString();
+						phoneNumber = phoneNumber.replace("(", "")
+								.replace(")", "").replace("-", "")
+								.replace(".", "").replace(" ", "").toString();
 						// Add contacts names to adapter
-						//						adapter.add(phoneNumber);
-						adapter.add(name + "("+phoneLabel+")");
-						adapter.add(phoneNumber + "|" + name + "("+phoneLabel+")");
+						// adapter.add(phoneNumber);
+						adapter.add(name + "(" + phoneLabel + ")");
+						adapter.add(phoneNumber + "|" + name + "(" + phoneLabel
+								+ ")");
 						// Add ArrayList names to adapter
 						phoneValueArr.add(phoneNumber);
-						nameValueArr.add(name + "("+phoneLabel+")");
+						nameValueArr.add(name + "(" + phoneLabel + ")");
 					} // End if
 
-				}  // End while loop
+				} // End while loop
 
 			} // End Cursor value check
 			cur.close();
 
-
 		} catch (Exception e) {
-			Log.i("AutocompleteContacts","Exception : "+ e);
+			Log.i("AutocompleteContacts", "Exception : " + e);
 		}
-
 
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		ScrollView addGeoFenceView = (ScrollView)inflater.inflate(R.layout.fragment_add_geo_fence, container,false);
-		//		getDialog().setTitle("Add Geofence");
-		emailEdit = (AutoCompleteTextView)addGeoFenceView.findViewById(R.id.email_edit);
-		radius_text = (TextView)addGeoFenceView.findViewById(R.id.radius_text);
-		enter_exit = (RadioGroup)addGeoFenceView.findViewById(R.id.enter_exit);
-		messageEdit = (EditText)addGeoFenceView.findViewById(R.id.message_edit);
-		nicknameEdit= (EditText)addGeoFenceView.findViewById(R.id.nickname_edit);
-		radius_seek = (SeekBar)addGeoFenceView.findViewById(R.id.radius_seekBar);
-		contact_button_layout = (LinearLayout)addGeoFenceView.findViewById(R.id.contact_button_layout);
+		ScrollView addGeoFenceView = (ScrollView) inflater.inflate(
+				R.layout.fragment_add_geo_fence, container, false);
+		// getDialog().setTitle("Add Geofence");
+		emailEdit = (AutoCompleteTextView) addGeoFenceView
+				.findViewById(R.id.email_edit);
+		radius_text = (TextView) addGeoFenceView.findViewById(R.id.radius_text);
+		enter_exit = (RadioGroup) addGeoFenceView.findViewById(R.id.enter_exit);
+		messageEdit = (EditText) addGeoFenceView
+				.findViewById(R.id.message_edit);
+		nicknameEdit = (EditText) addGeoFenceView
+				.findViewById(R.id.nickname_edit);
+		radius_seek = (SeekBar) addGeoFenceView
+				.findViewById(R.id.radius_seekBar);
+		contact_button_layout = (LinearLayout) addGeoFenceView
+				.findViewById(R.id.contact_button_layout);
 
-		enter_exit.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+		enter_exit
+				.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				switch(checkedId) {
-				case R.id.radio_enter:
-					enter = true;
-					break;
-				case R.id.radio_exit:
-					enter = false;
-					break;
+					@Override
+					public void onCheckedChanged(RadioGroup group, int checkedId) {
+						switch (checkedId) {
+						case R.id.radio_enter:
+							enter = true;
+							break;
+						case R.id.radio_exit:
+							enter = false;
+							break;
 
-				}
-			}
-		});
+						}
+					}
+				});
 		OnFocusChangeListener expandPanelListener = new OnFocusChangeListener() {
 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
 
-				if(hasFocus)
-				{
-					Log.i("Reid","View has focus");
+				if (hasFocus) {
+					Log.i("Reid", "View has focus");
 					mListener.editTextClicked();
 
 				}
@@ -256,23 +269,24 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		emailEdit.setOnFocusChangeListener(expandPanelListener);
 
 		contacts = new ArrayList<PhoneContact>();
-		contactMap = new HashMap<String,PhoneContact>();
-		//Create adapter    
-		adapter = new ArrayAdapter<String>
-		(getActivity(), R.layout.simple_contact_dropdown, new ArrayList<String>());
+		contactMap = new HashMap<String, PhoneContact>();
+		// Create adapter
+		adapter = new ArrayAdapter<String>(getActivity(),
+				R.layout.simple_contact_dropdown, new ArrayList<String>());
 		emailEdit.setThreshold(1);
-		//Set adapter to AutoCompleteTextView
+		// Set adapter to AutoCompleteTextView
 		emailEdit.setAdapter(adapter);
 		emailEdit.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
 				int result = actionId & EditorInfo.IME_MASK_ACTION;
-				switch(result) {
+				switch (result) {
 				case EditorInfo.IME_ACTION_DONE:
 					String phoneNumber = v.getText().toString();
 					phoneNumber = phoneNumber.replaceAll("[*a-zA-Z]", "");
-					addPhoneContactButton(phoneNumber,phoneNumber);
+					addPhoneContactButton(phoneNumber, phoneNumber);
 					break;
 				case EditorInfo.IME_ACTION_NEXT:
 					// next stuff
@@ -284,89 +298,97 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 		emailEdit.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-			public void onItemClick(AdapterView<?> adapterView, View view, int index, long arg3) {
+			public void onItemClick(AdapterView<?> adapterView, View view,
+					int index, long arg3) {
 				// Get Array index value for selected name
 				String s = adapterView.getItemAtPosition(index).toString();
-				Log.i("Reid","OnItemClick string: " + s);
+				Log.i("Reid", "OnItemClick string: " + s);
 
-				//check if this is a phone number search or a name search
-				if(!Character.isDigit(s.charAt(0))) {
-					s = s.substring(0,s.lastIndexOf(")")+1);
+				// check if this is a phone number search or a name search
+				if (!Character.isDigit(s.charAt(0))) {
+					s = s.substring(0, s.lastIndexOf(")") + 1);
 				} else {
-					s = s.substring(s.lastIndexOf("|") +1,s.length());
+					s = s.substring(s.lastIndexOf("|") + 1, s.length());
 				}
 				int i = nameValueArr.indexOf(s);
 				// Get Phone Number
 				emailOrPhone = phoneValueArr.get(i);
 
-				Log.i("Reid","phone number: " + emailOrPhone);
+				Log.i("Reid", "phone number: " + emailOrPhone);
 				String outputString = nameValueArr.get(i).toString();
-				//					String addComma = emailEdit.getText().toString().equals("") ? "" : ",";
-				//					toPhone = emailEdit.getT + outputString; 
+				// String addComma = emailEdit.getText().toString().equals("") ?
+				// "" : ",";
+				// toPhone = emailEdit.getT + outputString;
 
-				//now we will add a button the layout to show new people
-				addPhoneContactButton(emailOrPhone,outputString);
-				//				emailEdit.setText(outputString);
+				// now we will add a button the layout to show new people
+				addPhoneContactButton(emailOrPhone, outputString);
+				// emailEdit.setText(outputString);
 
 			}
 		});
-		//        emailEdit.setOnItemSelectedListener(this);
-		//        emailEdit.setOnItemClickListener(this);
+		// emailEdit.setOnItemSelectedListener(this);
+		// emailEdit.setOnItemClickListener(this);
 
 		// Read contact data and add data to ArrayAdapter
 		// ArrayAdapter used by AutoCompleteTextView
 		readContactData();
-		((Button)addGeoFenceView.findViewById(R.id.save_button)).setOnClickListener(new OnClickListener() {
+		((Button) addGeoFenceView.findViewById(R.id.save_button))
+				.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				saveGeoFence(v);
-			}
-		});
+					@Override
+					public void onClick(View v) {
+						saveGeoFence(v);
+					}
+				});
 
-		//		Log.i("Reid","is add geofence view null " + String.valueOf(addGeoFenceView == null));
-		//		addGeoFenceView.setOnClickListener(new View.OnClickListener() {
-		//			
-		//			@Override
-		//			public void onClick(View v) {
-		//				Log.i("Reid","view clicked");
-		//				switch (v.getId()) {
-		//				case R.id.map_button:
-		//					mapButtonClicked(v);
-		//					break;
-		//				case R.id.save_button:
-		//					saveGeoFence(v);
-		//					break;
+		// Log.i("Reid","is add geofence view null " +
+		// String.valueOf(addGeoFenceView == null));
+		// addGeoFenceView.setOnClickListener(new View.OnClickListener() {
 		//
-		//				default:
-		//					Log.i("Reid", "Unknown: " + v.getId());
-		//					break;
-		//				}
-		//			}
-		//		});
+		// @Override
+		// public void onClick(View v) {
+		// Log.i("Reid","view clicked");
+		// switch (v.getId()) {
+		// case R.id.map_button:
+		// mapButtonClicked(v);
+		// break;
+		// case R.id.save_button:
+		// saveGeoFence(v);
+		// break;
+		//
+		// default:
+		// Log.i("Reid", "Unknown: " + v.getId());
+		// break;
+		// }
+		// }
+		// });
 		return addGeoFenceView;
 	}
-	protected void addPhoneContactButton(String phoneNumber, String displayName) {
-		//strip out all alpha characters in the number
 
-		if(!phoneNumber.trim().equals("")) {
-			PhoneContact phoneContact = new PhoneContact(displayName,phoneNumber,displayName);
+	protected void addPhoneContactButton(String phoneNumber, String displayName) {
+		// strip out all alpha characters in the number
+
+		if (!phoneNumber.trim().equals("")) {
+			PhoneContact phoneContact = new PhoneContact(displayName,
+					phoneNumber, displayName);
 			addContactAsButtonToLayout(displayName, phoneContact);
 		}
-		emailEdit.setText("");		
+		emailEdit.setText("");
 	}
 
-	protected void addContactAsButtonToLayout(String formattedName,PhoneContact phone) {
-		if(contactMap.get(phone.getNumber()) == null) {
+	protected void addContactAsButtonToLayout(String formattedName,
+			PhoneContact phone) {
+		if (contactMap.get(phone.getNumber()) == null) {
 			Button b = new Button(getActivity());
-			
-			
-			b.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.clear), null);
-//			b.setBackground(getResources().getDrawable(R.id.clearTextImage));
-			
+
+			b.setCompoundDrawablesWithIntrinsicBounds(null, null,
+					getResources().getDrawable(R.drawable.clear), null);
+			// b.setBackground(getResources().getDrawable(R.id.clearTextImage));
+
 			b.setText(formattedName);
 			b.setTag(phone.getNumber());
-			b.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+			b.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+					LayoutParams.WRAP_CONTENT));
 			contactMap.put(phone.getNumber(), phone);
 			b.setOnClickListener(new OnClickListener() {
 
@@ -376,16 +398,18 @@ public class AddGeoFenceFragment extends DialogFragment  {
 					contactMap.remove(v.getTag());
 				}
 			});
-			contact_button_layout.addView(b,0);
+			contact_button_layout.addView(b, 0);
 		}
 	}
 
 	protected SimpleGeofence getItemInGeoFenceListByLatLng(LatLng _latLng) {
 		SimpleGeofence returnItem = null;
-		//		SimpleGeofenceList cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+		// SimpleGeofenceList cachedList =
+		// MainActivity.getGeoFenceFromCache(getActivity());
 
-		for( SimpleGeofence i :  cachedList.getGeoFences()) {
-			if(i.getLatitude() == _latLng.latitude && i.getLongitude() == _latLng.longitude) {
+		for (SimpleGeofence i : cachedList.getGeoFences()) {
+			if (i.getLatitude() == _latLng.latitude
+					&& i.getLongitude() == _latLng.longitude) {
 				returnItem = i;
 				break;
 			}
@@ -395,133 +419,152 @@ public class AddGeoFenceFragment extends DialogFragment  {
 
 	protected SimpleGeofence getItemInGeoFenceList(SimpleGeofence item) {
 		SimpleGeofence returnItem = null;
-		//		cachedList = MainActivity.getGeoFenceFromCache(getActivity());
-		for( int i =0; i < cachedList.getGeoFences().size(); i++) {
+		// cachedList = MainActivity.getGeoFenceFromCache(getActivity());
+		for (int i = 0; i < cachedList.getGeoFences().size(); i++) {
 			SimpleGeofence currentGeofence = cachedList.getGeoFences().get(i);
-			if(item.getLatitude() == currentGeofence.getLatitude() && item.getLongitude() == currentGeofence.getLongitude() && item.getTitle().equals(currentGeofence.getTitle())) {
+			if (item.getLatitude() == currentGeofence.getLatitude()
+					&& item.getLongitude() == currentGeofence.getLongitude()
+					&& item.getTitle().equals(currentGeofence.getTitle())) {
 				returnItem = currentGeofence;
-				//exists update the item
-				if(cachedList.getGeoFences() != null) {
-					//Toast.makeText(getActivity(), "updating existingItem" ,Toast.LENGTH_SHORT).show();
+				// exists update the item
+				if (cachedList.getGeoFences() != null) {
+					// Toast.makeText(getActivity(), "updating existingItem"
+					// ,Toast.LENGTH_SHORT).show();
 					cachedList.getGeoFences().set(i, item);
-					//					MainActivity.storeJSON(cachedList, getActivity());
-				};
+					// MainActivity.storeJSON(cachedList, getActivity());
+				}
+				;
 				break;
 			}
 		}
 		return returnItem;
 	}
-	//need to update item in the list and save it.
-	//populate the item if there is a simpleGeoFence.
+
+	// need to update item in the list and save it.
+	// populate the item if there is a simpleGeoFence.
 
 	protected void saveGeoFence(View v) {
-		//save geoFence to mainActivity save json method
+		// save geoFence to mainActivity save json method
 
-		boolean isUpdate = false, errors = false;;
+		boolean isUpdate = false, errors = false;
+		;
 
 		List<SimpleGeofence> list = new ArrayList<SimpleGeofence>();
-		String geoFenceId,message,email,nickname,displayPhone, errorMessage = "";
+		String geoFenceId, message, email, nickname, displayPhone, errorMessage = "";
 
 		float r;
 		long expiration;
 		int transition;
 
 		String phoneEditTextValue = emailEdit.getText().toString();
-		if(phoneEditTextValue.length() > 0 && Character.isDigit(phoneEditTextValue.charAt(0))) {
-			addPhoneContactButton(phoneEditTextValue,phoneEditTextValue);
+		if (phoneEditTextValue.length() > 0
+				&& Character.isDigit(phoneEditTextValue.charAt(0))) {
+			addPhoneContactButton(phoneEditTextValue, phoneEditTextValue);
 		}
 
 		r = radius_seek.getProgress();
-		Log.i("Reid", "radius in saveGeoFence: "  + r);
+		Log.i("Reid", "radius in saveGeoFence: " + r);
 		expiration = Geofence.NEVER_EXPIRE;
-		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER : Geofence.GEOFENCE_TRANSITION_EXIT;
+		transition = enter ? Geofence.GEOFENCE_TRANSITION_ENTER
+				: Geofence.GEOFENCE_TRANSITION_EXIT;
 		Log.i("Reid", "Transition type: " + transition);
-		message =  messageEdit.getText().toString();
+		message = messageEdit.getText().toString();
 		nickname = nicknameEdit.getText().toString();
-		if(nickname.equals("")) {
-			nickname = ((MapActivity)getActivity()).getNickName();
+		if (nickname.equals("")) {
+			nickname = ((MapActivity) getActivity()).getNickName();
 		}
 		displayPhone = emailEdit.getText().toString();
-		Log.i("Reid","Nickname is: " + nickname);
-		LatLng latLng = ((MapActivity)getActivity()).getLatLng();
+		Log.i("Reid", "Nickname is: " + nickname);
+		LatLng latLng = ((MapActivity) getActivity()).getLatLng();
 
-		if(!emailEdit.getText().toString().contains("(")) {
+		if (!emailEdit.getText().toString().contains("(")) {
 			emailOrPhone = emailEdit.getText().toString();
 		}
-		if(latLng == null) {
-			Toast.makeText(getActivity(), "Longitude and latitude need to be real values :( " ,Toast.LENGTH_SHORT).show();
+		if (latLng == null) {
+			Toast.makeText(getActivity(),
+					"Longitude and latitude need to be real values :( ",
+					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		SimpleGeofence geofence = new SimpleGeofence(MapActivity.createGeoFenceId(nickname,latLng.latitude,latLng.longitude), latLng.latitude, latLng.longitude, (r+MapActivity.MIN_RADIUS)*radiusPercentage , expiration, transition, message, emailOrPhone, nickname,displayPhone,-1);
+		SimpleGeofence geofence = new SimpleGeofence(
+				MapActivity.createGeoFenceId(nickname, latLng.latitude,
+						latLng.longitude), latLng.latitude, latLng.longitude,
+				(r + MapActivity.MIN_RADIUS) * radiusPercentage, expiration,
+				transition, message, emailOrPhone, nickname, displayPhone, -1);
 		cachedList = MapActivity.getGeoFenceFromCache(getActivity());
-		//geoFence replaces oldfence in the cache but you might want to handle stuff with the old item ie: update drawers and lists in the activity
+		// geoFence replaces oldfence in the cache but you might want to handle
+		// stuff with the old item ie: update drawers and lists in the activity
 		contacts.clear();
 		contacts.addAll(contactMap.values());
-		Log.i("Reid","Saving contacts size: " + contacts.size());
+		Log.i("Reid", "Saving contacts size: " + contacts.size());
 		geofence.setPhoneContacts(contacts);
 		SimpleGeofence oldfence = getItemInGeoFenceList(geofence);
 
-		//Adding a new item
-		if(oldfence == null) {
-			//Toast.makeText(getActivity(), "adding new Item" ,Toast.LENGTH_SHORT).show();
+		// Adding a new item
+		if (oldfence == null) {
+			// Toast.makeText(getActivity(), "adding new Item"
+			// ,Toast.LENGTH_SHORT).show();
 			cachedList.getGeoFences().add(geofence);
 		} else {
 			isUpdate = true;
 
 		}
 
-		//update cache regardless if this is an update or a new item
+		// update cache regardless if this is an update or a new item
 		MapActivity.storeJSON(cachedList, getActivity());
-		if(contacts.size() == 0) {
-			errors =true;
-			errorMessage ="Please select at least one contact\n";
+		if (contacts.size() == 0) {
+			errors = true;
+			errorMessage = "Please select at least one contact\n";
 		}
-		if(geofence.getMessage().equals("")){
-			errors= true;
+		if (geofence.getMessage().equals("")) {
+			errors = true;
 			errorMessage += "message can't be blank";
 		}
-		if(!errors) {
-			//Toast.makeText(getActivity(), "Size of cache : "+  MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size() + " Number saved:  " + geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
-			mListener.onItemSaved(oldfence, geofence,cachedList.getGeoFences(), isUpdate);
+		if (!errors) {
+			// Toast.makeText(getActivity(), "Size of cache : "+
+			// MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size()
+			// + " Number saved:  " +
+			// geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
+			mListener.onItemSaved(oldfence, geofence,
+					cachedList.getGeoFences(), isUpdate);
 		} else {
-			Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT)
+					.show();
 		}
-		//		mListener.dialogDismissed();
-
+		// mListener.dialogDismissed();
 
 	}
-
-
 
 	// TODO: Rename method, update argument and hook method into UI event
 	public void onButtonPressed(Uri uri) {
 		if (mListener != null) {
-			//			mListener.dialogDismissed();
+			// mListener.dialogDismissed();
 		}
 	}
 
-	public void mapButtonClicked(View v){
-		Log.i("Reid","map button clicked startactivity for result and populate the form.");
-		Intent mapIntent= new Intent(getActivity(), MapActivity.class);
+	public void mapButtonClicked(View v) {
+		Log.i("Reid",
+				"map button clicked startactivity for result and populate the form.");
+		Intent mapIntent = new Intent(getActivity(), MapActivity.class);
 		startActivityForResult(mapIntent, MAP_RESULT_CODE);
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch(resultCode) {
+		switch (resultCode) {
 		case MAP_RESULT_CODE:
 			latitude = data.getDoubleExtra("lat", 0.0);
 			longitude = data.getDoubleExtra("lon", 0.0);
-			//			latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
-			//			lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
+			// latEdit.setText(String.valueOf(data.getDoubleExtra("lat", 0.0)));
+			// lonEdit.setText(String.valueOf(data.getDoubleExtra("lon", 0.0)));
 			radius = data.getIntExtra("radius", 150);
 			radius_text.setText("Radius " + radius + "meters");
 			break;
 		}
-		Log.i("Reid","onActivityForResult");
+		Log.i("Reid", "onActivityForResult");
 	}
 
-	//this connects the interface to the activity and fragment.
+	// this connects the interface to the activity and fragment.
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -533,9 +576,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 		}
 	}
 
-	public void onRadioButtonClicked (View v) {
+	public void onRadioButtonClicked(View v) {
 
 	}
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -553,7 +597,10 @@ public class AddGeoFenceFragment extends DialogFragment  {
 	 */
 	public interface onEditTextClicked {
 		public void editTextClicked();
-		public void onItemSaved(SimpleGeofence oldFence, SimpleGeofence newFence,List<SimpleGeofence> newList,  boolean isUpdate);
+
+		public void onItemSaved(SimpleGeofence oldFence,
+				SimpleGeofence newFence, List<SimpleGeofence> newList,
+				boolean isUpdate);
 	}
 
 }

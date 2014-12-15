@@ -28,7 +28,7 @@ public class SimpleGeofence {
 	public void setFenceType(fencetype fenceType) {
 		this.fenceType = fenceType;
 	}
-	public fencetype fenceType = fencetype.RECURRING; //default to recurring
+	public fencetype fenceType = fencetype.ONE_TIME; //default to recurring
     public enum fencetype {ONE_TIME, RECURRING, SCHEDULED};
     private List<PhoneContact> phoneContacts; //send to multiple contacts if needed
     public List<PhoneContact> getPhoneContacts() {

@@ -851,7 +851,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					.radius(_radiusChanged)   //set radius in meters  make this configurable
 					.strokeColor(Color.MAGENTA)
 					.strokeWidth(5);
-					addGeofenceFragment.radius_text.setText("Radius  " + _radiusChanged + "m");
+					//TODO: disabling this for now. 
+//					addGeofenceFragment.radius_text.setText("Radius  " + _radiusChanged + "m");
 					if(mMap != null && circleOptions != null) {
 						newCircle = mMap.addCircle(circleOptions);
 					}
@@ -1198,7 +1199,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				}
 				addGeofenceFragment.nicknameEdit.setText(title);
 				addGeofenceFragment.radius_seek.setProgress(MIN_RADIUS);
-				addGeofenceFragment.radius_text.setText("Radius " + (int)MIN_RADIUS + "m");
+//				addGeofenceFragment.radius_text.setText("Radius " + (int)MIN_RADIUS + "m");
 			}
 
 		} catch (IOException e) {
@@ -1230,7 +1231,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_exit);
 			addGeofenceFragment.radius_seek.setProgress((int)Math.ceil(radius-MIN_RADIUS));
-			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
+//			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
 
 		} 
 		else {

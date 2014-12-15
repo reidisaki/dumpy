@@ -10,7 +10,7 @@
     <string name="button_find">find</string>
     <string name="lat">Latitude</string>
     <string name="lon">Longitude</string>
-    <string name="radius">Radius 100m</string>
+    <string name="radius">Size</string>
     <string name="enter">Enter</string>
     <string name="exit">Exit</string>
     <string name="email_phone">Phone</string>
