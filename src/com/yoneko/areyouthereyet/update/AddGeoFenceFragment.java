@@ -239,8 +239,8 @@ public class AddGeoFenceFragment extends DialogFragment {
 				.findViewById(R.id.radius_seekBar);
 		contact_button_layout = (LinearLayout) addGeoFenceView
 				.findViewById(R.id.contact_button_layout);
-		toggle_switch = (Switch)addGeoFenceView.findViewById(R.id.toggle_switch);
-		toggle_switch.setChecked(true);
+//		toggle_switch = (Switch)addGeoFenceView.findViewById(R.id.toggle_switch);
+//		toggle_switch.setChecked(true);
 		enter_exit
 				.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -513,7 +513,7 @@ public class AddGeoFenceFragment extends DialogFragment {
 						latLng.longitude), latLng.latitude, latLng.longitude,
 				(r + MapActivity.MIN_RADIUS) * radiusPercentage, expiration,
 				transition, message, emailOrPhone, nickname, displayPhone, -1, (one_time ? fencetype.ONE_TIME : fencetype.RECURRING));
-		geofence.setActive(toggle_switch.isChecked());
+//		geofence.setActive(toggle_switch.isChecked());
 		cachedList = MapActivity.getGeoFenceFromCache(getActivity());
 		// geoFence replaces oldfence in the cache but you might want to handle
 		// stuff with the old item ie: update drawers and lists in the activity

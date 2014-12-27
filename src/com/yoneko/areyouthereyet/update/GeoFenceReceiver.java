@@ -1,5 +1,4 @@
 package com.yoneko.areyouthereyet.update;
-import com.yoneko.areyouthereyet.update.debug.R;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import android.widget.Toast;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
+import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofence.fencetype;
@@ -42,10 +42,17 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 	//Crystals - public static String SMS_NUMBER = "3104647957";
 	public static String SMS_MESSAGE_TEXT = "Hi Baby, I made it home safely! ";// + String.valueOf(MainActivity.RADIUS_METER);
 	public static String SMS_MESSAGE_OUT_TEXT = "Hi Baby, I'm leaving my house now!!!! ";// + String.valueOf(MainActivity.RADIUS_METER);
+	public static onGeofenceTriggeredListener mListener;
+	public interface onGeofenceTriggeredListener {
+		public void updateLeftDrawer(List<SimpleGeofence> simpleGeoFenceList);
+	}
+	public static void setListener(onGeofenceTriggeredListener listener) {
+		mListener = listener;
+	}
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		this.context = context;
-
+		
 		Log.i("yoneko","in on Receive");
 		//start on boot
 		Log.i("Reid", "device restart: " + intent.getAction());
@@ -130,10 +137,17 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				List <Geofence> triggerList = //new ArrayList<Geofence>(); 
 						LocationClient.getTriggeringGeofences(intent);
 
+
 				String[] triggerIds = new String[triggerList.size()];
 				Log.i("Reid","all good trying to send message");
 				geoFenceList = MapActivity.getGeoFenceFromCache(context);
 				simpleList = geoFenceList.getGeoFences();
+//				for(Geofence gf : triggerList) {
+//					Log.i("Reid","geofence id:" + gf.getRequestId());
+//				}
+//				for(SimpleGeofence gf : simpleList) {
+//					Log.i("Reid","SimpeGeofence id:" + gf.getId());
+//				}
 				String debugMessage = "acc: " + location.getAccuracy() + "lat: " + location.getLatitude() + " lon: " 
 				+ location.getLongitude() + "  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
 				
@@ -154,6 +168,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 								//if the message is a one time send then set it to inactive after you've sent it
 								if(g.getFenceType() == fencetype.ONE_TIME) {
 									g.setActive(false);
+									Log.i("Reid","Setting geofence inactive:"  + g.getId());
 								}
 								simpleList.set(i, g);
 							}
@@ -165,7 +180,9 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 //						sendSms("3233098967",g.getMessage() + realCoordinates + debugMessage, false);	
 //					sendSms("4152601156",g.getMessage() + debugMessage, false);
 					}
-
+					mListener.updateLeftDrawer(simpleList);
+					MapActivity.storeJSON(new SimpleGeofenceList(simpleList), context);
+					
 					// Store the Id of each geofence
 //					Old way of hard coded sending to Crystal
 //					if(triggerList.get(i).getRequestId().equals("1")) {
@@ -251,6 +268,9 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		for(SimpleGeofence geo : list) {
 			geo.setShouldSend(false);
 			long currentTime = new Date().getTime();
+			Log.i("Reid","simpleGeoFenceId: " + geo.getId());
+			Log.i("Reid","geofenceId: " + g.getRequestId());
+			
 			if(geo.getId().equals(g.getRequestId())) {
 				Log.i("Reid","Found geofence line 246");
 				//if the dateLastSent is -1 then you set it to current date

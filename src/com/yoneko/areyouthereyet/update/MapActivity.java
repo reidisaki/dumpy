@@ -109,6 +109,7 @@ import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.GeoFenceReceiver.onGeofenceTriggeredListener;
 import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
@@ -118,7 +119,7 @@ import com.yoneko.models.SimpleGeofenceList;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
 onEditTextClicked,ConnectionCallbacks, OnConnectionFailedListener, OnMyLocationChangeListener, OnMyLocationButtonClickListener,
-OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback, OnItemClickListener, OnMapClickListener {
+OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener, OnMapLoadedCallback, OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
 	private static final long LOCATION_UPDATE_INTERVAL = 1;
@@ -204,6 +205,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	    errorParams.put("ErrorCode", "This is just a test"); 
         FlurryAgent.logEvent("teting error capture", errorParams);
 		 */
+		GeoFenceReceiver.setListener(this);
 		Log.i("Reid1", "movetoback is null? " + String.valueOf(getIntent().getExtras() == null));
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 
@@ -452,29 +454,29 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		mDrawerLayout.setDrawerListener(new DrawerListener() {
-			
+
 			@Override
 			public void onDrawerStateChanged(int arg0) {
 			}
 			@Override
 			public void onDrawerSlide(View arg0, float arg1) {
 			}
-			
+
 			@Override
 			public void onDrawerOpened(View arg0) {
 			}
-			
+
 			@Override
 			public void onDrawerClosed(View arg0) {
 				//at this point save the geofence stuff if things have been modified
 				if(isDirty){
 					//save the modified geoFences here.
-					SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerAdapter.data);
+					SimpleGeofenceList mSimpleGeofenceList = new SimpleGeofenceList(drawerStringList);
 					storeJSON(mSimpleGeofenceList, getApplicationContext());
-					drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, drawerAdapter.data);
+					drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, drawerStringList);
 					mDrawerList.setAdapter(drawerAdapter);
 					drawerAdapter.notifyDataSetChanged();
-					
+
 				}
 				isDirty = false;
 			}
@@ -486,7 +488,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
 				getActionBar().setTitle("are you there yet closed");
-				
+
 				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 
@@ -503,15 +505,15 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View view, int position,
 				long arg3) {
-            if(position > 0) {
-                String selectedItemTitle = ((TextView) (view).findViewById(R.id.drawer_text)).getText().toString();
-                int index = indexOfItemInGeofenceList(selectedItemTitle.replace(" - enter", "").replace(" - exit", ""));
-                SimpleGeofence item = mSimpleGeoFenceList.get(index);
-                Log.i("Reid", "477 contact size: " + item.getPhoneContacts().get(0).getDisplayName());
-                latLng = new LatLng(item.getLatitude(),
-                        item.getLongitude());
-                createRadiusCircle(latLng, item);
-            }
+			if(position > 0) {
+				String selectedItemTitle = ((TextView) (view).findViewById(R.id.drawer_text)).getText().toString();
+				int index = indexOfItemInGeofenceList(selectedItemTitle.replace(" - enter", "").replace(" - exit", ""));
+				SimpleGeofence item = mSimpleGeoFenceList.get(index);
+				Log.i("Reid", "477 contact size: " + item.getPhoneContacts().get(0).getDisplayName());
+				latLng = new LatLng(item.getLatitude(),
+						item.getLongitude());
+				createRadiusCircle(latLng, item);
+			}
 			//check the View if they clicked hte text item or if they clicked the X icon.
 			mDrawerLayout.closeDrawers();
 		}
@@ -693,7 +695,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						int drawerStringListSize =drawerStringList.size() -1;
 						Log.i("Reid", "size before: " + drawerStringListSize);
 						for(int i= drawerStringListSize; i >= 0; i--){
-//							o("i IS: " + i);
+							//							o("i IS: " + i);
 							SimpleGeofence fence = drawerStringList.get(i);//((SimpleGeofence)drawerAdapter.getItem(i));
 							Log.i("Reid", fence.getTitle() + " is " + (fence.isChecked() ? "checked": "not checked"));
 							if(fence.isChecked()) {
@@ -853,7 +855,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 					.strokeColor(Color.MAGENTA)
 					.strokeWidth(5);
 					//TODO: disabling this for now. 
-//					addGeofenceFragment.radius_text.setText("Radius  " + _radiusChanged + "m");
+					//					addGeofenceFragment.radius_text.setText("Radius  " + _radiusChanged + "m");
 					if(mMap != null && circleOptions != null) {
 						newCircle = mMap.addCircle(circleOptions);
 					}
@@ -1200,7 +1202,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				}
 				addGeofenceFragment.nicknameEdit.setText(title);
 				addGeofenceFragment.radius_seek.setProgress(MIN_RADIUS);
-//				addGeofenceFragment.radius_text.setText("Radius " + (int)MIN_RADIUS + "m");
+				//				addGeofenceFragment.radius_text.setText("Radius " + (int)MIN_RADIUS + "m");
 			}
 
 		} catch (IOException e) {
@@ -1234,8 +1236,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			Log.i("test",fence.getFenceType().toString());
 			addGeofenceFragment.fence_type.check(fence.getFenceType() == fencetype.ONE_TIME ? R.id.radio_one_time : R.id.radio_reoccuring);
 			addGeofenceFragment.radius_seek.setProgress((int)Math.ceil(radius-MIN_RADIUS));
-			addGeofenceFragment.toggle_switch.setChecked(fence.isActive());
-//			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
+			//			addGeofenceFragment.toggle_switch.setChecked(fence.isActive());
+			//			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
 
 		} 
 		else {
@@ -1272,14 +1274,14 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			});
 			Log.i("Reid","adding button : " + p.getDisplayName());
 			addGeofenceFragment.contact_button_layout.addView(b,0);
-			
+
 		}
 		//		addGeofenceFragment.contacts.addAll(addGeofenceFragment.contactMap.values());
 
 	}
 	private void clearContacts() {
 		addGeofenceFragment.contactMap.clear();
-//		addGeofenceFragment.contacts.clear();
+		//		addGeofenceFragment.contacts.clear();
 		//remove all views except the autoCompleteTextView
 		if(addGeofenceFragment.contact_button_layout.getChildCount() > 1) {
 			addGeofenceFragment.contact_button_layout.removeViews(0, addGeofenceFragment.contact_button_layout.getChildCount() -1);
@@ -1501,6 +1503,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 				}
 			}
 		} else {
+			Log.i("Reid","adding new item not editing? " + isUpdate);
 			drawerStringList.add(newItem);
 		}
 		//		mDrawerList.setItemChecked(drawerStringList.indexOf(newItem), true);
@@ -1515,6 +1518,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		mSimpleGeoFenceList = newList;//getGeoFenceFromCache(getApplicationContext()).getGeoFences();
 		//		drawerStringList.remove(drawerStringList.size()-2);
 		drawerAdapter.data = newList;
+		drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, newList);
+		mDrawerList.setAdapter(drawerAdapter);
 		drawerAdapter.notifyDataSetChanged();
 
 		addGeofences();
@@ -1548,6 +1553,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		//clear out the stuff first
 		SharedPreferences sp = context.getSharedPreferences(GEO_FENCES, MODE_PRIVATE);
 		SharedPreferences.Editor spe = sp.edit();
+		spe.clear();
 		Gson gson = new Gson();
 		String jsonString = gson.toJson(list);
 		spe.putString(GEO_FENCE_KEY_LIST, jsonString);
@@ -2077,5 +2083,11 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	public static String createGeoFenceId(String nickname, double lat, double lon) {
 		return nickname + "|" + lat + "|" + lon;
+	}
+	@Override
+	public void updateLeftDrawer(List<SimpleGeofence> geoFenceList) {
+		drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, geoFenceList);
+		mDrawerList.setAdapter(drawerAdapter);
+		drawerAdapter.notifyDataSetChanged();
 	}
 }

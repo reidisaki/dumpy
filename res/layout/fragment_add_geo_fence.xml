@@ -26,7 +26,7 @@
             android:orientation="horizontal"
             android:paddingTop="10dip" >
 
-            <Switch
+<!--             <Switch
                 android:id="@+id/toggle_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
                 android:paddingRight="1dip"
                 android:switchMinWidth="56dp"
                 android:textOff="off"
-                android:textOn="on" />
+                android:textOn="on" /> -->
 
              <RadioGroup
                 android:id="@+id/fence_type_radiogroup"
