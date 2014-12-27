@@ -30,6 +30,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofence.fencetype;
 import com.yoneko.models.SimpleGeofenceList;
 
 /**
@@ -57,7 +59,8 @@ public class AddGeoFenceFragment extends DialogFragment {
 	TextView radius_text;
 	SeekBar radius_seek;
 	LinearLayout contact_button_layout;
-	boolean enter = true;
+	Switch toggle_switch;
+	boolean enter = true, one_time = true;
 	int radius = 150;
 	public String TAG = "Reid";
 	public final static int MAP_RESULT_CODE = 99;
@@ -82,6 +85,7 @@ public class AddGeoFenceFragment extends DialogFragment {
 	private onEditTextClicked mListener;
 	private SimpleGeofenceList cachedList;
 	private float radiusPercentage = 1.1f;
+	public RadioGroup fence_type;
 
 	/**
 	 * Use this factory method to create a new instance of this fragment using
@@ -235,7 +239,8 @@ public class AddGeoFenceFragment extends DialogFragment {
 				.findViewById(R.id.radius_seekBar);
 		contact_button_layout = (LinearLayout) addGeoFenceView
 				.findViewById(R.id.contact_button_layout);
-
+		toggle_switch = (Switch)addGeoFenceView.findViewById(R.id.toggle_switch);
+		toggle_switch.setChecked(true);
 		enter_exit
 				.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -252,6 +257,22 @@ public class AddGeoFenceFragment extends DialogFragment {
 						}
 					}
 				});
+		fence_type = (RadioGroup)addGeoFenceView.findViewById(R.id.fence_type_radiogroup);
+		fence_type
+		.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				switch (checkedId) {
+				case R.id.radio_one_time:
+					one_time = true;
+					break;
+				case R.id.radio_reoccuring:
+					one_time = false;
+					break;
+
+				}
+			}
+		});
 		OnFocusChangeListener expandPanelListener = new OnFocusChangeListener() {
 
 			@Override
@@ -445,7 +466,7 @@ public class AddGeoFenceFragment extends DialogFragment {
 
 	protected void saveGeoFence(View v) {
 		// save geoFence to mainActivity save json method
-
+		//TODO: save the onetime/recurring active/inactive stuffs
 		boolean isUpdate = false, errors = false;
 		;
 
@@ -486,11 +507,13 @@ public class AddGeoFenceFragment extends DialogFragment {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
+		
 		SimpleGeofence geofence = new SimpleGeofence(
 				MapActivity.createGeoFenceId(nickname, latLng.latitude,
 						latLng.longitude), latLng.latitude, latLng.longitude,
 				(r + MapActivity.MIN_RADIUS) * radiusPercentage, expiration,
-				transition, message, emailOrPhone, nickname, displayPhone, -1);
+				transition, message, emailOrPhone, nickname, displayPhone, -1, (one_time ? fencetype.ONE_TIME : fencetype.RECURRING));
+		geofence.setActive(toggle_switch.isChecked());
 		cachedList = MapActivity.getGeoFenceFromCache(getActivity());
 		// geoFence replaces oldfence in the cache but you might want to handle
 		// stuff with the old item ie: update drawers and lists in the activity

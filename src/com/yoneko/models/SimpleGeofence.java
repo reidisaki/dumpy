@@ -29,7 +29,7 @@ public class SimpleGeofence {
 		this.fenceType = fenceType;
 	}
 	public fencetype fenceType = fencetype.ONE_TIME; //default to recurring
-    public enum fencetype {ONE_TIME, RECURRING, SCHEDULED};
+    public enum fencetype {ONE_TIME , RECURRING, SCHEDULED};
     private List<PhoneContact> phoneContacts; //send to multiple contacts if needed
     public List<PhoneContact> getPhoneContacts() {
 		return phoneContacts;
@@ -86,7 +86,7 @@ public SimpleGeofence(
         String message,
         String email,
         String title,
-        String phoneDisplay, long lastSent) {
+        String phoneDisplay, long lastSent, fencetype fenceType) {
     // Set the instance fields from the constructor
     this.mId = geofenceId;
     this.mLatitude = latitude;
@@ -100,7 +100,7 @@ public SimpleGeofence(
     this.phoneDisplay = phoneDisplay;
     this.lastSent = lastSent;
     this.isActive = true;
-    this.fenceType = fenceType.SCHEDULED;
+    this.fenceType = fenceType;
 }
 public SimpleGeofence(String string) {
 	this.title = string;

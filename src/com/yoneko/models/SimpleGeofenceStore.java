@@ -1,6 +1,7 @@
 package com.yoneko.models;
 
 import com.google.android.gms.location.Geofence;
+import com.yoneko.models.SimpleGeofence.fencetype;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -26,6 +27,10 @@ public class SimpleGeofenceStore {
 			"com.example.android.geofence.KEY_NICKNAME";
 	public static final String KEY_DISPLAY_PHONE =
 			"com.example.android.geofence.KEY_DISPLAY_PHONE";
+	public static final String KEY_FENCE_TYPE =
+			"com.example.android.geofence.KEY_FENCE_TYPE";
+	public static final String KEY_FENCE_ACTIVE =
+			"com.example.android.geofence.KEY_FENCE_ACTIVE";
 
 	// The prefix for flattened geofence keys
 	public static final String KEY_PREFIX =
@@ -98,6 +103,8 @@ public class SimpleGeofenceStore {
 		String nickname = mPrefs.getString(getGeofenceFieldKey(id, KEY_NICKNAME),"NOT FOUND");
 		String message = mPrefs.getString(getGeofenceFieldKey(id,KEY_MESSAGE), "NOT FOUND");
 		String displayPhone = mPrefs.getString(getGeofenceFieldKey(id, KEY_DISPLAY_PHONE),"NOT FOUND");
+		fencetype fenceType = fencetype.values()[mPrefs.getInt(getGeofenceFieldKey(id, KEY_FENCE_TYPE), 0)]; //TODO: research how to cast ints to enums but this should be fine 
+		boolean isFenceActive  = mPrefs.getBoolean(getGeofenceFieldKey(id, KEY_FENCE_ACTIVE), true);
 		// If none of the values is incorrect, return the object
 //		if (				
 //				lat != GeofenceUtils.INVALID_FLOAT_VALUE &&
@@ -110,7 +117,7 @@ public class SimpleGeofenceStore {
 			// Return a true Geofence object
 			return new SimpleGeofence(
 					id, lat, lng, radius, expirationDuration,
-					transitionType, message, email, nickname, displayPhone,-1);
+					transitionType, message, email, nickname, displayPhone,-1, fenceType);
 			// Otherwise, return null.
 //		} else {
 //			return null;

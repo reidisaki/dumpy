@@ -1,5 +1,6 @@
 package com.yoneko.areyouthereyet.update;
 import com.yoneko.areyouthereyet.update.debug.R;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofence.fencetype;
 import com.yoneko.models.SimpleGeofenceList;
 public class GeoFenceReceiver extends BroadcastReceiver {
 	Context context;
@@ -138,7 +140,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				for (int i = 0; i < triggerIds.length; i++) {
 					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
 					String realCoordinates = "  real lat:" + g.getLatitude() + "," + g.getLongitude(); 
-					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR ) {
+					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR  && g.isActive()) {
 						if(g.getPhoneContacts() != null) {
 							for(PhoneContact p : g.getPhoneContacts()) {
 								sendSms(p.getNumber(),g.getMessage(), false);
@@ -244,6 +246,11 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				if(geo.getLastSent() == -1 || geo.getLastSent() + (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) <= currentTime) {
 					geo.setLastSent(currentTime);
 					geo.setShouldSend(true);
+					
+					//if the message is a one time send then set it to inactive after you've sent it
+					if(geo.getFenceType() == fencetype.ONE_TIME) {
+						geo.setActive(false);
+					}
 				} 
 				retFence = geo;
 			}

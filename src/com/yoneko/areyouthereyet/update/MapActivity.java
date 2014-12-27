@@ -113,6 +113,7 @@ import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
 import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofence.fencetype;
 import com.yoneko.models.SimpleGeofenceList;
 
 public class MapActivity extends Activity implements OnMapLongClickListener, OnMarkerClickListener, 
@@ -1138,7 +1139,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			}
 
 			//DEBUG STATEMENT - Reid Isaki
-			intent.putExtra("sms_body", currentLocationText + "\n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude + " \nAccuracy within: " + Math.ceil(location.getAccuracy()) + " meters");
+			intent.putExtra("sms_body", currentLocationText + "\n\n http://maps.google.com/?q=" + marker.getPosition().latitude + "%2c" + marker.getPosition().longitude + " \nAccuracy within: " + Math.ceil(location.getAccuracy()) + " meters");
 			startActivityForResult(intent, 1234);
 
 			//Send out text message to someone who your location
@@ -1230,7 +1231,10 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 			addGeofenceFragment.emailOrPhone = fence.getEmailPhone();
 			addGeofenceFragment.enter_exit.check(fence.getTransitionType() == 1 ? R.id.radio_enter : R.id.radio_exit);
+			Log.i("test",fence.getFenceType().toString());
+			addGeofenceFragment.fence_type.check(fence.getFenceType() == fencetype.ONE_TIME ? R.id.radio_one_time : R.id.radio_reoccuring);
 			addGeofenceFragment.radius_seek.setProgress((int)Math.ceil(radius-MIN_RADIUS));
+			addGeofenceFragment.toggle_switch.setChecked(fence.isActive());
 //			addGeofenceFragment.radius_text.setText("Radius " + radius + "m");
 
 		} 
