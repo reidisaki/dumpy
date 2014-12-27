@@ -548,6 +548,7 @@ public class AddGeoFenceFragment extends DialogFragment {
 			// MainActivity.getGeoFenceFromCache(getActivity()).getGeoFences().size()
 			// + " Number saved:  " +
 			// geofence.getEmailPhone(),Toast.LENGTH_SHORT).show();
+			Log.i("Reid","saving geo fence is it null?: " + (geofence == null));
 			mListener.onItemSaved(oldfence, geofence,
 					cachedList.getGeoFences(), isUpdate);
 		} else {

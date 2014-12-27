@@ -1,6 +1,5 @@
 package com.yoneko.areyouthereyet.update;
 import com.yoneko.areyouthereyet.update.debug.R;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -132,18 +131,31 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 						LocationClient.getTriggeringGeofences(intent);
 
 				String[] triggerIds = new String[triggerList.size()];
+				Log.i("Reid","all good trying to send message");
 				geoFenceList = MapActivity.getGeoFenceFromCache(context);
 				simpleList = geoFenceList.getGeoFences();
 				String debugMessage = "acc: " + location.getAccuracy() + "lat: " + location.getLatitude() + " lon: " 
 				+ location.getLongitude() + "  http://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
 				
 				for (int i = 0; i < triggerIds.length; i++) {
-					SimpleGeofence g  =getSimpleGeofence(simpleList,triggerList.get(i));
+					SimpleGeofence g  = getSimpleGeofence(simpleList,triggerList.get(i));
+					Log.i("Reid","is geofence null? : " + (g == null));
+					if(g == null) {
+						return;
+					}
+					Log.i("Reid","geofecne is active?" + g.isActive());
 					String realCoordinates = "  real lat:" + g.getLatitude() + "," + g.getLongitude(); 
 					if(g.isShouldSend() && location.getAccuracy() <= MAX_ACCURACY_ERROR  && g.isActive()) {
+						Log.i("Reid","should send");
 						if(g.getPhoneContacts() != null) {
 							for(PhoneContact p : g.getPhoneContacts()) {
 								sendSms(p.getNumber(),g.getMessage(), false);
+								
+								//if the message is a one time send then set it to inactive after you've sent it
+								if(g.getFenceType() == fencetype.ONE_TIME) {
+									g.setActive(false);
+								}
+								simpleList.set(i, g);
 							}
 						} else {
 							//old version using just one contact.. don't want to break it.
@@ -240,17 +252,13 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			geo.setShouldSend(false);
 			long currentTime = new Date().getTime();
 			if(geo.getId().equals(g.getRequestId())) {
+				Log.i("Reid","Found geofence line 246");
 				//if the dateLastSent is -1 then you set it to current date
 				//if the dateLastSent is > 0 , add 15 minutes to the date then compare the times to dateTime.now. 
 				//if the date lastsent + threshold minutes is > dateTime now then you should send it
 				if(geo.getLastSent() == -1 || geo.getLastSent() + (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) <= currentTime) {
 					geo.setLastSent(currentTime);
 					geo.setShouldSend(true);
-					
-					//if the message is a one time send then set it to inactive after you've sent it
-					if(geo.getFenceType() == fencetype.ONE_TIME) {
-						geo.setActive(false);
-					}
 				} 
 				retFence = geo;
 			}

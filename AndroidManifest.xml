@@ -59,7 +59,7 @@
         -->
 
         <receiver
-            android:name=".GeoFenceReceiver"
+            android:name="com.yoneko.areyouthereyet.update.GeoFenceReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE" />
@@ -77,7 +77,7 @@
             android:label="@string/app_name" >
         </service>
         <service
-            android:name=".SafetyService"
+            android:name="com.yoneko.areyouthereyet.update.SafetyService"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>
@@ -87,7 +87,7 @@
         </service>
 
         <receiver
-            android:name=".RestartAppReceiver"
+            android:name="com.yoneko.areyouthereyet.update.RestartAppReceiver"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>
