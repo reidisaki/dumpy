@@ -2052,7 +2052,6 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	}
 	@Override
 	public void onMapLoaded() {
-		Log.i("Reid","map is loaded");
 
 		isMapLoaded = true;
 		navigateToMyLocation = true;
@@ -2087,6 +2086,9 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 	@Override
 	public void updateLeftDrawer(List<SimpleGeofence> geoFenceList) {
 		drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, geoFenceList);
+		for(SimpleGeofence g : geoFenceList) {
+			Log.i("test",g.getMessage() + " , " + g.getTitle());
+		}
 		mDrawerList.setAdapter(drawerAdapter);
 		drawerAdapter.notifyDataSetChanged();
 	}
