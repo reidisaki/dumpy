@@ -573,6 +573,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		spe.commit();
 		//		Log.i("Reid", "clearing list");
 		//remove geo fences
+		drawerAdapter = new DrawerItemAdapter(MapActivity.this, R.layout.drawer_list_item, drawerStringList);
+		mDrawerList.setAdapter(drawerAdapter);
 		drawerAdapter.notifyDataSetChanged();
 		removeGeofences(getTransitionPendingIntent());
 	}
@@ -623,6 +625,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 						addGeofenceFragment.emailEdit.setText("");
 						addGeofenceFragment.radius_seek.setProgress(MIN_RADIUS);
 						searchEdit.setText("");
+						
 						mMap.clear();
 						dialog.dismiss();
 					}   
