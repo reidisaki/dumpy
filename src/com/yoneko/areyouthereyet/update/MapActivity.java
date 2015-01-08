@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -654,8 +655,12 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 			@Override
 			public void onClick(View v) {
-				mDrawerLayout.closeDrawer(mDrawerList);
-				initShowView();
+				for(SimpleGeofence g : mSimpleGeoFenceList) {
+					Date d = new Date(g.getLastSent());
+					Log.i("test","geofence: " + g.getTitle() + " active: " + g.isActive() + " shouldSend:" + g.isShouldSend() + " last sent: " + d.toLocaleString());
+				}
+//				mDrawerLayout.closeDrawer(mDrawerList);
+//				initShowView();
 			}
 		});
 		arrow.setOnClickListener(new OnClickListener() {

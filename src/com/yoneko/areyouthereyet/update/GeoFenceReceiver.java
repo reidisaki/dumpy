@@ -216,7 +216,9 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				
 				//outside of loop.
 				if(simpleList != null) {
-					mListener.updateLeftDrawer(simpleList);
+					if(mListener != null) {
+						mListener.updateLeftDrawer(simpleList);
+					}
 					MapActivity.storeJSON(new SimpleGeofenceList(simpleList), context);
 				}
 
