@@ -52,6 +52,8 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		TextView textViewItem = (TextView) convertView.findViewById(R.id.drawer_text);
 		textViewItem.setText(objectItem.getTitle() + " - " + (objectItem.getTransitionType() == 1 ? "enter" : "exit") ); // this could be 4 which is enter and exit
 		toggleSwitch = (Switch)convertView.findViewById(R.id.toggle_switch);
+		//setChecked calls  the onCheckedChangedListener every time  - http://stackoverflow.com/questions/25798089/why-is-that-when-i-am-scrolling-up-or-down-the-list-it-activates-a-switch-listen
+		toggleSwitch.setOnCheckedChangeListener(null);
 		toggleSwitch.setChecked(false);
 		
 		if(objectItem.isActive()) {
