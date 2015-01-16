@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofenceList;
 
 public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 	Context mContext;
@@ -55,8 +56,8 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		//setChecked calls  the onCheckedChangedListener every time  - http://stackoverflow.com/questions/25798089/why-is-that-when-i-am-scrolling-up-or-down-the-list-it-activates-a-switch-listen
 		toggleSwitch.setOnCheckedChangeListener(null);
 		toggleSwitch.setChecked(false);
-		
 		if(objectItem.isActive()) {
+			Log.i("reid",objectItem.getTitle() + " is active");
 			toggleSwitch.setChecked(true);
 		}
 		
@@ -72,6 +73,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 				MapActivity.isDirty = true;
 				Log.i("test","position: " + position + " is set with this value:" + objectItem.getTitle() + " : " + objectItem.isActive());
 				data.set(position, objectItem);
+				MapActivity.storeJSON(new SimpleGeofenceList(data), mContext);
 			}
 		});
 		final CheckBox checkbox = (CheckBox)convertView.findViewById(R.id.drawer_check_box);
