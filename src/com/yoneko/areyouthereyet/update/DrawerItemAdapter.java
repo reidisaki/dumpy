@@ -16,7 +16,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.yoneko.areyouthereyet.update.debug.R;
+import com.yoneko.areyouthereyet.update.R;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 

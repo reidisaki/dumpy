@@ -1,4 +1,5 @@
 package com.yoneko.areyouthereyet.update;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import android.widget.Toast;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
-import com.yoneko.areyouthereyet.update.debug.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofence.fencetype;

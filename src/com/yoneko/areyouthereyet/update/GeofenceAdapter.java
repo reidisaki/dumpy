@@ -2,7 +2,7 @@ package com.yoneko.areyouthereyet.update;
 
 import java.util.List;
 
-import com.yoneko.areyouthereyet.update.debug.R;
+import com.yoneko.areyouthereyet.update.R;
 
 import android.app.Activity;
 import android.content.Context;

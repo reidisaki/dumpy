@@ -3,6 +3,7 @@ package com.yoneko.areyouthereyet.update;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -111,7 +112,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
 import com.yoneko.areyouthereyet.update.GeoFenceReceiver.onGeofenceTriggeredListener;
-import com.yoneko.areyouthereyet.update.debug.R;
+import com.yoneko.areyouthereyet.update.R;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
 import com.yoneko.models.SimpleGeofence;
@@ -199,7 +200,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
+		
 		/*
 		 * error testing here useful but not used right now.
 		Map<String, String> errorParams = new HashMap<String, String>();
