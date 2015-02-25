@@ -4,6 +4,8 @@ package com.yoneko.models;
 
 import java.util.List;
 
+import android.util.Log;
+
 import com.google.android.gms.location.Geofence;
 
 public class SimpleGeofence {
@@ -23,9 +25,14 @@ public class SimpleGeofence {
 		this.isActive = isActive;
 	}
 	public fencetype getFenceType() {
+		Log.i("reid","fence type is: " + fenceType);
+		if(fenceType == null) {
+//			fenceType = fencetype.ONE_TIME;
+		}
 		return fenceType;
 	}
 	public void setFenceType(fencetype fenceType) {
+		Log.i("reid","fence type is: " + fenceType);
 		this.fenceType = fenceType;
 	}
 	public fencetype fenceType = fencetype.ONE_TIME; //default to recurring
