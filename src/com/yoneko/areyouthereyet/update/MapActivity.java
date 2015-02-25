@@ -2076,8 +2076,8 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 		if(name.toLowerCase().startsWith("15912 s manhattan")) {
 			showAnimal("joey");
 		}
-		if(name.toLowerCase().startsWith("1086 s mansfield")) {
-			showAnimal("lynx");
+		if(name.toLowerCase().startsWith("21 sycamore st")) {
+			showAnimal("nancy");
 		}
 		if(name.toLowerCase().startsWith("138 asby bay")) {
 			showAnimal("bailey");
