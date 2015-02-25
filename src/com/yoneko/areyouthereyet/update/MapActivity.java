@@ -1521,6 +1521,7 @@ OnAddGeofencesResultListener, LocationListener, OnRemoveGeofencesResultListener,
 			if(mGeofencesToRemove != null) {
 				mGeofencesToRemove.clear();
 				mGeofencesToRemove.add(newItem.getId());
+				removeGeofences(mGeofencesToRemove);
 			}
 		}
 		Log.i("Reid","New list size: " + newList.size());
