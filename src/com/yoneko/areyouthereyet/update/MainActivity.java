@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.yoneko.models.SimpleGeofence;
@@ -34,7 +33,7 @@ public class MainActivity extends Activity  {
 			MILLISECONDS_PER_SECOND;
 
 	// Holds the location client
-	private LocationClient mLocationClient;
+	
 	// Stores the PendingIntent used to request geofence monitoring
 	private PendingIntent mTransitionPendingIntent;
 

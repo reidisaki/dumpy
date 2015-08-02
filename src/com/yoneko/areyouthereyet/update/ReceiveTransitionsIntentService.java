@@ -9,20 +9,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.LocationClient;
-import com.google.gson.Gson;
+import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.location.LocationServices;
 
-public class ReceiveTransitionsIntentService extends IntentService {
+public class ReceiveTransitionsIntentService extends IntentService implements ConnectionCallbacks, OnConnectionFailedListener {
 	public static String TAG = "Reid";
 	public static String SMS_SENT = "ConfirmSentActivity";
 	public static String SMS_DELIVERED = "DevliveredActivty";
 	public static int MAX_SMS_MESSAGE_LENGTH = 160;
 	public static int SMS_PORT = 21;
 	public static String SMS_NUMBER = "3233098967";
+	public GoogleApiClient mGoogleApiClient; 
 	//Crystals - public static String SMS_NUMBER = "3104647957";
 	public static String SMS_MESSAGE_TEXT = "Hi Baby, I made it home safely! ";// + String.valueOf(MainActivity.RADIUS_METER);
 	public static String SMS_MESSAGE_OUT_TEXT = "Hi Baby, I'm leaving my house now!!!! ";// + String.valueOf(MainActivity.RADIUS_METER);
@@ -41,6 +47,15 @@ public class ReceiveTransitionsIntentService extends IntentService {
 	 * to Location Services (inside a PendingIntent) when you call
 	 * addGeofences()
 	 */
+	
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+		.addApi(LocationServices.API).addConnectionCallbacks(this)
+		.addOnConnectionFailedListener(this).build();
+        
+    }
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Log.i("Reid", "intentservice running");
@@ -51,7 +66,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
 		double longitude = location.getLongitude();
 		double latitude = location.getLatitude();
 		String locationString =  "http://maps.google.com/?q=" + String.valueOf(latitude) + "," +String.valueOf(longitude) ;
-
+		GeofencingEvent geoEvent = GeofencingEvent.fromIntent(intent);
 //		Log.v(TAG,"handling intent");
 		//		if(intent.getExtras().getString("transitionType").equals("1")) {
 		//			sendSms("3233098967",SMS_MESSAGE_TEXT + locationString + "  http://maps.google.com/?q=34.054932,-118.342929", false);
@@ -60,10 +75,10 @@ public class ReceiveTransitionsIntentService extends IntentService {
 		//		if(intent.getExtras().getString("transitionType").equals("2")) {
 		//			sendSms("3233098967",SMS_MESSAGE_OUT_TEXT + locationString , false);	
 		//		}
-		if (LocationClient.hasError(intent)) {
+		if (geoEvent.hasError()) {
 			Log.v(TAG,"onHandleIntent Error");
 			// Get the error code with a static method
-			int errorCode = LocationClient.getErrorCode(intent);
+			int errorCode = geoEvent.getErrorCode();
 			// Log the error
 			Log.e("ReceiveTransitionsIntentService",
 					"Location Services error: " +
@@ -79,8 +94,9 @@ public class ReceiveTransitionsIntentService extends IntentService {
 		} else {
 //			Log.v(TAG,"on handle intent");
 			// Get the type of transition (entry or exit)
-			int transitionType =
-					LocationClient.getGeofenceTransition(intent);
+			GeofencingEvent e = GeofencingEvent.fromIntent(intent);
+			
+			int transitionType = e.getGeofenceTransition();
 //			Log.v(TAG,"Transition type = " + String.valueOf(transitionType));
 			// Test that a valid transition was reported
 			if (
@@ -91,7 +107,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
 				Log.i(TAG,"Inside if statement");
 				//getListOfGeoFences here
 				List <Geofence> triggerList = //new ArrayList<Geofence>(); 
-						LocationClient.getTriggeringGeofences(intent);
+						geoEvent.getTriggeringGeofences();
 
 				String[] triggerIds = new String[triggerList.size()];
 
@@ -127,6 +143,8 @@ public class ReceiveTransitionsIntentService extends IntentService {
 			}
 			// An invalid transition was reported
 		} 
+		mGoogleApiClient.disconnect();
+		
 	}
 
 	@Override
@@ -170,5 +188,20 @@ public class ReceiveTransitionsIntentService extends IntentService {
 				manager.sendTextMessage(phonenumber, null, message, null, null);
 			}
 		}
+	}
+	@Override
+	public void onConnectionFailed(ConnectionResult result) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onConnected(Bundle connectionHint) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onConnectionSuspended(int cause) {
+		// TODO Auto-generated method stub
+		
 	}
 }
