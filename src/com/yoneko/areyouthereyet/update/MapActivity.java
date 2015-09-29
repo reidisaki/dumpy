@@ -1295,6 +1295,7 @@ public class MapActivity extends Activity implements OnMapLongClickListener,
 							+ marker.getPosition().longitude
 							+ " \nAccuracy within: "
 							+ Math.ceil(location.getAccuracy()) + " meters");
+			intent.putExtra("exit_on_sent", true);
 			startActivityForResult(intent, 1234);
 
 			// Send out text message to someone who your location
