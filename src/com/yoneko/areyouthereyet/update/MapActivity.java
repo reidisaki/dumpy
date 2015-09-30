@@ -84,13 +84,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingApi;
-import com.google.android.gms.location.GeofencingEvent;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationStatusCodes;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -1886,88 +1882,90 @@ public class MapActivity extends Activity implements OnMapLongClickListener,
 				.getLastLocation(mGoogleApiClient);
 
 		Log.v(TAG, "onConnected request type: " + mRequestType);
-		switch (mRequestType) {
-		case ADD:
-			// Send a request to add the current geofences
-			ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
-			mTransitionPendingIntent = getTransitionPendingIntent();
-			// for(int i=0; i<mSimpleGeoFenceList.size();i++) {
-			// add items to geoFences;
-			try {
-				if (reRegisterGeoFences) {
-					for (SimpleGeofence g : mSimpleGeoFenceList) {
-						Log.i("Reid",
-								"geofence number registerd:"
-										+ g.getEmailPhone());
-						geoFences.add(g.toGeofence());
-						mGeofencesToRemove.add(g.getId());
+		if(mRequestType != null) {
+			switch (mRequestType) {
+			case ADD:
+				// Send a request to add the current geofences
+				ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
+				mTransitionPendingIntent = getTransitionPendingIntent();
+				// for(int i=0; i<mSimpleGeoFenceList.size();i++) {
+				// add items to geoFences;
+				try {
+					if (reRegisterGeoFences) {
+						for (SimpleGeofence g : mSimpleGeoFenceList) {
+							Log.i("Reid",
+									"geofence number registerd:"
+											+ g.getEmailPhone());
+							geoFences.add(g.toGeofence());
+							mGeofencesToRemove.add(g.getId());
+						}
+						reRegisterGeoFences = false;
+					} else {
+						geoFences.add(mSimpleGeoFenceList.get(
+								mSimpleGeoFenceList.size() - 1).toGeofence());
 					}
-					reRegisterGeoFences = false;
-				} else {
-					geoFences.add(mSimpleGeoFenceList.get(
-							mSimpleGeoFenceList.size() - 1).toGeofence());
+				} catch (IllegalArgumentException e) {
+					Log.v(TAG, "illegal long/ lat combination not found...");
 				}
-			} catch (IllegalArgumentException e) {
-				Log.v(TAG, "illegal long/ lat combination not found...");
-			}
-			// }
-
-			// ****For crystals phone only for now
-			// 1 is enter 2 == exit
-			// Crystal house = 33.885987,-118.310208
-			// Reid house = 34.054840,-118.342908
-			// SimpleGeofence enter = new SimpleGeofence("1",
-			// 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE,
-			// Geofence.GEOFENCE_TRANSITION_ENTER, "","", "");
-			// SimpleGeofence exit = new SimpleGeofence("2",
-			// 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE,
-			// Geofence.GEOFENCE_TRANSITION_EXIT,"","", "");
-			// SimpleGeofence enterReid = new SimpleGeofence("3",
-			// 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE,
-			// Geofence.GEOFENCE_TRANSITION_ENTER,"","", "");
-			// SimpleGeofence exitReid = new SimpleGeofence("4",
-			// 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE,
-			// Geofence.GEOFENCE_TRANSITION_EXIT,"","", "");
-			// mGeofenceStorage.setGeofence("1",enter);
-			// mGeofenceStorage.setGeofence("2",exit);
-			// mGeofenceStorage.setGeofence("3",enterReid);
-			// mGeofenceStorage.setGeofence("4",exitReid);
-			// geoFences.add(enter.toGeofence());
-			// geoFences.add(exit.toGeofence());
-			// geoFences.add(enterReid.toGeofence());
-			// geoFences.add(exitReid.toGeofence());
-			if (geoFences.size() > 0) {
-				Log.i("Reid", "adding all geofences to GOOGLE");
-				// remove old geoFences if isUpdate
-				if (mGeofencesToRemove.size() > 0) {
+				// }
+	
+				// ****For crystals phone only for now
+				// 1 is enter 2 == exit
+				// Crystal house = 33.885987,-118.310208
+				// Reid house = 34.054840,-118.342908
+				// SimpleGeofence enter = new SimpleGeofence("1",
+				// 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE,
+				// Geofence.GEOFENCE_TRANSITION_ENTER, "","", "");
+				// SimpleGeofence exit = new SimpleGeofence("2",
+				// 33.885987,-118.310208,RADIUS_METER,Geofence.NEVER_EXPIRE,
+				// Geofence.GEOFENCE_TRANSITION_EXIT,"","", "");
+				// SimpleGeofence enterReid = new SimpleGeofence("3",
+				// 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE,
+				// Geofence.GEOFENCE_TRANSITION_ENTER,"","", "");
+				// SimpleGeofence exitReid = new SimpleGeofence("4",
+				// 34.054840,-118.342908,RADIUS_METER,Geofence.NEVER_EXPIRE,
+				// Geofence.GEOFENCE_TRANSITION_EXIT,"","", "");
+				// mGeofenceStorage.setGeofence("1",enter);
+				// mGeofenceStorage.setGeofence("2",exit);
+				// mGeofenceStorage.setGeofence("3",enterReid);
+				// mGeofenceStorage.setGeofence("4",exitReid);
+				// geoFences.add(enter.toGeofence());
+				// geoFences.add(exit.toGeofence());
+				// geoFences.add(enterReid.toGeofence());
+				// geoFences.add(exitReid.toGeofence());
+				if (geoFences.size() > 0) {
+					Log.i("Reid", "adding all geofences to GOOGLE");
+					// remove old geoFences if isUpdate
+					if (mGeofencesToRemove.size() > 0) {
+						LocationServices.GeofencingApi.removeGeofences(
+								mGoogleApiClient, mGeofencesToRemove);
+					}
+					LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,
+							geoFences, mTransitionPendingIntent);
+	
+				}
+	
+				break;
+			case REMOVE_INTENT:
+				Log.i(TAG, "Removing all geo fences for reals on google");
+				if (mRemoveIntent != null) {
 					LocationServices.GeofencingApi.removeGeofences(
-							mGoogleApiClient, mGeofencesToRemove);
+							mGoogleApiClient, mTransitionPendingIntent);
 				}
-				LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,
-						geoFences, mTransitionPendingIntent);
-
+				break;
+			case REMOVE_LIST:
+				Log.i(TAG,
+						"Removing CERTAIN not all. geo fences for reals on google");
+				if (mGeofencesToRemove != null && mGeofencesToRemove.size() > 0) {
+					LocationServices.GeofencingApi.removeGeofences(
+							mGoogleApiClient,
+							// This is the same pending intent that was used in
+							// addGeofences().
+							mGeofencesToRemove);
+					// mLocationClient.removeGeofences(mGeofencesToRemove, this);
+				}
+				break;
 			}
-
-			break;
-		case REMOVE_INTENT:
-			Log.i(TAG, "Removing all geo fences for reals on google");
-			if (mRemoveIntent != null) {
-				LocationServices.GeofencingApi.removeGeofences(
-						mGoogleApiClient, mTransitionPendingIntent);
-			}
-			break;
-		case REMOVE_LIST:
-			Log.i(TAG,
-					"Removing CERTAIN not all. geo fences for reals on google");
-			if (mGeofencesToRemove != null && mGeofencesToRemove.size() > 0) {
-				LocationServices.GeofencingApi.removeGeofences(
-						mGoogleApiClient,
-						// This is the same pending intent that was used in
-						// addGeofences().
-						mGeofencesToRemove);
-				// mLocationClient.removeGeofences(mGeofencesToRemove, this);
-			}
-			break;
 		}
 	}
 
