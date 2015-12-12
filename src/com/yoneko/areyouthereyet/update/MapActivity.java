@@ -65,6 +65,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -208,7 +209,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
+Log.i("Reid","wtf");
 		/*
 		 * error testing here useful but not used right now. Map<String, String>
 		 * errorParams = new HashMap<String, String>();
@@ -1861,7 +1862,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 			// Indicate that a request is underway
 			mInProgress = true;
 			// If a request is not already underway
-			Log.v(TAG, "Add geo fence connected");
+			Log.v(TAG, "Add geo fence connected");			
+			Toast.makeText(getApplicationContext(), "adding fence",Toast.LENGTH_SHORT).show();
 
 		} else {
 			/*
@@ -1893,12 +1895,14 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 		if(mRequestType != null) {
 			switch (mRequestType) {
 			case ADD:
+				Log.v(TAG, "adding a fence");
 				// Send a request to add the current geofences
 				ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
 				mTransitionPendingIntent = getTransitionPendingIntent();
 				// for(int i=0; i<mSimpleGeoFenceList.size();i++) {
 				// add items to geoFences;
 				try {
+					
 					if (reRegisterGeoFences) {
 						for (SimpleGeofence g : mSimpleGeoFenceList) {
 							Log.i("Reid",
@@ -1912,6 +1916,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 						geoFences.add(mSimpleGeoFenceList.get(
 								mSimpleGeoFenceList.size() - 1).toGeofence());
 					}
+					
 				} catch (IllegalArgumentException e) {
 					Log.v(TAG, "illegal long/ lat combination not found...");
 				}
@@ -1942,6 +1947,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 				// geoFences.add(enterReid.toGeofence());
 				// geoFences.add(exitReid.toGeofence());
 				if (geoFences.size() > 0) {
+					
 					Log.i("Reid", "adding all geofences to GOOGLE");
 					// remove old geoFences if isUpdate
 					if (mGeofencesToRemove.size() > 0) {
@@ -1950,6 +1956,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 					}
 					LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,
 							geoFences, mTransitionPendingIntent);
+					
 	
 				}
 	
@@ -2099,6 +2106,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 
+		Toast.makeText(getApplicationContext(), "failed to connect", Toast.LENGTH_SHORT).show();
 		// Turn off the request flag
 		mInProgress = false;
 		/*
@@ -2339,7 +2347,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
 	public static String createGeoFenceId(String nickname, double lat,
 			double lon) {
-		return nickname + "|" + lat + "|" + lon;
+		return nickname + "|" + lat + "|" + lon +"|rand:" +  (int)(Math.random() * 100001);
 	}
 
 	@Override
