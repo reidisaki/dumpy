@@ -14,7 +14,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
@@ -40,6 +39,7 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
@@ -98,6 +98,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -115,7 +116,7 @@ import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofence.fencetype;
 import com.yoneko.models.SimpleGeofenceList;
 
-public class MapActivity extends Activity implements OnMapLongClickListener,
+public class MapActivity extends FragmentActivity implements OnMapLongClickListener,
 		OnMarkerClickListener, onEditTextClicked, ConnectionCallbacks,
 		OnConnectionFailedListener, OnMyLocationChangeListener,
 		OnMyLocationButtonClickListener, LocationListener, OnMapLoadedCallback,
@@ -372,8 +373,15 @@ public class MapActivity extends Activity implements OnMapLongClickListener,
 	}
 
 	private void initMap() {
-		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
-				.getMap();
+		
+		android.support.v4.app.FragmentManager myFragmentManager = getSupportFragmentManager();
+        SupportMapFragment mySupportMapFragment 
+         = (SupportMapFragment)myFragmentManager.findFragmentById(R.id.map);
+
+
+        mMap = mySupportMapFragment.getMap();
+		
+		
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
 		mMap.setMyLocationEnabled(true);
 		mMap.setOnMarkerClickListener(this);
