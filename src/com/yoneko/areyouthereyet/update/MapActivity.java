@@ -65,7 +65,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -73,6 +72,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.espian.showcaseview.ShowcaseView;
 import com.espian.showcaseview.targets.ViewTarget;
@@ -84,6 +84,9 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -98,7 +101,6 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -1836,7 +1838,7 @@ Log.i("Reid","wtf");
 		 * the current activity object as the listener for both parameters
 		 */
 
-		if (!mInProgress) {
+//		if (!mInProgress) {
 			ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
 			mTransitionPendingIntent = getTransitionPendingIntent();
 			// for(int i=0; i<mSimpleGeoFenceList.size();i++) {
@@ -1858,14 +1860,30 @@ Log.i("Reid","wtf");
 			} catch (IllegalArgumentException e) {
 				Log.v(TAG, "illegal long/ lat combination not found...");
 			}
-			LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
+//			mInProgress = true;
+			PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
+			result.setResultCallback(new ResultCallback<Status>() {
+				@Override
+				public void onResult(Status result) {
+					if(result.isSuccess()) {
+						//TODO: this isnt really doing anything.
+					mInProgress = false;
+					Toast.makeText(getApplicationContext(), "SUCCESS, added fence",Toast.LENGTH_SHORT).show();
+					} else {
+//						TODO:
+						//there was an error relay this to the user..
+						Toast.makeText(getApplicationContext(), "ERROR, please try again",Toast.LENGTH_SHORT).show();
+					}
+					
+				}
+			});
 			// Indicate that a request is underway
-			mInProgress = true;
+			
 			// If a request is not already underway
 			Log.v(TAG, "Add geo fence connected");			
-			Toast.makeText(getApplicationContext(), "adding fence",Toast.LENGTH_SHORT).show();
+			
 
-		} else {
+//		} else {
 			/*
 			 * A request is already underway. You can handle this situation by
 			 * disconnecting the client, re-setting the flag, and then re-trying
@@ -1873,8 +1891,9 @@ Log.i("Reid","wtf");
 			 */
 			// mLocationClient.disconnect();
 			// mLocationClient.connect();
-			Log.v(TAG, "tryign to reconnect");
-		}
+//			Toast.makeText(getApplicationContext(), "not connected, in progress of connecting",Toast.LENGTH_SHORT).show();
+//			Log.v(TAG, "tryign to reconnect");
+//		}
 	}
 
 	@Override
@@ -1886,6 +1905,8 @@ Log.i("Reid","wtf");
 		// CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng,
 		// 17);
 		// mMap.animateCamera(cameraUpdate);
+		Toast.makeText(getApplicationContext(), "connected",Toast.LENGTH_SHORT).show();
+		mInProgress = false;
 		LocationServices.FusedLocationApi.requestLocationUpdates(
 				mGoogleApiClient, mLocationRequest, this);
 		location = LocationServices.FusedLocationApi
@@ -2055,17 +2076,17 @@ Log.i("Reid","wtf");
 		LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,
 				geofenceIds);
 		// If a request is not already underway
-		if (!mInProgress) {
+//		if (!mInProgress) {
 			// Indicate that a request is underway
-			mInProgress = true;
+//			mInProgress = true;
 			// Request a connection from the client to Location Services
-		} else {
+//		} else {
 			/*
 			 * A request is already underway. You can handle this situation by
 			 * disconnecting the client, re-setting the flag, and then re-trying
 			 * the request.
 			 */
-		}
+//		}
 	}
 
 	public void removeGeofences(PendingIntent requestIntent) {
@@ -2088,19 +2109,19 @@ Log.i("Reid","wtf");
 				requestIntent);
 		// mLocationClient = new LocationClient(this, this, this);
 		// If a request is not already underway
-		if (!mInProgress) {
+//		if (!mInProgress) {
 			// Indicate that a request is underway
 			mRemoveIntent = requestIntent;
-			mInProgress = true;
+//			mInProgress = true;
 			// Request a connection from the client to Location Services
 			// mLocationClient.connect();
-		} else {
+//		} else {
 			/*
 			 * A request is already underway. You can handle this situation by
 			 * disconnecting the client, re-setting the flag, and then re-trying
 			 * the request.
 			 */
-		}
+//		}
 	}
 
 	@Override
