@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2368,7 +2369,7 @@ Log.i("Reid","wtf");
 
 	public static String createGeoFenceId(String nickname, double lat,
 			double lon) {
-		return nickname + "|" + lat + "|" + lon +"|rand:" +  (int)(Math.random() * 100001);
+		return UUID.randomUUID().toString();
 	}
 
 	@Override
