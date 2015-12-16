@@ -175,7 +175,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 								// to inactive after you've sent it
 								if (g.getFenceType() == fencetype.ONE_TIME) {
 									g.setActive(false);
-									Log.i("test", "Setting geofence inactive:"
+									Log.i("Reid", "Setting geofence inactive:"
 											+ g.getId());
 								}
 							}
@@ -191,7 +191,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 						// sendSms("4152601156",g.getMessage() + debugMessage,
 						// false);
 
-						Log.i("test", "setting this in simpleList" + i + " : "
+						Log.i("Reid", "setting this in simpleList" + i + " : "
 								+ g.getMessage() + "," + g.getTitle());
 						// simpleList.set(i, g);
 					}
@@ -228,7 +228,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 					// Log.v(TAG,"Success sending out leaving your house -- Receiver");
 					// }
 					triggerIds[i] = triggerList.get(i).getRequestId();
-					Log.i("test",
+					Log.i("Reid",
 							"inside geo fence receiver: " + g.getMessage()
 									+ " , " + g.getTitle());
 				}
@@ -315,7 +315,10 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 						|| geo.getLastSent()
 								+ (TIME_THRESHOLD_TO_SEND_MESSAGE * ONE_MINUTE_IN_MILLIS) <= currentTime) {
 					geo.setLastSent(currentTime);
+					Log.i("Reid",geo.getTitle() + " - this will send");
 					geo.setShouldSend(true);
+				} else {
+					Log.i("Reid",geo.getTitle() + " - this will NOT send");
 				}
 				retFence = geo;
 			}

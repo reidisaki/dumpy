@@ -212,7 +212,6 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-Log.i("Reid","wtf");
 		/*
 		 * error testing here useful but not used right now. Map<String, String>
 		 * errorParams = new HashMap<String, String>();
@@ -237,9 +236,9 @@ Log.i("Reid","wtf");
 				moveTaskToBack(true);
 			} else if (getIntent().getExtras().getBoolean(REREGISTER_GEOFENCE,
 					false)) {
-				Log.i("Reid", "oncreate device reboot ");
+				Log.i("Reid", "oncreate device reboot, used to call addGeoFences()");
 				reRegisterGeoFences = true;
-				addGeofences();
+//				addGeofences();
 
 			}
 		} else {
@@ -1228,6 +1227,7 @@ Log.i("Reid","wtf");
 		if (adView != null) {
 			adView.pause();
 		}
+		mRequestType = null;
 		super.onPause();
 	}
 
@@ -1906,14 +1906,14 @@ Log.i("Reid","wtf");
 		// CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng,
 		// 17);
 		// mMap.animateCamera(cameraUpdate);
-		Toast.makeText(getApplicationContext(), "connected",Toast.LENGTH_SHORT).show();
+//		Toast.makeText(getApplicationContext(), "connected",Toast.LENGTH_SHORT).show();
 		mInProgress = false;
 		LocationServices.FusedLocationApi.requestLocationUpdates(
 				mGoogleApiClient, mLocationRequest, this);
 		location = LocationServices.FusedLocationApi
 				.getLastLocation(mGoogleApiClient);
 
-		Log.v(TAG, "onConnected request type: " + mRequestType);
+//		Log.v(TAG, "onConnected request type: " + mRequestType);
 		if(mRequestType != null) {
 			switch (mRequestType) {
 			case ADD:
@@ -1980,8 +1980,7 @@ Log.i("Reid","wtf");
 							geoFences, mTransitionPendingIntent);
 					
 	
-				}
-	
+				}				
 				break;
 			case REMOVE_INTENT:
 				Log.i(TAG, "Removing all geo fences for reals on google");
@@ -2004,6 +2003,7 @@ Log.i("Reid","wtf");
 				break;
 			}
 		}
+		mRequestType = null;
 	}
 
 	// @Override
