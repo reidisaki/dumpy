@@ -33,8 +33,8 @@ public class ProximityService extends Service{
 	public static String SMS_DELIVERED = "DevliveredActivty";
 	public static int MAX_SMS_MESSAGE_LENGTH = 160;
 	public static int SMS_PORT = 21;
-	public static String SMS_MESSAGE_TEXT = "Hi Baby, I made it home safely! " + String.valueOf(MainActivity.RADIUS_METER);
-	public static String SMS_MESSAGE_OUT_TEXT = "Hi Baby, I'm leaving my house now!!!! " + String.valueOf(MainActivity.RADIUS_METER);
+	public static String SMS_MESSAGE_TEXT = "Hi Baby, I made it home safely! " + String.valueOf(MapActivity.RADIUS_METER);
+	public static String SMS_MESSAGE_OUT_TEXT = "Hi Baby, I'm leaving my house now!!!! " + String.valueOf(MapActivity.RADIUS_METER);
 	MyLocationListener locationListenerp;
 	public ProximityService() {
 
