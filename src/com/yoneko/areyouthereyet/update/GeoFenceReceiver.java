@@ -26,9 +26,9 @@ import com.yoneko.models.SimpleGeofence.fencetype;
 import com.yoneko.models.SimpleGeofenceList;
 
 public class GeoFenceReceiver extends BroadcastReceiver {
-	Context context;
+	static Context context;
 	Intent broadcastIntent = new Intent();
-	Map<String, String> sendParams  = null;
+	static Map<String, String> sendParams  = null;
 	public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
 	public static String TAG = "Reid";
 	static final long ONE_MINUTE_IN_MILLIS = 60000;// millisecs
@@ -45,7 +45,6 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 	public static int ACCURACY_METER_THRESHOLD = 150;
 	public static String SMS_NUMBER = "3233098967";
 	public static boolean isDebug = false;
-	private GoogleApiClient mGoogleApiClient;
 	// Crystals - public static String SMS_NUMBER = "3104647957";
 	public static String SMS_MESSAGE_TEXT = "Hi Baby, I made it home safely! ";// +
 	// String.valueOf(MainActivity.RADIUS_METER);
@@ -83,14 +82,12 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
 		Location location = lm
 				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if (location == null) {
-			isDebug = true;
-			sendSms("3233098967", "location was null for some reason" ,false);
+		if (location == null) {			
+			sendDebugMessage("location was null for some reason");
 			return;
 			// disabled gps.
 		} else {
-			isDebug = true;
-//			sendSms("3233098967", "location was NOT null, things working normally" ,false);
+			sendDebugMessage("location was NOT null, things working normally");
 		}
 		double longitude = location.getLongitude();
 		double latitude = location.getLatitude();
@@ -122,7 +119,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			Log.e("ReceiveTransitionsIntentService",
 					"Location Services error: " + Integer.toString(errorCode));
 			isDebug = true;
-			sendSms("3233098967", "geo event has error: " + errorCode, false);
+			sendDebugMessage("geo event has error: " + errorCode);
 			/*
 			 * You can also send the error code to an Activity or Fragment with
 			 * a broadcast Intent
@@ -141,9 +138,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			// Test that a valid transition was reported
 			if ((transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
 					|| (transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)) {
-				isDebug = true;
-				sendSms("3233098967", "this should send a real text, something got triggered", false);
-				isDebug = false;
+				sendDebugMessage("this should send a real text, something got triggered");
 				// Log.i(TAG,"Inside if statement");
 				// getListOfGeoFences here
 				List<Geofence> triggerList = // new ArrayList<Geofence>();
@@ -153,13 +148,13 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				Log.i("Reid", "all good trying to send message");
 				geoFenceList = MapActivity.getGeoFenceFromCache(context);
 				simpleList = geoFenceList.getGeoFences();
-				
+
 				// for(Geofence gf : triggerList) {
 				// Log.i("Reid","geofence id:" + gf.getRequestId());
 				// }
-//				 for(SimpleGeofence gf : simpleList) {
-//				 Log.i("Reid","SimpeGeofence id:" + gf.getId() + " number:" + gf.getEmailPhone());
-//				 }
+				//				 for(SimpleGeofence gf : simpleList) {
+				//				 Log.i("Reid","SimpeGeofence id:" + gf.getId() + " number:" + gf.getEmailPhone());
+				//				 }
 				String debugMessage = "acc: " + location.getAccuracy()
 						+ "lat: " + location.getLatitude() + " lon: "
 						+ location.getLongitude()
@@ -263,8 +258,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		FlurryAgent.onEndSession(context);
 	}
 
-
-	private void sendSms(String phonenumber, String message, boolean isBinary) {
+	public static void sendSms(String phonenumber, String message, boolean isBinary) {
 
 		SmsManager manager = SmsManager.getDefault();
 		sendParams = new HashMap<String, String>();
@@ -276,11 +270,11 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		PendingIntent piDelivered = PendingIntent.getBroadcast(context, 0,
 				new Intent(SMS_DELIVERED), 0);
 		Log.i("Reid", "sending a text to : " + phonenumber);
-		if(!isDebug) {
-			Toast.makeText(context,
-					"SENDING A TEXT " + message + " phone number: " + phonenumber,
-					Toast.LENGTH_LONG).show();
-		}
+
+		Toast.makeText(context,
+				"SENDING A TEXT " + message + " phone number: " + phonenumber,
+				Toast.LENGTH_LONG).show();
+
 		if (isBinary) {
 			byte[] data = new byte[message.length()];
 
@@ -351,4 +345,9 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		return retFence;
 	}
 
+	public void sendDebugMessage(String message) {
+		if(isDebug) {
+			sendSms("3233098967", message ,false);
+		}
+	}
 }

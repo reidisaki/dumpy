@@ -1258,10 +1258,12 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	@Override
 	public void onDestroy() {
 		isActive = false;
+		
 		// Destroy the AdView.
 		if (adView != null) {
 			adView.destroy();
-		}
+		}			
+		
 		super.onDestroy();
 	}
 
