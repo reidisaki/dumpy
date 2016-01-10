@@ -2414,11 +2414,49 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 	}
 
 	@Override
-	public void toggleClicked() {
-//		Toast.makeText(getApplicationContext(), "toggle clicked workd", Toast.LENGTH_SHORT).show();
-		reRegisterGeoFences = true;
-		removeGeofences(getTransitionPendingIntent());
-		
+	public void toggleClicked(SimpleGeofence geoFence, boolean isChecked) {
+		//		Toast.makeText(getApplicationContext(), "toggle clicked workd", Toast.LENGTH_SHORT).show();
+		List<String> geofenceIdList = new ArrayList<String>();
+		geofenceIdList.add(geoFence.getId());		
+		removeGeofences(geofenceIdList);
+		if(isChecked) {
+			ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
+			mTransitionPendingIntent = getTransitionPendingIntent();
+			// for(int i=0; i<mSimpleGeoFenceList.size();i++) {
+			// add items to geoFences;
+			try {
+
+				for (SimpleGeofence g : mSimpleGeoFenceList) {
+					if(geoFence.getId().equals(g.getId())) {
+//						Toast.makeText(getApplicationContext(), "matched ID :" + g.getMessage(),Toast.LENGTH_SHORT).show();
+						geoFences.add(geoFence.toGeofence());
+						continue;
+					}
+				}
+			} catch (IllegalArgumentException e) {
+				Toast.makeText(getApplicationContext(), "illegal issue",Toast.LENGTH_SHORT).show();
+				Log.v(TAG, "illegal long/ lat combination not found...");
+			}
+			//			mInProgress = true;
+			if(geoFences.size() > 0 ) {
+				Toast.makeText(getApplicationContext(), "passing in geofences for google api",Toast.LENGTH_SHORT).show();
+				PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
+				result.setResultCallback(new ResultCallback<Status>() {
+					@Override
+					public void onResult(Status result) {
+						if(result.isSuccess()) {
+							mInProgress = false;
+							Log.i("Reid","added fences successfully");
+							Toast.makeText(getApplicationContext(), "SUCCESS, added fence",Toast.LENGTH_SHORT).show();
+						} else {
+							Toast.makeText(getApplicationContext(), "ERROR, please try again",Toast.LENGTH_SHORT).show();
+						}
+
+					}
+				});
+			} else {
+				Toast.makeText(getApplicationContext(), "geofences is empty",Toast.LENGTH_SHORT).show();
+			}
+		}
 	}
-	
 }

@@ -15,7 +15,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.yoneko.areyouthereyet.update.R;
 import com.yoneko.models.SimpleGeofence;
@@ -77,7 +76,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 				Log.i("test","position: " + position + " is set with this value:" + objectItem.getTitle() + " : " + objectItem.isActive());
 				data.set(position, objectItem);
 				MapActivity.storeJSON(new SimpleGeofenceList(data), mContext);	
-				listener.toggleClicked();
+				listener.toggleClicked(objectItem, isChecked);
 			}
 		});
 		final CheckBox checkbox = (CheckBox)convertView.findViewById(R.id.drawer_check_box);
@@ -106,7 +105,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		return convertView;
 	}
 	public interface ToggleSwitchClicked {
-		public void toggleClicked();
+		public void toggleClicked(SimpleGeofence g, boolean isChecked);
 		
 	}	
 
