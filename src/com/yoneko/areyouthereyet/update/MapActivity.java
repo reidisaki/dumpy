@@ -2416,6 +2416,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 	@Override
 	public void toggleClicked() {
 //		Toast.makeText(getApplicationContext(), "toggle clicked workd", Toast.LENGTH_SHORT).show();
+		reRegisterGeoFences = true;
 		removeGeofences(getTransitionPendingIntent());
 		
 	}
