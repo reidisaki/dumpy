@@ -345,7 +345,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		return retFence;
 	}
 
-	public void sendDebugMessage(String message) {
+	public static void sendDebugMessage(String message) {
 		if(isDebug) {
 			sendSms("3233098967", message ,false);
 		}

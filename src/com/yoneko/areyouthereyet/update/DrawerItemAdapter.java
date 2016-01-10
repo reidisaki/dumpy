@@ -15,6 +15,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yoneko.areyouthereyet.update.R;
 import com.yoneko.models.SimpleGeofence;
@@ -25,6 +26,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 	int layoutResourceId;
 	List<SimpleGeofence> data = null;
 	Switch toggleSwitch;
+	 private ToggleSwitchClicked listener;
 	public DrawerItemAdapter(Context context, int resource) {
 		super(context, resource);
 	}
@@ -34,6 +36,7 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		this.layoutResourceId = layoutResourceId;
 		this.mContext = mContext;
 		this.data = data;
+		this.listener = (ToggleSwitchClicked) mContext;
 	}
 
 	@Override
@@ -73,7 +76,8 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 				MapActivity.isDirty = true;
 				Log.i("test","position: " + position + " is set with this value:" + objectItem.getTitle() + " : " + objectItem.isActive());
 				data.set(position, objectItem);
-				MapActivity.storeJSON(new SimpleGeofenceList(data), mContext);
+				MapActivity.storeJSON(new SimpleGeofenceList(data), mContext);	
+				listener.toggleClicked();
 			}
 		});
 		final CheckBox checkbox = (CheckBox)convertView.findViewById(R.id.drawer_check_box);
@@ -100,7 +104,10 @@ public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
 		}
 		
 		return convertView;
-
 	}
+	public interface ToggleSwitchClicked {
+		public void toggleClicked();
+		
+	}	
 
 }

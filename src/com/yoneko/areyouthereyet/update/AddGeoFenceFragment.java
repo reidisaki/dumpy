@@ -115,12 +115,6 @@ public class AddGeoFenceFragment extends DialogFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (getArguments() != null) {
-			mParam1 = getArguments().getString(ARG_PARAM1);
-			mParam2 = getArguments().getString(ARG_PARAM2);
-		}
-
 	}
 
 	private static final String[] PROJECTION = new String[] {

@@ -52,9 +52,11 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -113,6 +115,7 @@ import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.DrawerItemAdapter.ToggleSwitchClicked;
 import com.yoneko.areyouthereyet.update.GeoFenceReceiver.onGeofenceTriggeredListener;
 import com.yoneko.models.PhoneContact;
 import com.yoneko.models.Prediction;
@@ -122,12 +125,12 @@ import com.yoneko.models.SimpleGeofenceList;
 
 public class MapActivity extends FragmentActivity implements OnMapLongClickListener,
 OnMarkerClickListener, onEditTextClicked, ConnectionCallbacks,
-OnConnectionFailedListener, OnMyLocationChangeListener,
+OnConnectionFailedListener, OnMyLocationChangeListener, OnTouchListener,
 OnMyLocationButtonClickListener, LocationListener, OnMapLoadedCallback,
-OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
+OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwitchClicked {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
-	private static final long LOCATION_UPDATE_INTERVAL = 1;
+	private static final long LOCATION_UPDATE_INTERVAL = 5;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
 	private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
 	public static String GEO_FENCES = "geofences";
@@ -229,7 +232,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 						+ String.valueOf(getIntent().getExtras() == null));
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext())
 				.getGeoFences();
-		
+
 		if (getIntent().getExtras() != null) {
 			Log.i("Reid", "get extras is not null!!! :) ");
 			if (getIntent().getExtras().getBoolean("moveToBack")) {
@@ -377,12 +380,9 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	private void initMap() {
 
 		android.support.v4.app.FragmentManager myFragmentManager = getSupportFragmentManager();
-		SupportMapFragment mySupportMapFragment 
-		= (SupportMapFragment)myFragmentManager.findFragmentById(R.id.map);
-
+		SupportMapFragment mySupportMapFragment = (SupportMapFragment)myFragmentManager.findFragmentById(R.id.map);
 
 		mMap = mySupportMapFragment.getMap();
-
 
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
 		mMap.setMyLocationEnabled(true);
@@ -1258,12 +1258,12 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	@Override
 	public void onDestroy() {
 		isActive = false;
-		
+
 		// Destroy the AdView.
 		if (adView != null) {
 			adView.destroy();
 		}			
-		
+
 		super.onDestroy();
 	}
 
@@ -1279,6 +1279,8 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
 			Geocoder geo = new Geocoder(getApplicationContext());
 			String currentLocationText = "I'm currently here: ";
+
+
 			List<Address> addressList;
 			try {
 				addressList = geo.getFromLocation(
@@ -1307,7 +1309,6 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 							+ Math.ceil(location.getAccuracy()) + " meters");
 			intent.putExtra("exit_on_sent", true);
 			startActivityForResult(intent, 1234);
-
 			// Send out text message to someone who your location
 		} else {
 			handlePoint(marker);
@@ -1863,23 +1864,34 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			Log.v(TAG, "illegal long/ lat combination not found...");
 		}
 		//			mInProgress = true;
-		PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
-		result.setResultCallback(new ResultCallback<Status>() {
-			@Override
-			public void onResult(Status result) {
-				if(result.isSuccess()) {
-					//TODO: this isnt really doing anything.
-					mInProgress = false;
-					Log.i("Reid","added fences successfully");
-					Toast.makeText(getApplicationContext(), "SUCCESS, added fence",Toast.LENGTH_SHORT).show();
-				} else {
-					//						TODO:
-					//there was an error relay this to the user..
-					Toast.makeText(getApplicationContext(), "ERROR, please try again",Toast.LENGTH_SHORT).show();
-				}
+		if(geoFences != null && geoFences.size() > 0 ) {
+			PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
+			result.setResultCallback(new ResultCallback<Status>() {
+				@Override
+				public void onResult(Status result) {
+					if(result.isSuccess()) {
+						//TODO: this isnt really doing anything.
+						mInProgress = false;
+						Log.i("Reid","added fences successfully");
+						Toast.makeText(getApplicationContext(), "SUCCESS, added fence",Toast.LENGTH_SHORT).show();
+					} else {
+						//						TODO:
+						//there was an error relay this to the user..
+						Toast.makeText(getApplicationContext(), "ERROR, please try again",Toast.LENGTH_SHORT).show();
+					}
 
+				}
+			});
+		} else {
+			Toast.makeText(getApplicationContext(), "ERROR, geofences did not register.",Toast.LENGTH_SHORT).show();
+			GeoFenceReceiver.isDebug = true;
+			if(geoFences == null) {				
+				GeoFenceReceiver.sendDebugMessage("geo fences is null");
+			} else {
+				GeoFenceReceiver.sendDebugMessage("geo fences is empty");
 			}
-		});
+			GeoFenceReceiver.isDebug = false;
+		}
 		// Indicate that a request is underway
 
 		// If a request is not already underway
@@ -1930,8 +1942,8 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 				// for(int i=0; i<mSimpleGeoFenceList.size();i++) {
 				// add items to geoFences;
 				try {
-						geoFences.add(mSimpleGeoFenceList.get(
-								mSimpleGeoFenceList.size() - 1).toGeofence());
+					geoFences.add(mSimpleGeoFenceList.get(
+							mSimpleGeoFenceList.size() - 1).toGeofence());
 
 				} catch (IllegalArgumentException e) {
 					Log.v(TAG, "illegal long/ lat combination not found...");
@@ -2100,7 +2112,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		 * implements ConnectionCallbacks and OnConnectionFailedListener, pass
 		 * the current activity object as the listener for both parameters
 		 */
-		
+
 		PendingResult<Status> result = LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,
 				requestIntent);
 		result.setResultCallback(new ResultCallback<Status>() {
@@ -2118,9 +2130,9 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 
 			}
 		});
-		
-		
-		
+
+
+
 		// mLocationClient = new LocationClient(this, this, this);
 		// If a request is not already underway
 		//		if (!mInProgress) {
@@ -2247,7 +2259,6 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	public void onLocationChanged(Location arg0) {
 		// Log.v(TAG,"Location CHanged: " + String.valueOf(arg0.getLongitude())
 		// +","+String.valueOf(arg0.getLatitude())) ;
-
 	}
 
 	//
@@ -2395,4 +2406,18 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		mDrawerList.setAdapter(drawerAdapter);
 		drawerAdapter.notifyDataSetChanged();
 	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		navigateToMyLocation = false;
+		return false;
+	}
+
+	@Override
+	public void toggleClicked() {
+//		Toast.makeText(getApplicationContext(), "toggle clicked workd", Toast.LENGTH_SHORT).show();
+		removeGeofences(getTransitionPendingIntent());
+		
+	}
+	
 }
