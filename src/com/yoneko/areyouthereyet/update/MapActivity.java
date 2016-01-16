@@ -91,6 +91,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -124,13 +125,13 @@ import com.yoneko.models.SimpleGeofence.fencetype;
 import com.yoneko.models.SimpleGeofenceList;
 
 public class MapActivity extends FragmentActivity implements OnMapLongClickListener,
-OnMarkerClickListener, onEditTextClicked, ConnectionCallbacks,
-OnConnectionFailedListener, OnMyLocationChangeListener, OnTouchListener,
+OnMarkerClickListener, onEditTextClicked, ConnectionCallbacks,OnTouchListener,
+OnConnectionFailedListener, OnMyLocationChangeListener,ToggleSwitchClicked,
 OnMyLocationButtonClickListener, LocationListener, OnMapLoadedCallback,
-OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwitchClicked {
+OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	private int REQUEST_CODE = 9090;// search request code
 	private static final long SECONDS_PER_HOUR = 60;
-	private static final long LOCATION_UPDATE_INTERVAL = 5;
+	private static final long LOCATION_UPDATE_INTERVAL = 1;
 	private static final long MILLISECONDS_PER_SECOND = 1000;
 	private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
 	public static String GEO_FENCES = "geofences";
@@ -380,9 +381,12 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 	private void initMap() {
 
 		android.support.v4.app.FragmentManager myFragmentManager = getSupportFragmentManager();
-		SupportMapFragment mySupportMapFragment = (SupportMapFragment)myFragmentManager.findFragmentById(R.id.map);
+		SupportMapFragment mySupportMapFragment 
+		= (SupportMapFragment)myFragmentManager.findFragmentById(R.id.map);
+
 
 		mMap = mySupportMapFragment.getMap();
+
 
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
 		mMap.setMyLocationEnabled(true);
@@ -1279,8 +1283,6 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 			Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
 			Geocoder geo = new Geocoder(getApplicationContext());
 			String currentLocationText = "I'm currently here: ";
-
-
 			List<Address> addressList;
 			try {
 				addressList = geo.getFromLocation(
@@ -1309,6 +1311,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 							+ Math.ceil(location.getAccuracy()) + " meters");
 			intent.putExtra("exit_on_sent", true);
 			startActivityForResult(intent, 1234);
+
 			// Send out text message to someone who your location
 		} else {
 			handlePoint(marker);
@@ -1864,8 +1867,10 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 			Log.v(TAG, "illegal long/ lat combination not found...");
 		}
 		//			mInProgress = true;
-		if(geoFences != null && geoFences.size() > 0 ) {
-			PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
+		if(geoFences.size() > 0) {
+			GeofencingRequest fenceRequest = new GeofencingRequest.Builder().addGeofences(geoFences).build();
+			PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,fenceRequest,mTransitionPendingIntent);
+
 			result.setResultCallback(new ResultCallback<Status>() {
 				@Override
 				public void onResult(Status result) {
@@ -1882,15 +1887,6 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 
 				}
 			});
-		} else {
-			Toast.makeText(getApplicationContext(), "ERROR, geofences did not register.",Toast.LENGTH_SHORT).show();
-			GeoFenceReceiver.isDebug = true;
-			if(geoFences == null) {				
-				GeoFenceReceiver.sendDebugMessage("geo fences is null");
-			} else {
-				GeoFenceReceiver.sendDebugMessage("geo fences is empty");
-			}
-			GeoFenceReceiver.isDebug = false;
 		}
 		// Indicate that a request is underway
 
@@ -2259,6 +2255,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 	public void onLocationChanged(Location arg0) {
 		// Log.v(TAG,"Location CHanged: " + String.valueOf(arg0.getLongitude())
 		// +","+String.valueOf(arg0.getLatitude())) ;
+
 	}
 
 	//
@@ -2406,7 +2403,6 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 		mDrawerList.setAdapter(drawerAdapter);
 		drawerAdapter.notifyDataSetChanged();
 	}
-
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		navigateToMyLocation = false;
@@ -2428,7 +2424,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 
 				for (SimpleGeofence g : mSimpleGeoFenceList) {
 					if(geoFence.getId().equals(g.getId())) {
-//						Toast.makeText(getApplicationContext(), "matched ID :" + g.getMessage(),Toast.LENGTH_SHORT).show();
+						//						Toast.makeText(getApplicationContext(), "matched ID :" + g.getMessage(),Toast.LENGTH_SHORT).show();
 						geoFences.add(geoFence.toGeofence());
 						continue;
 					}
@@ -2439,7 +2435,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 			}
 			//			mInProgress = true;
 			if(geoFences.size() > 0 ) {
-				Toast.makeText(getApplicationContext(), "passing in geofences for google api",Toast.LENGTH_SHORT).show();
+				//				Toast.makeText(getApplicationContext(), "passing in geofences for google api",Toast.LENGTH_SHORT).show();
 				PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
 				result.setResultCallback(new ResultCallback<Status>() {
 					@Override
@@ -2459,4 +2455,5 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener, ToggleSwit
 			}
 		}
 	}
+
 }

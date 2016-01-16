@@ -65,11 +65,13 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		this.context = context;
 		FlurryAgent.onStartSession(context, flurryKey);
 		Log.i("yoneko", "in on Receive");
+		isDebug = true;
 		// start on boot
 		Log.i("Reid", "device restart: " + intent.getAction());
 		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
 				|| intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT)) {
-
+			sendDebugMessage("action boot completed or action reboot, starting map activity, not sending geofences");
+			
 			Intent i = new Intent(context, MapActivity.class);
 			i.putExtra(MapActivity.REREGISTER_GEOFENCE, true);
 			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -92,6 +94,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		double longitude = location.getLongitude();
 		double latitude = location.getLatitude();
 		GeofencingEvent geoEvent = GeofencingEvent.fromIntent(intent);
+		sendDebugMessage("geoEvent" + geoEvent.getTriggeringLocation().getLongitude() + "," + geoEvent.getTriggeringLocation().getLatitude());
 		String locationString = "http://maps.google.com/?q="
 				+ String.valueOf(latitude) + "," + String.valueOf(longitude);
 
@@ -129,15 +132,13 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			 * geofence or geofences that triggered the transition
 			 */
 		} else {
-
 			// Log.v(TAG,"on handle intent");
-			// Get the type of transition (entry or exit)
-			GeofencingEvent.fromIntent(intent);
+			// Get the type of transition (entry or exit)			
 			int transitionType = geoEvent.getGeofenceTransition();
 			// Log.v(TAG,"Transition type = " + String.valueOf(transitionType));
 			// Test that a valid transition was reported
 			if ((transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
-					|| (transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)) {
+					|| (transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)) {				
 				sendDebugMessage("this should send a real text, something got triggered");
 				// Log.i(TAG,"Inside if statement");
 				// getListOfGeoFences here

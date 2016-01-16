@@ -38,7 +38,7 @@ public class SafetyService extends Service {
 			Bundle b = new Bundle();
 			b.putBoolean("moveToBack", true);
 			i.putExtras(b);
-			startActivity(i);			
+//			startActivity(i);			
 		}
 		return Service.START_STICKY;
 	}
