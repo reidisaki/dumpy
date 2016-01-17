@@ -65,7 +65,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		this.context = context;
 		FlurryAgent.onStartSession(context, flurryKey);
 		Log.i("yoneko", "in on Receive");
-		isDebug = true;
+//		isDebug = true;
 		// start on boot
 		Log.i("Reid", "device restart: " + intent.getAction());
 		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
@@ -78,25 +78,26 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			context.startActivity(i);
 		}
 		//		 broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
-
-		LocationManager lm = (LocationManager) context
-				.getSystemService(Context.LOCATION_SERVICE);
-
-		Location location = lm
-				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if (location == null) {			
-			sendDebugMessage("location was null for some reason");
-			return;
-			// disabled gps.
-		} else {
-			sendDebugMessage("location was NOT null, things working normally");
-		}
-		double longitude = location.getLongitude();
-		double latitude = location.getLatitude();
 		GeofencingEvent geoEvent = GeofencingEvent.fromIntent(intent);
 		sendDebugMessage("geoEvent" + geoEvent.getTriggeringLocation().getLongitude() + "," + geoEvent.getTriggeringLocation().getLatitude());
-		String locationString = "http://maps.google.com/?q="
-				+ String.valueOf(latitude) + "," + String.valueOf(longitude);
+
+//		LocationManager lm = (LocationManager) context
+//				.getSystemService(Context.LOCATION_SERVICE);
+//
+//		Location location = lm
+//				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//		if (location == null) {			
+//			sendDebugMessage("location was null for some reason");
+//			return;
+//			// disabled gps.
+//		} else {
+//			sendDebugMessage("location was NOT null, things working normally");
+//		}
+//		double longitude = location.getLongitude();
+//		double latitude = location.getLatitude();
+		Location location = geoEvent.getTriggeringLocation();
+//		String locationString = "http://maps.google.com/?q="
+//				+ String.valueOf(latitude) + "," + String.valueOf(longitude);
 
 		// Log.v(TAG,"handling intent");
 		// if(intent.getExtras().getString("transitionType").equals("1")) {
@@ -121,7 +122,6 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 			// Log the error
 			Log.e("ReceiveTransitionsIntentService",
 					"Location Services error: " + Integer.toString(errorCode));
-			isDebug = true;
 			sendDebugMessage("geo event has error: " + errorCode);
 			/*
 			 * You can also send the error code to an Activity or Fragment with
