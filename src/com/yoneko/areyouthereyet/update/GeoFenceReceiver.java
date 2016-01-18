@@ -65,13 +65,13 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		this.context = context;
 		FlurryAgent.onStartSession(context, flurryKey);
 		Log.i("yoneko", "in on Receive");
-//		isDebug = true;
+		//		isDebug = true;
 		// start on boot
 		Log.i("Reid", "device restart: " + intent.getAction());
 		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
 				|| intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT)) {
 			sendDebugMessage("action boot completed or action reboot, starting map activity, not sending geofences");
-			
+
 			Intent i = new Intent(context, MapActivity.class);
 			i.putExtra(MapActivity.REREGISTER_GEOFENCE, true);
 			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -79,181 +79,184 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 		}
 		//		 broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 		GeofencingEvent geoEvent = GeofencingEvent.fromIntent(intent);
-		sendDebugMessage("geoEvent" + geoEvent.getTriggeringLocation().getLongitude() + "," + geoEvent.getTriggeringLocation().getLatitude());
+		if(geoEvent.getTriggeringLocation() != null) {
+			sendDebugMessage("geoEvent" + geoEvent.getTriggeringLocation().getLongitude() + "," + geoEvent.getTriggeringLocation().getLatitude());		
 
-//		LocationManager lm = (LocationManager) context
-//				.getSystemService(Context.LOCATION_SERVICE);
-//
-//		Location location = lm
-//				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-//		if (location == null) {			
-//			sendDebugMessage("location was null for some reason");
-//			return;
-//			// disabled gps.
-//		} else {
-//			sendDebugMessage("location was NOT null, things working normally");
-//		}
-//		double longitude = location.getLongitude();
-//		double latitude = location.getLatitude();
-		Location location = geoEvent.getTriggeringLocation();
-//		String locationString = "http://maps.google.com/?q="
-//				+ String.valueOf(latitude) + "," + String.valueOf(longitude);
+			//		LocationManager lm = (LocationManager) context
+			//				.getSystemService(Context.LOCATION_SERVICE);
+			//
+			//		Location location = lm
+			//				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			//		if (location == null) {			
+			//			sendDebugMessage("location was null for some reason");
+			//			return;
+			//			// disabled gps.
+			//		} else {
+			//			sendDebugMessage("location was NOT null, things working normally");
+			//		}
+			//		double longitude = location.getLongitude();
+			//		double latitude = location.getLatitude();
+			Location location = geoEvent.getTriggeringLocation();
 
-		// Log.v(TAG,"handling intent");
-		// if(intent.getExtras().getString("transitionType").equals("1")) {
-		// sendSms("3233098967",SMS_MESSAGE_TEXT + locationString +
-		// "  http://maps.google.com/?q=34.054932,-118.342929", false);
-		//
-		// }
-		// if(intent.getExtras().getString("transitionType").equals("2")) {
-		// sendSms("3233098967",SMS_MESSAGE_OUT_TEXT + locationString , false);
-		// }
+			//		String locationString = "http://maps.google.com/?q="
+			//				+ String.valueOf(latitude) + "," + String.valueOf(longitude);
 
-		if (geoEvent.hasError()) {
-			Log.v(TAG, "onHandleIntent Error");
-			// Get the error code with a static method
-			int errorCode = geoEvent.getErrorCode();
+			// Log.v(TAG,"handling intent");
+			// if(intent.getExtras().getString("transitionType").equals("1")) {
+			// sendSms("3233098967",SMS_MESSAGE_TEXT + locationString +
+			// "  http://maps.google.com/?q=34.054932,-118.342929", false);
+			//
+			// }
+			// if(intent.getExtras().getString("transitionType").equals("2")) {
+			// sendSms("3233098967",SMS_MESSAGE_OUT_TEXT + locationString , false);
+			// }
 
-			Map<String, String> errorParams = new HashMap<String, String>();
-			errorParams.put("ErrorCode", "" + errorCode);
-			FlurryAgent
-			.logEvent("Error occured in onReceive GeoFence Receiver",
-					errorParams);
-			// Log the error
-			Log.e("ReceiveTransitionsIntentService",
-					"Location Services error: " + Integer.toString(errorCode));
-			sendDebugMessage("geo event has error: " + errorCode);
-			/*
-			 * You can also send the error code to an Activity or Fragment with
-			 * a broadcast Intent
-			 */
-			/*
-			 * If there's no error, get the transition type and the IDs of the
-			 * geofence or geofences that triggered the transition
-			 */
-		} else {
-			// Log.v(TAG,"on handle intent");
-			// Get the type of transition (entry or exit)			
-			int transitionType = geoEvent.getGeofenceTransition();
-			// Log.v(TAG,"Transition type = " + String.valueOf(transitionType));
-			// Test that a valid transition was reported
-			if ((transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
-					|| (transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)) {				
-				sendDebugMessage("this should send a real text, something got triggered");
-				// Log.i(TAG,"Inside if statement");
-				// getListOfGeoFences here
-				List<Geofence> triggerList = // new ArrayList<Geofence>();
-						geoEvent.getTriggeringGeofences();
+			if (geoEvent.hasError()) {
+				Log.v(TAG, "onHandleIntent Error");
+				// Get the error code with a static method
+				int errorCode = geoEvent.getErrorCode();
 
-				String[] triggerIds = new String[triggerList.size()];
-				Log.i("Reid", "all good trying to send message");
-				geoFenceList = MapActivity.getGeoFenceFromCache(context);
-				simpleList = geoFenceList.getGeoFences();
+				Map<String, String> errorParams = new HashMap<String, String>();
+				errorParams.put("ErrorCode", "" + errorCode);
+				FlurryAgent
+				.logEvent("Error occured in onReceive GeoFence Receiver",
+						errorParams);
+				// Log the error
+				Log.e("ReceiveTransitionsIntentService",
+						"Location Services error: " + Integer.toString(errorCode));
+				sendDebugMessage("geo event has error: " + errorCode);
+				/*
+				 * You can also send the error code to an Activity or Fragment with
+				 * a broadcast Intent
+				 */
+				/*
+				 * If there's no error, get the transition type and the IDs of the
+				 * geofence or geofences that triggered the transition
+				 */
+			} else {
+				// Log.v(TAG,"on handle intent");
+				// Get the type of transition (entry or exit)			
+				int transitionType = geoEvent.getGeofenceTransition();
+				// Log.v(TAG,"Transition type = " + String.valueOf(transitionType));
+				// Test that a valid transition was reported
+				if ((transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
+						|| (transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)) {				
+					sendDebugMessage("this should send a real text, something got triggered");
+					// Log.i(TAG,"Inside if statement");
+					// getListOfGeoFences here
+					List<Geofence> triggerList = // new ArrayList<Geofence>();
+							geoEvent.getTriggeringGeofences();
 
-				// for(Geofence gf : triggerList) {
-				// Log.i("Reid","geofence id:" + gf.getRequestId());
-				// }
-				//				 for(SimpleGeofence gf : simpleList) {
-				//				 Log.i("Reid","SimpeGeofence id:" + gf.getId() + " number:" + gf.getEmailPhone());
-				//				 }
-				String debugMessage = "acc: " + location.getAccuracy()
-						+ "lat: " + location.getLatitude() + " lon: "
-						+ location.getLongitude()
-						+ "  http://maps.google.com/?q="
-						+ location.getLatitude() + ","
-						+ location.getLongitude();
+					String[] triggerIds = new String[triggerList.size()];
+					Log.i("Reid", "all good trying to send message");
+					geoFenceList = MapActivity.getGeoFenceFromCache(context);
+					simpleList = geoFenceList.getGeoFences();
 
-				for (int i = 0; i < triggerIds.length; i++) {
-					SimpleGeofence g = getSimpleGeofence(simpleList,
-							triggerList.get(i));
-					Log.i("Reid", "is geofence null? : " + (g == null));
-					if (g == null) {
-						Log.i("test", "is geofence null? : " + (g == null));
-						return;
-					}
-					Log.i("Reid", "geofecne is active?" + g.isActive());
-					String realCoordinates = "  real lat:" + g.getLatitude()
-							+ "," + g.getLongitude();
-					
-					if (g.isShouldSend()
-							&& location.getAccuracy() <= MAX_ACCURACY_ERROR
-							&& g.isActive() && !isDebug) {
-						Log.i("Reid", "should send");
-						if (g.getPhoneContacts() != null) {
-							for (PhoneContact p : g.getPhoneContacts()) {
-								sendSms(p.getNumber(), g.getMessage(), false);
+					// for(Geofence gf : triggerList) {
+					// Log.i("Reid","geofence id:" + gf.getRequestId());
+					// }
+					//				 for(SimpleGeofence gf : simpleList) {
+					//				 Log.i("Reid","SimpeGeofence id:" + gf.getId() + " number:" + gf.getEmailPhone());
+					//				 }
 
-								// if the message is a one time send then set it
-								// to inactive after you've sent it
-								if (g.getFenceType() == fencetype.ONE_TIME) {
-									g.setActive(false);
-									Log.i("Reid", "Setting geofence inactive:"
-											+ g.getId());
-								}
-							}
+					String debugMessage = "acc: " + location.getAccuracy()
+							+ "lat: " + location.getLatitude() + " lon: "
+							+ location.getLongitude()
+							+ "  http://maps.google.com/?q="
+							+ location.getLatitude() + ","
+							+ location.getLongitude();
 
-						} else {
-							// old version using just one contact.. don't want
-							// to break it.
-							sendSms(g.getEmailPhone(), g.getMessage(), false);
+					for (int i = 0; i < triggerIds.length; i++) {
+						SimpleGeofence g = getSimpleGeofence(simpleList,
+								triggerList.get(i));
+						Log.i("Reid", "is geofence null? : " + (g == null));
+						if (g == null) {
+							Log.i("test", "is geofence null? : " + (g == null));
+							return;
 						}
-						// DEBUG STATEMENT - Reid Isaki
-						// sendSms("3233098967",g.getMessage() + realCoordinates
-						// + debugMessage, false);
-						// sendSms("4152601156",g.getMessage() + debugMessage,
+						Log.i("Reid", "geofecne is active?" + g.isActive());
+						String realCoordinates = "  real lat:" + g.getLatitude()
+								+ "," + g.getLongitude();
+
+						if (g.isShouldSend()
+								&& location.getAccuracy() <= MAX_ACCURACY_ERROR
+								&& g.isActive() && !isDebug) {
+							Log.i("Reid", "should send");
+							if (g.getPhoneContacts() != null) {
+								for (PhoneContact p : g.getPhoneContacts()) {
+									sendSms(p.getNumber(), g.getMessage(), false);
+
+									// if the message is a one time send then set it
+									// to inactive after you've sent it
+									if (g.getFenceType() == fencetype.ONE_TIME) {
+										g.setActive(false);
+										Log.i("Reid", "Setting geofence inactive:"
+												+ g.getId());
+									}
+								}
+
+							} else {
+								// old version using just one contact.. don't want
+								// to break it.
+								sendSms(g.getEmailPhone(), g.getMessage(), false);
+							}
+							// DEBUG STATEMENT - Reid Isaki
+							// sendSms("3233098967",g.getMessage() + realCoordinates
+							// + debugMessage, false);
+							// sendSms("4152601156",g.getMessage() + debugMessage,
+							// false);
+
+							Log.i("Reid", "setting this in simpleList" + i + " : "
+									+ g.getMessage() + "," + g.getTitle());
+							// simpleList.set(i, g);
+						}
+						// Store the Id of each geofence
+						// Old way of hard coded sending to Crystal
+						// if(triggerList.get(i).getRequestId().equals("1")) {
+						// sendSms(SMS_NUMBER,SMS_MESSAGE_TEXT, false);
+						// Log.v(TAG,"Success sending in");
+						// }
+						// if(triggerList.get(i).getRequestId().equals("2")) {
+						// sendSms(SMS_NUMBER,SMS_MESSAGE_OUT_TEXT , false);
+						// Log.v(TAG,"Success sending out");
+						// }
+						// if(triggerList.get(i).getRequestId().equals("3")) {
+						// sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!",
 						// false);
-
-						Log.i("Reid", "setting this in simpleList" + i + " : "
-								+ g.getMessage() + "," + g.getTitle());
-						// simpleList.set(i, g);
+						//
+						/*
+						 * I've been thinking about how this whole location thing
+						 * should work. Before I send a text message I check the
+						 * time threshold, if less than 5 mintues have passed, then
+						 * I should check my current location if the distance
+						 * between the center of the geo fence and my location is
+						 * greater than 250m + the radius of the geofence itself
+						 * then don't send it. if more than 5 minutes passes, I will
+						 * set the time interval to empty? We need to see how often
+						 * the gps bounces around, and by how much does it bounce.
+						 * You should be able to find that out tonight.
+						 */
+						// Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");
+						// }
+						// if(triggerList.get(i).getRequestId().equals("4")) {
+						// sendSms(SMS_NUMBER,"Leaving your house!! :( ", false);
+						// Log.v(TAG,"Success sending out leaving your house -- Receiver");
+						// }
+						triggerIds[i] = triggerList.get(i).getRequestId();
+						Log.i("Reid",
+								"inside geo fence receiver: " + g.getMessage()
+								+ " , " + g.getTitle());
 					}
-					// Store the Id of each geofence
-					// Old way of hard coded sending to Crystal
-					// if(triggerList.get(i).getRequestId().equals("1")) {
-					// sendSms(SMS_NUMBER,SMS_MESSAGE_TEXT, false);
-					// Log.v(TAG,"Success sending in");
-					// }
-					// if(triggerList.get(i).getRequestId().equals("2")) {
-					// sendSms(SMS_NUMBER,SMS_MESSAGE_OUT_TEXT , false);
-					// Log.v(TAG,"Success sending out");
-					// }
-					// if(triggerList.get(i).getRequestId().equals("3")) {
-					// sendSms(SMS_NUMBER,"Hi baby I'm at your house, finding parking!!!",
-					// false);
-					//
-					/*
-					 * I've been thinking about how this whole location thing
-					 * should work. Before I send a text message I check the
-					 * time threshold, if less than 5 mintues have passed, then
-					 * I should check my current location if the distance
-					 * between the center of the geo fence and my location is
-					 * greater than 250m + the radius of the geofence itself
-					 * then don't send it. if more than 5 minutes passes, I will
-					 * set the time interval to empty? We need to see how often
-					 * the gps bounces around, and by how much does it bounce.
-					 * You should be able to find that out tonight.
-					 */
-					// Log.v(TAG,"Success sending out Triggered entered at Reid's house -- Receiver");
-					// }
-					// if(triggerList.get(i).getRequestId().equals("4")) {
-					// sendSms(SMS_NUMBER,"Leaving your house!! :( ", false);
-					// Log.v(TAG,"Success sending out leaving your house -- Receiver");
-					// }
-					triggerIds[i] = triggerList.get(i).getRequestId();
-					Log.i("Reid",
-							"inside geo fence receiver: " + g.getMessage()
-							+ " , " + g.getTitle());
-				}
 
-				// outside of loop.
-				if (simpleList != null) {
-					if (mListener != null) {
-						mListener.updateLeftDrawer(simpleList);
+					// outside of loop.
+					if (simpleList != null) {
+						if (mListener != null) {
+							mListener.updateLeftDrawer(simpleList);
+						}
+						MapActivity.storeJSON(new SimpleGeofenceList(simpleList),
+								context);
 					}
-					MapActivity.storeJSON(new SimpleGeofenceList(simpleList),
-							context);
 				}
-
 			}
 			// An invalid transition was reported
 		}
