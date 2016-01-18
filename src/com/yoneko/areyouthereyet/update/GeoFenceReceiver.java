@@ -174,9 +174,10 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 					Log.i("Reid", "geofecne is active?" + g.isActive());
 					String realCoordinates = "  real lat:" + g.getLatitude()
 							+ "," + g.getLongitude();
+					
 					if (g.isShouldSend()
 							&& location.getAccuracy() <= MAX_ACCURACY_ERROR
-							&& g.isActive()) {
+							&& g.isActive() && !isDebug) {
 						Log.i("Reid", "should send");
 						if (g.getPhoneContacts() != null) {
 							for (PhoneContact p : g.getPhoneContacts()) {

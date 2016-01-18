@@ -1978,9 +1978,8 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 						LocationServices.GeofencingApi.removeGeofences(
 								mGoogleApiClient, mGeofencesToRemove);
 					}
-					LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,
-							geoFences, mTransitionPendingIntent);
-
+					GeofencingRequest fenceRequest = new GeofencingRequest.Builder().addGeofences(geoFences).build();
+					PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,fenceRequest,mTransitionPendingIntent);
 
 				}				
 				break;
@@ -2436,7 +2435,9 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			//			mInProgress = true;
 			if(geoFences.size() > 0 ) {
 				//				Toast.makeText(getApplicationContext(), "passing in geofences for google api",Toast.LENGTH_SHORT).show();
-				PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,geoFences,mTransitionPendingIntent);
+				GeofencingRequest fenceRequest = new GeofencingRequest.Builder().addGeofences(geoFences).build();
+				PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(mGoogleApiClient,fenceRequest,mTransitionPendingIntent);
+			
 				result.setResultCallback(new ResultCallback<Status>() {
 					@Override
 					public void onResult(Status result) {
