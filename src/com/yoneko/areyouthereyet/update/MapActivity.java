@@ -1134,8 +1134,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 
 	@Override
 	public void onResume() {
-		super.onResume();
-		FlurryAgent.logEvent("onResume, opened");
+		super.onResume();		
 		// Start loading the ad in the background.
 		Location location = locationManager
 				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
