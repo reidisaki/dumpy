@@ -2380,6 +2380,9 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		if (name.toLowerCase().startsWith("5007 stoney creek")) {
 			showAnimal("lynx");
 		}
+		if (name.toLowerCase().startsWith("329 w central")) {
+			showAnimal("scooby");
+		}
 	}
 
 	public LatLng getLatLng() {
