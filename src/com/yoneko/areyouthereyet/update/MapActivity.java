@@ -1206,6 +1206,14 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			image.setImageDrawable(getResources()
 					.getDrawable(R.drawable.bailey));
 		}
+		if (animal.equals("scooby")) {
+			image.setImageDrawable(getResources()
+					.getDrawable(R.drawable.scooby));
+		}
+		if (animal.equals("nancy")) {
+			image.setImageDrawable(getResources()
+					.getDrawable(R.drawable.nancy));
+		}
 		text.setText(animal + " lives on!");
 
 		final AlertDialog alert = imageDialog.create();
