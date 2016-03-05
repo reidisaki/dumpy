@@ -376,6 +376,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		setListeners();
 
 		fm.beginTransaction().hide(addGeofenceFragment).commit();
+		reRegisterGeoFences = true;
 	}
 
 	private void initMap() {
@@ -1176,6 +1177,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		}
 		isActive = true;
 		navigateToMyLocation = true;
+		
 	}
 
 	protected void onSearchEditButtonClicked() {
@@ -1865,7 +1867,8 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 									+ g.getEmailPhone() + " name: " + g.getId() +  " title: " + g.getTitle());
 					geoFences.add(g.toGeofence());
 				}
-				reRegisterGeoFences = false;
+				//TODO: check if this is valid, we want to restart geo fences frequently since they get dropped serverside frequently
+//				reRegisterGeoFences = false;
 			} else {
 				geoFences.add(mSimpleGeoFenceList.get(
 						mSimpleGeoFenceList.size() - 1).toGeofence());
@@ -1889,7 +1892,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 					} else {
 						//						TODO:
 						//there was an error relay this to the user..
-						Toast.makeText(getApplicationContext(), "ERROR, please try again",Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), "ERROR, please try again:" + result.getStatusMessage(),Toast.LENGTH_SHORT).show();
 					}
 
 				}
@@ -2456,7 +2459,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 							Log.i("Reid","added fences successfully");
 							Toast.makeText(getApplicationContext(), "SUCCESS, added fence",Toast.LENGTH_SHORT).show();
 						} else {
-							Toast.makeText(getApplicationContext(), "ERROR, please try again",Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), "ERROR, please try again: " + result.getStatusMessage(),Toast.LENGTH_SHORT).show();
 						}
 
 					}
