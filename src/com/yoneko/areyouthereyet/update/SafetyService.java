@@ -49,18 +49,19 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
     }
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.i("Reid1","OnStartCommand");
+		Log.i("Reid","OnStartCommand");
 
 		//do code in here
 		init();
 		return Service.START_STICKY;
 	}
 	private void init() {
+		mSimpleGeoFenceList = MapActivity.getGeoFenceFromCache(this).getGeoFences();
 		mLocationRequest = LocationRequest.create();
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
 		.addApi(LocationServices.API).addConnectionCallbacks(this)
 		.addOnConnectionFailedListener(this).build();
-
+		mGoogleApiClient.connect();
 		
 		
 	}
@@ -163,11 +164,12 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 
 		@Override
 		public void onConnectionFailed(ConnectionResult result) {
-			
+			Log.i("Reid","onconnectionFailed");
 		}
 
 		@Override
 		public void onConnected(Bundle connectionHint) {
+			Log.i("Reid","onConnected");
 			removeGeofences(getTransitionPendingIntent());
 			
 		}

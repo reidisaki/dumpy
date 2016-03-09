@@ -241,7 +241,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			} else if (getIntent().getExtras().getBoolean(REREGISTER_GEOFENCE,
 					false)) {
 				Log.i("Reid", "oncreate device reboot, used to call addGeoFences()");
-				reRegisterGeoFences = true;
+//				reRegisterGeoFences = true;
 
 			}
 		} else {
@@ -376,7 +376,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		setListeners();
 
 		fm.beginTransaction().hide(addGeofenceFragment).commit();
-		reRegisterGeoFences = true;
+//		reRegisterGeoFences = true;
 	}
 
 	private void initMap() {
@@ -672,7 +672,9 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 
 	protected void onStart() {
 		super.onStart();
-		mGoogleApiClient.connect();
+		if (!mGoogleApiClient.isConnected() || !mGoogleApiClient.isConnecting()) {
+			mGoogleApiClient.connect();	
+		}
 		FlurryAgent.onStartSession(this, flurryKey);
 	}
 
@@ -1208,14 +1210,14 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			image.setImageDrawable(getResources()
 					.getDrawable(R.drawable.bailey));
 		}
-		if (animal.equals("scooby")) {
-			image.setImageDrawable(getResources()
-					.getDrawable(R.drawable.scooby));
-		}
-		if (animal.equals("nancy")) {
-			image.setImageDrawable(getResources()
-					.getDrawable(R.drawable.nancy));
-		}
+//		if (animal.equals("scooby")) {
+//			image.setImageDrawable(getResources()
+//					.getDrawable(R.drawable.scooby));
+//		}
+//		if (animal.equals("nancy")) {
+//			image.setImageDrawable(getResources()
+//					.getDrawable(R.drawable.nancy));
+//		}
 		text.setText(animal + " lives on!");
 
 		final AlertDialog alert = imageDialog.create();

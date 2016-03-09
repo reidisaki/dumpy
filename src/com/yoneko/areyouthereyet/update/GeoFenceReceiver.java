@@ -72,10 +72,6 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 				|| intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT)) {
 			sendDebugMessage("action boot completed or action reboot, starting map activity, not sending geofences");
 
-			Intent i = new Intent(context, MapActivity.class);
-			i.putExtra(MapActivity.REREGISTER_GEOFENCE, true);
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			context.startActivity(i);
 		}
 		//		 broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 		GeofencingEvent geoEvent = GeofencingEvent.fromIntent(intent);

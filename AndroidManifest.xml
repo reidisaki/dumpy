@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yoneko.areyouthereyet.update"
-    android:versionCode="23"
+    android:versionCode="24"
     android:versionName="1.5" >
 
     <uses-sdk
@@ -56,7 +56,6 @@
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
