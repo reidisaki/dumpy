@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yoneko.areyouthereyet.update"
-    android:versionCode="22"
-    android:versionName="1.4" >
+    android:versionCode="23"
+    android:versionName="1.5" >
 
     <uses-sdk
         android:minSdkVersion="17"
@@ -82,7 +82,6 @@
                 <action android:name="YouWillNeverKillMe" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
