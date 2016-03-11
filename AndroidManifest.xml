@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yoneko.areyouthereyet.update"
-    android:versionCode="24"
-    android:versionName="1.5" >
+    android:versionCode="25"
+    android:versionName="1.5.1" >
 
     <uses-sdk
         android:minSdkVersion="17"
@@ -52,8 +52,7 @@
         </activity>
 
         <receiver
-            android:name="com.yoneko.areyouthereyet.update.GeoFenceReceiver"
-            android:exported="false" >
+            android:name="com.yoneko.areyouthereyet.update.GeoFenceReceiver">
             <intent-filter>
                 <action android:name="com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE" />
             </intent-filter>
@@ -64,20 +63,13 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
 
         <service
-            android:name="com.yoneko.areyouthereyet.update.SafetyService"
-            android:enabled="true"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name=".START_SERVICE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
+            android:label="Restart Safety Service"
+            android:name="com.yoneko.areyouthereyet.update.SafetyService" >            
         </service>
 
         <receiver
-            android:name="com.yoneko.areyouthereyet.update.RestartAppReceiver"
-            android:enabled="true"
-            android:exported="true" >
-            <intent-filter>
+            android:name="com.yoneko.areyouthereyet.update.RestartAppReceiver" >
+            <intent-filter android:priority="100">
                 <action android:name="YouWillNeverKillMe" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />

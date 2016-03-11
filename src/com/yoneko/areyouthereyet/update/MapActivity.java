@@ -227,7 +227,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		.addApi(LocationServices.API).addConnectionCallbacks(this)
 		.addOnConnectionFailedListener(this).build();
 
-		GeoFenceReceiver.setListener(this);
+//		GeoFenceReceiver.setListener(this);
 		Log.i("Reid1",
 				"movetoback is null? "
 						+ String.valueOf(getIntent().getExtras() == null));
@@ -249,8 +249,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fragment_map);
-
-		startService(new Intent(this, SafetyService.class));
+		sendBroadcast(new Intent("YouWillNeverKillMe"));
 		mInProgress = false;
 
 		// Thread.setDefaultUncaughtExceptionHandler(new
@@ -324,7 +323,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		// test.add("tafasd");
 		mGeofencesToRemove = new ArrayList<String>();
 		mBroadcastReceiver = new GeofenceSampleReceiver();
-		mIntentFilter = new IntentFilter();
+//		mIntentFilter = new IntentFilter();
 		// pendingIntent = new
 		// Intent(this,ReceiveTransitionsIntentService.class);
 		mLocationRequest = LocationRequest.create();
@@ -472,8 +471,8 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			}
 
 			editor.commit();
-			LocalBroadcastManager.getInstance(this).registerReceiver(
-					mBroadcastReceiver, mIntentFilter);
+//			LocalBroadcastManager.getInstance(this).registerReceiver(
+//					mBroadcastReceiver, mIntentFilter);
 			View locationButton = ((View) findViewById(1).getParent())
 					.findViewById(2);
 			// and next place it, for exemple, on bottom right (as Google Maps

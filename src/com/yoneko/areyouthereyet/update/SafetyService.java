@@ -3,6 +3,7 @@ package com.yoneko.areyouthereyet.update;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.IntentService;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -26,15 +27,15 @@ import com.google.android.gms.location.LocationServices;
 import com.yoneko.models.SimpleGeofence;
 
 public class SafetyService extends Service implements ConnectionCallbacks, OnConnectionFailedListener {
+
 	LocationRequest mLocationRequest;
 	GoogleApiClient mGoogleApiClient;
-	public SafetyService() {
-	}
-
+	boolean  mReRegister = false;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO: Return the communication channel to the service.
-		Log.i("Reid1","Service on Bind");
+		Log.i("ty1","Service on Bind");
 		return mBinder;
 	}
 
@@ -49,8 +50,16 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
     }
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.i("Reid","OnStartCommand");
-
+		Log.i("ty","OnStartCommand action: " + (intent != null ? intent.getAction() : "intent is null"));
+		if ((intent != null && intent.getAction() != null) && (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
+				|| intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT))){
+			Log.i("ty","action reboot or boot completed");
+		 mReRegister = true;
+		}
+		
+		if(intent != null && intent.getExtras() != null) {
+		Log.i("ty", intent.getExtras().getString("test", "default"));
+		}
 		//do code in here
 		init();
 		return Service.START_STICKY;
@@ -68,12 +77,14 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 
 	@Override
 	public void onDestroy() {
-		Log.i("Reid1","Killing safety service");
+		Log.i("ty","Killing safety service sending broadcast");
 		//todo: remove this to restart the app if you dont want it ever to be killed
-		sendBroadcast(new Intent("YouWillNeverKillMe"));
-		super.onDestroy();
-		
-	}
+		Intent intent = new Intent("YouWillNeverKillMe");
+		intent.putExtra("test", "testing value");
+		sendBroadcast(intent);
+		super.onDestroy();	
+	}	
+	
 	public void removeGeofences( PendingIntent requestIntent) {
 		PendingResult<Status> result = LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,
 				requestIntent);
@@ -82,9 +93,9 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 			public void onResult(Status result) {
 				if(result.isSuccess()) {
 						addGeofences();
-					Log.i("Reid","removed fences successfully");
+					Log.i("ty","removed fences successfully");
 				} else {
-					Log.i("Reid","removed fences UNsuccessfully");
+					Log.i("ty","removed fences UNsuccessfully");
 				}
 
 			}
@@ -98,7 +109,7 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 		try {
 			
 				for (SimpleGeofence g : mSimpleGeoFenceList) {
-					Log.i("Reid",
+					Log.i("ty",
 							"geofence number registerd:"
 									+ g.getEmailPhone() + " name: " + g.getId() +  " title: " + g.getTitle());
 					geoFences.add(g.toGeofence());
@@ -119,7 +130,7 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 				public void onResult(Status result) {
 					if(result.isSuccess()) {
 						//TODO: this isnt really doing anything.
-						Log.i("Reid","added fences successfully");
+						Log.i("ty","added fences successfully");
 						Toast.makeText(getApplicationContext(), "SUCCESS, added fence",Toast.LENGTH_SHORT).show();
 					} else {
 						//						TODO:
@@ -164,13 +175,16 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 
 		@Override
 		public void onConnectionFailed(ConnectionResult result) {
-			Log.i("Reid","onconnectionFailed");
+			Log.i("ty","onconnectionFailed");
 		}
 
 		@Override
 		public void onConnected(Bundle connectionHint) {
-			Log.i("Reid","onConnected");
-			removeGeofences(getTransitionPendingIntent());
+			if(mReRegister) {
+				Log.i("ty","Reregistering geofences");
+				removeGeofences(getTransitionPendingIntent());
+				mReRegister = false;
+			}
 			
 		}
 
@@ -178,4 +192,6 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 		public void onConnectionSuspended(int cause) {
 			
 		}
+
+		
 }
