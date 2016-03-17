@@ -41,7 +41,6 @@ import android.provider.Settings.SettingNotFoundException;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.text.Editable;
@@ -77,11 +76,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazon.device.ads.Ad;
+import com.amazon.device.ads.AdError;
+import com.amazon.device.ads.AdLayout;
+import com.amazon.device.ads.AdListener;
+import com.amazon.device.ads.AdProperties;
+import com.amazon.device.ads.AdRegistration;
+import com.amazon.device.ads.AdTargetingOptions;
+import com.amazon.device.ads.InterstitialAd;
 import com.espian.showcaseview.ShowcaseView;
 import com.espian.showcaseview.targets.ViewTarget;
 import com.flurry.android.FlurryAgent;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -183,7 +188,6 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	Marker currentMarker = null;
 	Circle myCircle = null, newCircle = null;
 	MarkerOptions markerOptions;
-	AdView adView;
 	TextView slide_tab_text;
 	AutoCompleteTextView searchEdit;
 	ImageView ic_drawer, arrow;
@@ -206,6 +210,8 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	private List<SimpleGeofence> mSimpleGeoFenceList;
 	public static boolean isActive = false;
 
+	
+	private AdLayout adView;
 	public void o(String s) {
 		Log.i(tag, "output s: " + s);
 	}
@@ -228,8 +234,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		.addOnConnectionFailedListener(this).build();
 
 //		GeoFenceReceiver.setListener(this);
-		Log.i("Reid1",
-				"movetoback is null? "
+		Log.i("Reid1","movetoback is null? "
 						+ String.valueOf(getIntent().getExtras() == null));
 		mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext())
 				.getGeoFences();
@@ -247,11 +252,15 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		} else {
 			Log.i("Reid1", "keep the app in front as normal");
 		}
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fragment_map);
 		sendBroadcast(new Intent("YouWillNeverKillMe"));
 		mInProgress = false;
 
+		
+		AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
+        AdRegistration.enableLogging(true);
 		// Thread.setDefaultUncaughtExceptionHandler(new
 		// Thread.UncaughtExceptionHandler() {
 		// @Override
@@ -344,11 +353,13 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			Log.d(TAG, "Google Play services is available.");
 		}
 
-		adView = (AdView) findViewById(R.id.adView);
-		AdRequest adRequest = new AdRequest.Builder()
-		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-		.addTestDevice("deviceid").build();
-		adView.loadAd(adRequest);
+		adView = (AdLayout) findViewById(R.id.adView);
+		AdTargetingOptions adOptions = new AdTargetingOptions();
+		adView.loadAd(adOptions);
+//		AdRequest adRequest = new AdRequest.Builder()
+//		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+//		.addTestDevice("deviceid").build();
+//		adView.loadAd(adRequest);
 
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
@@ -467,7 +478,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 				adView.setVisibility(View.VISIBLE);
 			} else {
-				adView.setVisibility(View.GONE);
+//				adView.setVisibility(View.GONE);
 			}
 
 			editor.commit();
@@ -1162,7 +1173,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 			adView.setVisibility(View.VISIBLE);
 		} else {
-			adView.setVisibility(View.GONE);
+//			adView.setVisibility(View.GONE);
 		}
 		SharedPreferences wmbPreference = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -1173,9 +1184,6 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		editor.putInt("numTimesAppOpened", newOpenAppNumber);
 		editor.commit();
 
-		if (adView != null) {
-			adView.resume();
-		}
 		isActive = true;
 		navigateToMyLocation = true;
 		
@@ -1238,9 +1246,7 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 
 	@Override
 	public void onPause() {
-		if (adView != null) {
-			adView.pause();
-		}
+
 		mRequestType = null;
 		super.onPause();
 	}

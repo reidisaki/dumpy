@@ -3,7 +3,6 @@ package com.yoneko.areyouthereyet.update;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.IntentService;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -131,7 +130,7 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 					if(result.isSuccess()) {
 						//TODO: this isnt really doing anything.
 						Log.i("ty","added fences successfully");
-						Toast.makeText(getApplicationContext(), "SUCCESS, added fence",Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), "SUCCESS, added fence on Restart",Toast.LENGTH_SHORT).show();
 					} else {
 						//						TODO:
 						//there was an error relay this to the user..
