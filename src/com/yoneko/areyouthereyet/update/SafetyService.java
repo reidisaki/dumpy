@@ -5,10 +5,12 @@ import java.util.List;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -30,7 +32,7 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 	LocationRequest mLocationRequest;
 	GoogleApiClient mGoogleApiClient;
 	boolean  mReRegister = false;
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO: Return the communication channel to the service.
@@ -42,25 +44,35 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 	private PendingIntent mTransitionPendingIntent;
 	private List<SimpleGeofence> mSimpleGeoFenceList;
 
-    public class LocalBinder extends Binder {
-    	SafetyService getService() {
-            return SafetyService.this;
-        }
-    }
+	public class LocalBinder extends Binder {
+		SafetyService getService() {
+			return SafetyService.this;
+		}
+	}
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		ContentResolver contentResolver = getContentResolver();
+		int mode = Settings.Secure.getInt(
+				contentResolver, Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF);
+
+
 		Log.i("ty","OnStartCommand action: " + (intent != null ? intent.getAction() : "intent is null"));
 		if ((intent != null && intent.getAction() != null) && (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
 				|| intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT))){
 			Log.i("ty","action reboot or boot completed");
-		 mReRegister = true;
+			mReRegister = true;
+			init();
 		}
-		
+		if (mode != Settings.Secure.LOCATION_MODE_OFF) {
+			mReRegister = true;
+			init();
+		}
+
 		if(intent != null && intent.getExtras() != null) {
-		Log.i("ty", intent.getExtras().getString("test", "default"));
+			Log.i("ty", intent.getExtras().getString("test", "default"));
 		}
 		//do code in here
-		init();
+		
 		return Service.START_STICKY;
 	}
 	private void init() {
@@ -70,8 +82,8 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 		.addApi(LocationServices.API).addConnectionCallbacks(this)
 		.addOnConnectionFailedListener(this).build();
 		mGoogleApiClient.connect();
-		
-		
+
+
 	}
 
 	@Override
@@ -83,7 +95,7 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 		sendBroadcast(intent);
 		super.onDestroy();	
 	}	
-	
+
 	public void removeGeofences( PendingIntent requestIntent) {
 		PendingResult<Status> result = LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,
 				requestIntent);
@@ -91,7 +103,7 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 			@Override
 			public void onResult(Status result) {
 				if(result.isSuccess()) {
-						addGeofences();
+					addGeofences();
 					Log.i("ty","removed fences successfully");
 				} else {
 					Log.i("ty","removed fences UNsuccessfully");
@@ -106,18 +118,18 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 		// for(int i=0; i<mSimpleGeoFenceList.size();i++) {
 		// add items to geoFences;
 		try {
-			
-				for (SimpleGeofence g : mSimpleGeoFenceList) {
-					Log.i("ty",
-							"geofence number registerd:"
-									+ g.getEmailPhone() + " name: " + g.getId() +  " title: " + g.getTitle());
-					geoFences.add(g.toGeofence());
-				}
-				//TODO: check if this is valid, we want to restart geo fences frequently since they get dropped serverside frequently
-//				reRegisterGeoFences = false;
-			
+
+			for (SimpleGeofence g : mSimpleGeoFenceList) {
+				Log.i("ty",
+						"geofence number registerd:"
+								+ g.getEmailPhone() + " name: " + g.getId() +  " title: " + g.getTitle());
+				geoFences.add(g.toGeofence());
+			}
+			//TODO: check if this is valid, we want to restart geo fences frequently since they get dropped serverside frequently
+			//				reRegisterGeoFences = false;
+
 		} catch (IllegalArgumentException e) {
-			
+
 		}
 		//			mInProgress = true;
 		if(geoFences.size() > 0) {
@@ -142,55 +154,55 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 		}
 	}
 
-	
-		private PendingIntent getTransitionPendingIntent() {
 
-			// Create an Intent pointing to the IntentService
+	private PendingIntent getTransitionPendingIntent() {
 
-			// Intent intent = new Intent(context,
-			// ReceiveTransitionsIntentService.class);
-			/*
-			 * Return a PendingIntent to start the IntentService. Always create a
-			 * PendingIntent sent to Location Services with FLAG_UPDATE_CURRENT, so
-			 * that sending the PendingIntent again updates the original. Otherwise,
-			 * Location Services can't match the PendingIntent to requests made with
-			 * it.
-			 */
+		// Create an Intent pointing to the IntentService
 
-			// If the PendingIntent already exists
-			if (null != mTransitionPendingIntent) {
+		// Intent intent = new Intent(context,
+		// ReceiveTransitionsIntentService.class);
+		/*
+		 * Return a PendingIntent to start the IntentService. Always create a
+		 * PendingIntent sent to Location Services with FLAG_UPDATE_CURRENT, so
+		 * that sending the PendingIntent again updates the original. Otherwise,
+		 * Location Services can't match the PendingIntent to requests made with
+		 * it.
+		 */
 
-				// Return the existing intent
-				return mTransitionPendingIntent;
+		// If the PendingIntent already exists
+		if (null != mTransitionPendingIntent) {
 
-				// If no PendingIntent exists
-			} else {
-				Intent intent = new Intent(
-						"com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE");
-				return PendingIntent.getBroadcast(this, 0, intent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
-			}
+			// Return the existing intent
+			return mTransitionPendingIntent;
+
+			// If no PendingIntent exists
+		} else {
+			Intent intent = new Intent(
+					"com.yoneko.areyouthereyet.ACTION_RECEIVE_GEOFENCE");
+			return PendingIntent.getBroadcast(this, 0, intent,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+		}
 	}
 
-		@Override
-		public void onConnectionFailed(ConnectionResult result) {
-			Log.i("ty","onconnectionFailed");
+	@Override
+	public void onConnectionFailed(ConnectionResult result) {
+		Log.i("ty","onconnectionFailed");
+	}
+
+	@Override
+	public void onConnected(Bundle connectionHint) {
+		if(mReRegister) {
+			Log.i("ty","Reregistering geofences");
+			removeGeofences(getTransitionPendingIntent());
+			mReRegister = false;
 		}
 
-		@Override
-		public void onConnected(Bundle connectionHint) {
-			if(mReRegister) {
-				Log.i("ty","Reregistering geofences");
-				removeGeofences(getTransitionPendingIntent());
-				mReRegister = false;
-			}
-			
-		}
+	}
 
-		@Override
-		public void onConnectionSuspended(int cause) {
-			
-		}
+	@Override
+	public void onConnectionSuspended(int cause) {
 
-		
+	}
+
+
 }

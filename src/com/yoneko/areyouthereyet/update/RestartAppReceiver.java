@@ -15,9 +15,14 @@ public class RestartAppReceiver extends BroadcastReceiver {
 			Log.i("ty", "Restarting the app service if it were killed: " + i.getAction());
 			if(!i.getAction().equals("YouWillNeverKillMe")) {
 				Intent intent = new Intent(context.getApplicationContext(), SafetyService.class);
-				intent.setAction(Intent.ACTION_BOOT_COMPLETED);
+				if(i.getAction().equals("android.location.PROVIDERS_CHANGED")) {
+					intent.setAction(Intent.ACTION_PROVIDER_CHANGED);
+				} else if(i.getAction().equals("android.intent.action.BOOT_COMPLETED")){
+					
+					intent.setAction(Intent.ACTION_BOOT_COMPLETED);
+				}
 				context.startService(intent);		
-			}
+			}			
 		}
 		
 		
