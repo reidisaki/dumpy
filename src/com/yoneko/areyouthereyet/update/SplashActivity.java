@@ -83,8 +83,7 @@ public class SplashActivity extends Activity {
 //    
 //    
     private void requestNewInterstitial() {
-        AdRequest adRequest = new AdRequest.Builder()
-        .addTestDevice("1227AC999E49F1FE325D0EA5E2E4E604")
+        AdRequest adRequest = new AdRequest.Builder()        
                 .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
                 .build();
 
