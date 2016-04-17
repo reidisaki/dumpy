@@ -57,17 +57,14 @@ public class SafetyService extends Service implements ConnectionCallbacks, OnCon
 
 
 		Log.i("ty","OnStartCommand action: " + (intent != null ? intent.getAction() : "intent is null"));
-		if ((intent != null && intent.getAction() != null) && (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
-				|| intent.getAction().equalsIgnoreCase(Intent.ACTION_REBOOT))){
+		if ((intent != null && intent.getAction() != null) && (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) || intent.getAction().equals(Intent.ACTION_PROVIDER_CHANGED))) {				
 			Log.i("ty","action reboot or boot completed");
-			mReRegister = true;
-			init();
+			if(mode != Settings.Secure.LOCATION_MODE_OFF) {
+				mReRegister = true;
+				init();
+			}
 		}
-		if (mode != Settings.Secure.LOCATION_MODE_OFF) {
-			mReRegister = true;
-			init();
-		}
-
+		
 		if(intent != null && intent.getExtras() != null) {
 			Log.i("ty", intent.getExtras().getString("test", "default"));
 		}
