@@ -34,21 +34,21 @@
                     android:layout_height="wrap_content"
                     android:gravity="center" >
 
-<com.amazon.device.ads.AdLayout
+<!-- <com.amazon.device.ads.AdLayout
     android:id="@+id/adView"
     android:layout_width="320dp" 
     android:layout_height="50dp" 
     Amazon:adSize="320x50"
-    android:layout_gravity="top" />
+    android:layout_gravity="top" /> -->
 
-                    <!-- <com.google.android.gms.ads.AdView
+                    <com.google.android.gms.ads.AdView
                         xmlns:ads="http://schemas.android.com/apk/res-auto"
                         android:id="@+id/adView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
                         ads:adSize="BANNER"
-                        ads:adUnitId="@string/admob_id" /> -->
+                        ads:adUnitId="@string/admob_id" />
                 </LinearLayout>
 
                 <FrameLayout

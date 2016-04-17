@@ -1,57 +1,93 @@
 package com.yoneko.areyouthereyet.update;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.amazon.device.ads.Ad;
-import com.amazon.device.ads.AdError;
-import com.amazon.device.ads.AdListener;
-import com.amazon.device.ads.AdProperties;
-import com.amazon.device.ads.AdRegistration;
-import com.amazon.device.ads.InterstitialAd;
-
 public class SplashActivity extends Activity {
-@Override
-protected void onCreate(Bundle savedInstanceState) {	
-	super.onCreate(savedInstanceState);
+
+	InterstitialAd mInterstitialAd;
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.interstitial));
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                mInterstitialAd.show();
+            }
+
+            @Override
+            public void onAdFailedToLoad(final int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+            	Intent i = new Intent(SplashActivity.this, MapActivity.class);        	
+            	startActivity(i);
+            }
+
+            @Override
+            public void onAdClosed() {
+            	Intent i = new Intent(SplashActivity.this, MapActivity.class);        	
+            	startActivity(i);
+            }
+        });
+
+        requestNewInterstitial();
+    }
+
+	
 	// Create the interstitial.
-    final InterstitialAd interstitialAd = new InterstitialAd(this);
-    AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
-    AdRegistration.enableLogging(true);
+//    final InterstitialAd interstitialAd = new InterstitialAd(this);
+//    AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
+//    AdRegistration.enableLogging(true);
     
     // Set the listener to use the callbacks below.
-    interstitialAd.setListener(new AdListener() {
-        @Override
-        public void onAdLoaded(final Ad ad, final AdProperties adProperties) {
-            interstitialAd.showAd();
-        }
+//    interstitialAd.setListener(new AdListener() {
+//        @Override
+//        public void onAdLoaded(final Ad ad, final AdProperties adProperties) {
+//            interstitialAd.showAd();
+//        }
+//
+//        @Override
+//        public void onAdFailedToLoad(final Ad ad, final AdError adError) {
+//            Log.i("mc", "ad failed: " + adError.getMessage());                
+//        }
+//
+//        @Override
+//        public void onAdExpanded(final Ad ad) {
+//
+//        }
+//
+//        @Override
+//        public void onAdCollapsed(final Ad ad) {
+//
+//        }
+//
+//        @Override
+//        public void onAdDismissed(final Ad ad) {
+//        	Intent i = new Intent(SplashActivity.this, MapActivity.class);        	
+//        	startActivity(i);
+//        }
+//    });
+//
+//    interstitialAd.loadAd();
+//    
+//    
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+        .addTestDevice("1227AC999E49F1FE325D0EA5E2E4E604")
+                .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+                .build();
 
-        @Override
-        public void onAdFailedToLoad(final Ad ad, final AdError adError) {
-            Log.i("mc", "ad failed: " + adError.getMessage());                
-        }
-
-        @Override
-        public void onAdExpanded(final Ad ad) {
-
-        }
-
-        @Override
-        public void onAdCollapsed(final Ad ad) {
-
-        }
-
-        @Override
-        public void onAdDismissed(final Ad ad) {
-        	Intent i = new Intent(SplashActivity.this, MapActivity.class);        	
-        	startActivity(i);
-        }
-    });
-
-    interstitialAd.loadAd();
-    
-    
-}
+        mInterstitialAd.loadAd(adRequest);
+    }
 }

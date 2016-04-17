@@ -50,5 +50,6 @@
     <string name="action_websearch">Web search</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
     <string name="short_there_yet_link">"\n -via ThereYet http://goo.gl/yDWo8o"</string>
+    <string name="interstitial">ca-app-pub-5747146577301976/6620974447</string>
 
 </resources>

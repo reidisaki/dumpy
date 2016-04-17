@@ -76,17 +76,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amazon.device.ads.Ad;
-import com.amazon.device.ads.AdError;
-import com.amazon.device.ads.AdLayout;
-import com.amazon.device.ads.AdListener;
-import com.amazon.device.ads.AdProperties;
-import com.amazon.device.ads.AdRegistration;
-import com.amazon.device.ads.AdTargetingOptions;
-import com.amazon.device.ads.InterstitialAd;
 import com.espian.showcaseview.ShowcaseView;
 import com.espian.showcaseview.targets.ViewTarget;
 import com.flurry.android.FlurryAgent;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -210,8 +204,11 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 	private List<SimpleGeofence> mSimpleGeoFenceList;
 	public static boolean isActive = false;
 
+//	amazon
+//	private AdLayout adView;
 	
-	private AdLayout adView;
+	//admob
+	private AdView adView;
 	public void o(String s) {
 		Log.i(tag, "output s: " + s);
 	}
@@ -259,8 +256,10 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 		mInProgress = false;
 
 		
-		AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
-        AdRegistration.enableLogging(true);
+		//amazon
+//		AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
+//        AdRegistration.enableLogging(true);
+        
 		// Thread.setDefaultUncaughtExceptionHandler(new
 		// Thread.UncaughtExceptionHandler() {
 		// @Override
@@ -353,13 +352,17 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			Log.d(TAG, "Google Play services is available.");
 		}
 
-		adView = (AdLayout) findViewById(R.id.adView);
-		AdTargetingOptions adOptions = new AdTargetingOptions();
-		adView.loadAd(adOptions);
-//		AdRequest adRequest = new AdRequest.Builder()
-//		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-//		.addTestDevice("deviceid").build();
-//		adView.loadAd(adRequest);
+		//amazon
+//		adView = (AdLayout) findViewById(R.id.adView);
+//		AdTargetingOptions adOptions = new AdTargetingOptions();
+//		adView.loadAd(adOptions);
+		
+		//admob
+		adView = (AdView)findViewById(R.id.adView);
+		AdRequest adRequest = new AdRequest.Builder()
+		.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+		.addTestDevice("deviceid").build();
+		adView.loadAd(adRequest);
 
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
