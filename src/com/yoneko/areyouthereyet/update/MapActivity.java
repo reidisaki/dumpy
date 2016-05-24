@@ -477,12 +477,12 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 				initShowView();
 				editor.putBoolean("FIRSTRUN", false);
 			}
-
-			if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
-				adView.setVisibility(View.VISIBLE);
-			} else {
-//				adView.setVisibility(View.GONE);
-			}
+			adView.setVisibility(View.VISIBLE);
+//			if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
+//				adView.setVisibility(View.VISIBLE);
+//			} else {
+////				adView.setVisibility(View.GONE);
+//			}
 
 			editor.commit();
 //			LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -1173,11 +1173,12 @@ OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
 			e.printStackTrace();
 		}
 
-		if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
-			adView.setVisibility(View.VISIBLE);
-		} else {
-//			adView.setVisibility(View.GONE);
-		}
+		adView.setVisibility(View.VISIBLE);
+//		if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
+//			adView.setVisibility(View.VISIBLE);
+//		} else {
+////			adView.setVisibility(View.GONE);
+//		}
 		SharedPreferences wmbPreference = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		appOpenNumber = wmbPreference.getInt("numTimesAppOpened", 0);
