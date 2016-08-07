@@ -5,7 +5,7 @@
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent"
                                                  android:gravity="bottom"
-                                                 sothree:panelHeight="@dimen/top_margin_slide_menu"
+                                                 sothree:panelHeight="14dp"
                                                  sothree:shadowHeight="4dp">
 
     <RelativeLayout
@@ -14,6 +14,7 @@
             android:gravity="top">
 
         <RelativeLayout
+            tools:visibility="gone"
                 android:id="@+id/loading_screen"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -40,6 +41,7 @@
                 android:layout_height="match_parent"
                 android:gravity="top"
                 android:paddingTop="@dimen/top_margin_slide_menu"
+                tools:visbility="visible"
                 android:visibility="gone">
 
             <Button

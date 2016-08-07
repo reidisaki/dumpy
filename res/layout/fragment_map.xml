@@ -19,7 +19,9 @@
                 android:layout_height="fill_parent"
                 android:gravity="bottom"
                 sothree:fadeColor="@android:color/transparent"
-                sothree:panelHeight="@dimen/top_margin_slide_menu"
+                sothree:panelHeight="1dp"
+                sothree:umanoPanelHeight="10dp"
+                sothree:parallaxOffset="1dp"
                 sothree:shadowHeight="4dp">
 
             <LinearLayout
