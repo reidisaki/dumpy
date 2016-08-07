@@ -53,6 +53,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -100,6 +101,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.vision.Frame;
 import com.google.gson.Gson;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
@@ -182,6 +184,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private RelativeLayout loading_screen_layout;
+    private FrameLayout content_frame_layout;
     private ImageButton clearTextImage, searchButton, voiceButton, trashDrawer;
     private Button feedbackBtn, drawer_clear, helpBtn;
     private Geocoder geocoder;
@@ -450,14 +454,16 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 mMap.setOnMarkerClickListener(MapActivity.this);
                 mMap.setOnMapClickListener(MapActivity.this);
 
-
+                loading_screen_layout.setVisibility(View.GONE);
+                content_frame_layout.setVisibility(View.VISIBLE);
             }
         });
 
         // Position LocationButton
         // Get the button view
+        int x = 1;
          View locationButton =
-         ((View)findViewById(1).getParent()).findViewById(2);
+         ((View)findViewById(x).getParent()).findViewById(2);
          // and next place it, for exemple, on bottom right (as Google Mapsapp)
          RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
          locationButton.getLayoutParams();
@@ -669,6 +675,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         arrow = (ImageView) findViewById(R.id.arrow);
         drawer_clear = (Button) footerView.findViewById(R.id.drawer_clear);
         clearTextImage = (ImageButton) findViewById(R.id.clearTextImage);
+        loading_screen_layout = (RelativeLayout)findViewById(R.id.loading_screen);
+        content_frame_layout  = (FrameLayout)findViewById(R.id.content_frame);
         searchButton = (ImageButton) findViewById(R.id.searchButton);
         voiceButton = (ImageButton) findViewById(R.id.voiceButton);
         // Set the list's click listener
@@ -1177,6 +1185,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     @Override
     public void onResume() {
         super.onResume();
+        loading_screen_layout.setVisibility(View.VISIBLE);
+        content_frame_layout.setVisibility(View.GONE);
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         try {
 
