@@ -184,7 +184,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-    private RelativeLayout loading_screen_layout;
+    private FrameLayout loading_screen_layout;
     private FrameLayout content_frame_layout;
     private ImageButton clearTextImage, searchButton, voiceButton, trashDrawer;
     private Button feedbackBtn, drawer_clear, helpBtn;
@@ -422,6 +422,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         mySupportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
+                loading_screen_layout.setVisibility(View.GONE);
+                content_frame_layout.setVisibility(View.VISIBLE);
                 mMap = googleMap;
                 mMap.getUiSettings().setRotateGesturesEnabled(false);
                 mMap.setMyLocationEnabled(true);
@@ -454,16 +456,15 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 mMap.setOnMarkerClickListener(MapActivity.this);
                 mMap.setOnMapClickListener(MapActivity.this);
 
-                loading_screen_layout.setVisibility(View.GONE);
-                content_frame_layout.setVisibility(View.VISIBLE);
+
             }
         });
 
         // Position LocationButton
         // Get the button view
-        int x = 1;
+        int x = 1, y = 2;
          View locationButton =
-         ((View)findViewById(x).getParent()).findViewById(2);
+         ((View)findViewById(x).getParent()).findViewById(y);
          // and next place it, for exemple, on bottom right (as Google Mapsapp)
          RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
          locationButton.getLayoutParams();
@@ -675,7 +676,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         arrow = (ImageView) findViewById(R.id.arrow);
         drawer_clear = (Button) footerView.findViewById(R.id.drawer_clear);
         clearTextImage = (ImageButton) findViewById(R.id.clearTextImage);
-        loading_screen_layout = (RelativeLayout)findViewById(R.id.loading_screen);
+        loading_screen_layout = (FrameLayout)findViewById(R.id.loading_screen);
         content_frame_layout  = (FrameLayout)findViewById(R.id.content_frame);
         searchButton = (ImageButton) findViewById(R.id.searchButton);
         voiceButton = (ImageButton) findViewById(R.id.voiceButton);

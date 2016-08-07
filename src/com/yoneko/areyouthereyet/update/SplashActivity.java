@@ -41,16 +41,14 @@ public class SplashActivity extends Activity {
 
             } else {
                 Log.i("ty","starting map activity already have permissions");
-                Intent i = new Intent(SplashActivity.this, MapActivity.class);
-                startActivity(i);
+                startActivityNoHistory();
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
         } else {
             Log.i("ty","starting map activity less than M");
-            Intent i = new Intent(SplashActivity.this, MapActivity.class);
-            startActivity(i);
+            startActivityNoHistory();
         }
         /*
         mInterstitialAd = new InterstitialAd(this);
@@ -131,8 +129,13 @@ public class SplashActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,  int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.i("ty","starting map activity perm result");
-        Intent i = new Intent(SplashActivity.this, MapActivity.class);
-        startActivity(i);
+        startActivityNoHistory();
      }
 
+    public void startActivityNoHistory() {
+        Intent i = new Intent(SplashActivity.this, MapActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(i);
+
+    }
 }
