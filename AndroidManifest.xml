@@ -3,7 +3,6 @@
           package="com.yoneko.areyouthereyet.update"
           android:versionCode="39"
           android:versionName="1.5.9">
-
     <uses-sdk
             android:minSdkVersion="17"
             android:targetSdkVersion="19"/>
