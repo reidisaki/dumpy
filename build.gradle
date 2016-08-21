@@ -9,7 +9,23 @@ buildscript {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        // The Fabric Gradle plugin uses an open ended version to react
+        // quickly to Android tooling updates
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+
+}
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.2'
@@ -54,6 +70,9 @@ dependencies {
     repositories {
         maven { url "http://jcenter.bintray.com" }
         mavenCentral()
+    }
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+        transitive = true;
     }
     compile fileTree(dir: 'libs', include: '*.jar')
     compile 'com.github.amlcurran.showcaseview:library:5.0.0'

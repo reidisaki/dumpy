@@ -66,8 +66,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.flurry.android.FlurryAgent;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
@@ -103,6 +105,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.vision.Frame;
 import com.google.gson.Gson;
+
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
@@ -129,11 +132,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.fabric.sdk.android.Fabric;
+
 public class MapActivity extends FragmentActivity implements OnMapLongClickListener,
-        OnMarkerClickListener, onEditTextClicked, ConnectionCallbacks, OnTouchListener,
-        OnConnectionFailedListener, OnMyLocationChangeListener, ToggleSwitchClicked,
-        OnMyLocationButtonClickListener, LocationListener, OnMapLoadedCallback,
-        OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
+                                                             OnMarkerClickListener, onEditTextClicked, ConnectionCallbacks, OnTouchListener,
+                                                             OnConnectionFailedListener, OnMyLocationChangeListener, ToggleSwitchClicked,
+                                                             OnMyLocationButtonClickListener, LocationListener, OnMapLoadedCallback,
+                                                             OnItemClickListener, OnMapClickListener, onGeofenceTriggeredListener {
     private int REQUEST_CODE = 9090;// search request code
     private static final long SECONDS_PER_HOUR = 60;
     private static final long LOCATION_UPDATE_INTERVAL = 1;
@@ -232,8 +237,15 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     public void onNothingSelected(AdapterView<?> parent) {
     }
 
+    public boolean checkLocationPermission() {
+        String permission = "android.permission.ACCESS_FINE_LOCATION";
+        int res = this.checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Fabric.with(this, new Crashlytics());
 
         /*
          * error testing here useful but not used right now. Map<String, String>
@@ -242,175 +254,177 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 		 * FlurryAgent.logEvent("teting error capture", errorParams);
 		 */
 
-        mLocationRequest = LocationRequest.create();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API).addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this).build();
+        if (checkLocationPermission()) {
+            mLocationRequest = LocationRequest.create();
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(LocationServices.API).addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this).build();
 
-		GeoFenceReceiver.setListener(this);
-        Log.i("Reid1", "movetoback is null? "
-                + String.valueOf(getIntent().getExtras() == null));
-        mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext())
-                .getGeoFences();
+            GeoFenceReceiver.setListener(this);
+            Log.i("Reid1", "movetoback is null? "
+                    + String.valueOf(getIntent().getExtras() == null));
+            mSimpleGeoFenceList = getGeoFenceFromCache(getApplicationContext())
+                    .getGeoFences();
 
-        if (getIntent().getExtras() != null) {
-            Log.i("ty", "get extras is not null!!! :) ");
-            if (getIntent().getExtras().getBoolean("moveToBack")) {
-                moveTaskToBack(true);
-            } else if (getIntent().getExtras().getBoolean(REREGISTER_GEOFENCE,
-                    false)) {
-                Log.i("ty", "oncreate device reboot, used to call addGeoFences()");
+            if (getIntent().getExtras() != null) {
+                Log.i("ty", "get extras is not null!!! :) ");
+                if (getIntent().getExtras().getBoolean("moveToBack")) {
+                    moveTaskToBack(true);
+                } else if (getIntent().getExtras().getBoolean(REREGISTER_GEOFENCE,
+                        false)) {
+                    Log.i("ty", "oncreate device reboot, used to call addGeoFences()");
 //				reRegisterGeoFences = true;
 
+                }
+            } else {
+                Log.i("Reid1", "keep the app in front as normal");
             }
-        } else {
-            Log.i("Reid1", "keep the app in front as normal");
-        }
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_map);
-        sendBroadcast(new Intent("YouWillNeverKillMe"));
-        mInProgress = false;
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.fragment_map);
+            sendBroadcast(new Intent("YouWillNeverKillMe"));
+            mInProgress = false;
 
-        //amazon
+            //amazon
 //		AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
 //        AdRegistration.enableLogging(true);
 
-        // Thread.setDefaultUncaughtExceptionHandler(new
-        // Thread.UncaughtExceptionHandler() {
-        // @Override
-        // public void uncaughtException(Thread paramThread, Throwable
-        // paramThrowable) {
-        // SmsManager manager = SmsManager.getDefault();
-        // Throwable e = paramThrowable;
-        // String SMS_SENT = "ConfirmSentActivity";
-        // String SMS_DELIVERED = "DevliveredActivty";
-        // PendingIntent piSend =
-        // PendingIntent.getBroadcast(getApplicationContext(), 0, new
-        // Intent(SMS_SENT), 0);
-        // PendingIntent piDelivered =
-        // PendingIntent.getBroadcast(getApplicationContext(), 0, new
-        // Intent(SMS_DELIVERED), 0);
-        //
-        //
-        //
-        // StackTraceElement[] arr = e.getStackTrace();
-        // final StringBuffer report = new StringBuffer(e.toString());
-        // report.append("--------- Stack trace ---------\n\n");
-        // for (int i = 0; i < arr.length; i++) {
-        // report.append( "  \n  ");
-        // report.append(arr[i].toString());
-        // }
-        // // If the exception was thrown in a background thread inside
-        // // AsyncTask, then the actual exception can be found with getCause
-        // report.append("--------- Cause ---------\n\n");
-        // Throwable cause = e.getCause();
-        // if (cause != null) {
-        // report.append(cause.toString());
-        // arr = cause.getStackTrace();
-        // for (int i = 0; i < arr.length; i++) {
-        // report.append("   \n ");
-        // report.append(arr[i].toString());
-        // }
-        // }
-        // // Getting the Device brand,model and sdk verion details.
-        // // report.append("--------- Device ---------\n\n");
-        // // report.append("Brand: ");
-        // // report.append(Build.BRAND);
-        // // report.append("Device: ");
-        // // report.append(Build.DEVICE);
-        // // report.append("Model: ");
-        // // report.append(Build.MODEL);
-        // // report.append("Id: ");
-        // // report.append(Build.ID);
-        // // report.append("Product: ");
-        // // report.append(Build.PRODUCT);
-        // // report.append("--------- Firmware ---------\n\n");
-        // // report.append("SDK: ");
-        // // report.append(Build.VERSION.SDK);
-        // // report.append("Release: ");
-        // // report.append(Build.VERSION.RELEASE);
-        // // report.append("Incremental: ");
-        // // report.append(Build.VERSION.INCREMENTAL);
-        //
-        // ArrayList<String> messagelist =
-        // manager.divideMessage(report.toString());
-        // // manager.sendMultipartTextMessage("3233098967", null, messagelist,
-        // null, null);
-        // // Log.i("ty",output);
-        //
-        // Log.i("ty", report.toString());
-        // }
-        // });
+            // Thread.setDefaultUncaughtExceptionHandler(new
+            // Thread.UncaughtExceptionHandler() {
+            // @Override
+            // public void uncaughtException(Thread paramThread, Throwable
+            // paramThrowable) {
+            // SmsManager manager = SmsManager.getDefault();
+            // Throwable e = paramThrowable;
+            // String SMS_SENT = "ConfirmSentActivity";
+            // String SMS_DELIVERED = "DevliveredActivty";
+            // PendingIntent piSend =
+            // PendingIntent.getBroadcast(getApplicationContext(), 0, new
+            // Intent(SMS_SENT), 0);
+            // PendingIntent piDelivered =
+            // PendingIntent.getBroadcast(getApplicationContext(), 0, new
+            // Intent(SMS_DELIVERED), 0);
+            //
+            //
+            //
+            // StackTraceElement[] arr = e.getStackTrace();
+            // final StringBuffer report = new StringBuffer(e.toString());
+            // report.append("--------- Stack trace ---------\n\n");
+            // for (int i = 0; i < arr.length; i++) {
+            // report.append( "  \n  ");
+            // report.append(arr[i].toString());
+            // }
+            // // If the exception was thrown in a background thread inside
+            // // AsyncTask, then the actual exception can be found with getCause
+            // report.append("--------- Cause ---------\n\n");
+            // Throwable cause = e.getCause();
+            // if (cause != null) {
+            // report.append(cause.toString());
+            // arr = cause.getStackTrace();
+            // for (int i = 0; i < arr.length; i++) {
+            // report.append("   \n ");
+            // report.append(arr[i].toString());
+            // }
+            // }
+            // // Getting the Device brand,model and sdk verion details.
+            // // report.append("--------- Device ---------\n\n");
+            // // report.append("Brand: ");
+            // // report.append(Build.BRAND);
+            // // report.append("Device: ");
+            // // report.append(Build.DEVICE);
+            // // report.append("Model: ");
+            // // report.append(Build.MODEL);
+            // // report.append("Id: ");
+            // // report.append(Build.ID);
+            // // report.append("Product: ");
+            // // report.append(Build.PRODUCT);
+            // // report.append("--------- Firmware ---------\n\n");
+            // // report.append("SDK: ");
+            // // report.append(Build.VERSION.SDK);
+            // // report.append("Release: ");
+            // // report.append(Build.VERSION.RELEASE);
+            // // report.append("Incremental: ");
+            // // report.append(Build.VERSION.INCREMENTAL);
+            //
+            // ArrayList<String> messagelist =
+            // manager.divideMessage(report.toString());
+            // // manager.sendMultipartTextMessage("3233098967", null, messagelist,
+            // null, null);
+            // // Log.i("ty",output);
+            //
+            // Log.i("ty", report.toString());
+            // }
+            // });
 
-        // ArrayList<String> test = null;
-        // test.add("tafasd");
-        mGeofencesToRemove = new ArrayList<String>();
-        mBroadcastReceiver = new GeofenceSampleReceiver();
+            // ArrayList<String> test = null;
+            // test.add("tafasd");
+            mGeofencesToRemove = new ArrayList<String>();
+            mBroadcastReceiver = new GeofenceSampleReceiver();
 //		mIntentFilter = new IntentFilter();
-        // pendingIntent = new
-        // Intent(this,ReceiveTransitionsIntentService.class);
-        mLocationRequest = LocationRequest.create();
-        // Use high accuracy
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // try using this:
-        mLocationRequest.setFastestInterval(1);
-        // Set the update interval to 50 seconds
-        mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
+            // pendingIntent = new
+            // Intent(this,ReceiveTransitionsIntentService.class);
+            mLocationRequest = LocationRequest.create();
+            // Use high accuracy
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            // try using this:
+            mLocationRequest.setFastestInterval(1);
+            // Set the update interval to 50 seconds
+            mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
 
-        // mGeofenceStorage = new SimpleGeofenceStore(this);
+            // mGeofenceStorage = new SimpleGeofenceStore(this);
 
-        int resultCode = GooglePlayServicesUtil
-                .isGooglePlayServicesAvailable(this);
-        // If Google Play services is available
-        if (ConnectionResult.SUCCESS == resultCode) {
-            // In debug mode, log the status
-            Log.d(TAG, "Google Play services is available.");
-        }
+            int resultCode = GooglePlayServicesUtil
+                    .isGooglePlayServicesAvailable(this);
+            // If Google Play services is available
+            if (ConnectionResult.SUCCESS == resultCode) {
+                // In debug mode, log the status
+                Log.d(TAG, "Google Play services is available.");
+            }
 
-        //amazon
+            //amazon
 //		adView = (AdLayout) findViewById(R.id.adView);
 //		AdTargetingOptions adOptions = new AdTargetingOptions();
 //		adView.loadAd(adOptions);
 
-        //admob
-        adView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("deviceid").build();
-        adView.loadAd(adRequest);
+            //admob
+            adView = (AdView) findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                    .addTestDevice("deviceid").build();
+            adView.loadAd(adRequest);
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        screenWidth = size.x;
-        screenHeight = size.y;
-        initMap();
+            Display display = getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            screenWidth = size.x;
+            screenHeight = size.y;
+            initMap();
 
-        geocoder = new Geocoder(getApplicationContext());
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        locationManager = (LocationManager) getApplicationContext()
-                .getSystemService(Context.LOCATION_SERVICE);
-        String bestProvider = locationManager.getBestProvider(criteria, true);
+            geocoder = new Geocoder(getApplicationContext());
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            locationManager = (LocationManager) getApplicationContext()
+                    .getSystemService(Context.LOCATION_SERVICE);
+            String bestProvider = locationManager.getBestProvider(criteria, true);
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.i("ty", "no permissions");
-            return;
-        }
-        location = locationManager.getLastKnownLocation(bestProvider);
-        fm = getFragmentManager();
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.i("ty", "no permissions");
+                return;
+            }
+            location = locationManager.getLastKnownLocation(bestProvider);
+            fm = getFragmentManager();
 
-        // default display size width for device
+            // default display size width for device
 
-        mapOffset = (int) (screenHeight * -.25f) + 120;
-        initLeftDrawer();
-        initViews();
-        setListeners();
+            mapOffset = (int) (screenHeight * -.25f) + 120;
+            initLeftDrawer();
+            initViews();
+            setListeners();
 
-        fm.beginTransaction().hide(addGeofenceFragment).commit();
+            fm.beginTransaction().hide(addGeofenceFragment).commit();
 //		reRegisterGeoFences = true;
+        }
     }
 
     private void initMap() {
@@ -422,9 +436,11 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         mySupportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
+
                 loading_screen_layout.setVisibility(View.GONE);
                 content_frame_layout.setVisibility(View.VISIBLE);
                 mMap = googleMap;
+                mMap.setPadding(0, 0, 400, 0);
                 mMap.getUiSettings().setRotateGesturesEnabled(false);
                 mMap.setMyLocationEnabled(true);
                 mMap.setOnMarkerClickListener(MapActivity.this);
@@ -455,23 +471,21 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 mMap.setOnMapLongClickListener(MapActivity.this);
                 mMap.setOnMarkerClickListener(MapActivity.this);
                 mMap.setOnMapClickListener(MapActivity.this);
-
-
             }
         });
 
         // Position LocationButton
         // Get the button view
         int x = 1, y = 2;
-         View locationButton =
-         ((View)findViewById(x).getParent()).findViewById(y);
-         // and next place it, for exemple, on bottom right (as Google Mapsapp)
-         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
-         locationButton.getLayoutParams();
-         // position on right bottom
-         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-         rlp.setMargins(0, 0, 0, 200);
+//        View locationButton =
+//                ((View) findViewById(x).getParent()).findViewById(y);
+//        // and next place it, for exemple, on bottom right (as Google Mapsapp)
+//        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams)
+//                locationButton.getLayoutParams();
+//        // position on right bottom
+//        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+//        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+//        rlp.setMargins(0, 0, 0, 200);
 
     }
 
@@ -630,11 +644,11 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     }
 
     private class DrawerItemClickListener implements
-            ListView.OnItemClickListener {
+                                          ListView.OnItemClickListener {
 
         @Override
         public void onItemClick(AdapterView<?> arg0, View view, int position,
-                                long arg3) {
+                long arg3) {
             if (position > 0) {
                 String selectedItemTitle = ((TextView) (view)
                         .findViewById(R.id.drawer_text)).getText().toString();
@@ -676,8 +690,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         arrow = (ImageView) findViewById(R.id.arrow);
         drawer_clear = (Button) footerView.findViewById(R.id.drawer_clear);
         clearTextImage = (ImageButton) findViewById(R.id.clearTextImage);
-        loading_screen_layout = (FrameLayout)findViewById(R.id.loading_screen);
-        content_frame_layout  = (FrameLayout)findViewById(R.id.content_frame);
+        loading_screen_layout = (FrameLayout) findViewById(R.id.loading_screen);
+        content_frame_layout = (FrameLayout) findViewById(R.id.content_frame);
         searchButton = (ImageButton) findViewById(R.id.searchButton);
         voiceButton = (ImageButton) findViewById(R.id.voiceButton);
         // Set the list's click listener
@@ -693,7 +707,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     }
 
     public void onItemClick(AdapterView<?> adapterView, View view,
-                            int position, long id) {
+            int position, long id) {
 
         Prediction p = (Prediction) adapterView.getItemAtPosition(position);
         // Log.i("ty","item selected" + p.getDescription() + " latitude: " +
@@ -765,7 +779,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                                 new DialogInterface.OnClickListener() {
 
                                     public void onClick(DialogInterface dialog,
-                                                        int whichButton) {
+                                            int whichButton) {
                                         clearAllGeoFences();
                                         slidePanelLayout.setPanelState(PanelState.COLLAPSED);
                                         // reset items
@@ -787,7 +801,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                         .setNegativeButton("Cancel",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
-                                                        int which) {
+                                            int which) {
                                         dialog.dismiss();
                                     }
                                 }).create().show();
@@ -857,7 +871,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                                 new DialogInterface.OnClickListener() {
 
                                     public void onClick(DialogInterface dialog,
-                                                        int whichButton) {
+                                            int whichButton) {
                                         ArrayList<String> geoFenceIdToRemoveList = new ArrayList<String>();
                                         SparseBooleanArray sbArray = mDrawerList
                                                 .getCheckedItemPositions();
@@ -936,7 +950,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                         .setNegativeButton("Cancel",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
-                                                        int which) {
+                                            int which) {
                                         dialog.dismiss();
                                     }
                                 }).create().show();
@@ -949,12 +963,12 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before,
-                                      int count) {
+                    int count) {
             }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
+                    int after) {
 
             }
 
@@ -1037,7 +1051,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
                     @Override
                     public void onProgressChanged(SeekBar seekBar,
-                                                  int progress, boolean fromUser) {
+                            int progress, boolean fromUser) {
                         _radiusChanged = progress + MIN_RADIUS;
 
                         if (myCircle != null) {
@@ -1178,7 +1192,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 .getProjection().fromScreenLocation(p));
         try {
             mMap.animateCamera(update, animateSpeed, null);
-        } catch(IllegalStateException e ) {
+        } catch (IllegalStateException e) {
 
         }
     }
@@ -1373,7 +1387,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     public void onMapLongClick(LatLng point) {
         latLng = point;
         isLongClick = true;
-        Log.i("ty","onMapLongClick");
+        Log.i("ty", "onMapLongClick");
         createRadiusCircle(point, null);
     }
 
@@ -1585,7 +1599,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     }
 
     private class GeocoderAutoCompleteTask extends
-            AsyncTask<Prediction, Void, Prediction> {
+                                           AsyncTask<Prediction, Void, Prediction> {
         @Override
         protected Prediction doInBackground(Prediction... p) {
 
@@ -1735,7 +1749,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
     @Override
     public void onItemSaved(SimpleGeofence oldItem, SimpleGeofence newItem,
-                            List<SimpleGeofence> newList, boolean isUpdate) {
+            List<SimpleGeofence> newList, boolean isUpdate) {
         slidePanelLayout.setPanelState(PanelState.COLLAPSED);
         // update the cached version of hte list.
         Log.i("ty", "newItem: " + newItem.getTitle());
@@ -1953,10 +1967,14 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             removeGeofences(getTransitionPendingIntent());
         }
         mInProgress = false;
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
+
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
