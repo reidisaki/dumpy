@@ -14,7 +14,7 @@ import com.google.android.gms.ads.InterstitialAd;
 
 public class SplashActivity extends Activity {
 
-	InterstitialAd mInterstitialAd;
+    InterstitialAd mInterstitialAd;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -22,14 +22,14 @@ public class SplashActivity extends Activity {
 
         setContentView(R.layout.activity_splash);
         // Here, thisActivity is the current activity
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
 
                 // Should we show an explanation?
 
-                requestPermissions(new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
                                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                                 android.Manifest.permission.ACCESS_NETWORK_STATE,
                                 android.Manifest.permission.READ_CONTACTS,
@@ -38,16 +38,15 @@ public class SplashActivity extends Activity {
                                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 android.Manifest.permission.RECEIVE_BOOT_COMPLETED},
                         1);
-
             } else {
-                Log.i("ty","starting map activity already have permissions");
+                Log.i("ty", "starting map activity already have permissions");
                 startActivityNoHistory();
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
         } else {
-            Log.i("ty","starting map activity less than M");
+            Log.i("ty", "starting map activity less than M");
             startActivityNoHistory();
         }
         /*
@@ -80,12 +79,11 @@ public class SplashActivity extends Activity {
         */
     }
 
-	
-	// Create the interstitial.
+    // Create the interstitial.
 //    final InterstitialAd interstitialAd = new InterstitialAd(this);
 //    AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
 //    AdRegistration.enableLogging(true);
-    
+
     // Set the listener to use the callbacks below.
 //    interstitialAd.setListener(new AdListener() {
 //        @Override
@@ -119,23 +117,23 @@ public class SplashActivity extends Activity {
 //    
 //    
     private void requestNewInterstitial() {
-        AdRequest adRequest = new AdRequest.Builder()        
+        AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
                 .build();
 
         mInterstitialAd.loadAd(adRequest);
     }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,  int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.i("ty","starting map activity perm result");
+        Log.i("ty", "starting map activity perm result");
         startActivityNoHistory();
-     }
+    }
 
     public void startActivityNoHistory() {
+        Log.i("ty", "starting map activity perm result");
         Intent i = new Intent(SplashActivity.this, MapActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(i);
-
     }
 }

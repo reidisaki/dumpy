@@ -6,21 +6,20 @@
                                         android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/loading_screen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            android:id="@+id/loading_screen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <ProgressBar
-            android:id="@+id/loading_progress"
-            style="@android:style/Widget.ProgressBar.Large"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+                android:id="@+id/loading_progress"
+                style="@android:style/Widget.ProgressBar.Large"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
     </FrameLayout>
     <!-- The main content view -->
 
     <FrameLayout
-            android:visibility="gone"
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -56,6 +55,7 @@
                     <com.google.android.gms.ads.AdView
                             xmlns:ads="http://schemas.android.com/apk/res-auto"
                             android:id="@+id/adView"
+                            android:visibility="gone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="top"

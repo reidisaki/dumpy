@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.yoneko.areyouthereyet.update"
-          android:versionCode="41"
-          android:versionName="1.5.9">
+          android:versionCode="42"
+          android:versionName="1.6.0">
     <uses-sdk
             android:minSdkVersion="17"
             android:targetSdkVersion="19"/>
@@ -63,6 +63,7 @@
                 android:noHistory="true"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
         <activity
+                android:noHistory="true"
                 android:name="com.yoneko.areyouthereyet.update.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

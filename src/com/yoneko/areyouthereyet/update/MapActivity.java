@@ -1,6 +1,7 @@
 //showcase view background color : F02173AD
 package com.yoneko.areyouthereyet.update;
 
+import android.Manifest.permission;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
@@ -36,6 +37,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -98,11 +100,14 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.gms.vision.Frame;
 import com.google.gson.Gson;
 
@@ -367,9 +372,9 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             // Use high accuracy
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             // try using this:
-            mLocationRequest.setFastestInterval(1);
+            mLocationRequest.setFastestInterval(10000);
             // Set the update interval to 50 seconds
-            mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
+            mLocationRequest.setInterval(10000);//LOCATION_UPDATE_INTERVAL);
 
             // mGeofenceStorage = new SimpleGeofenceStore(this);
 
@@ -417,7 +422,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
             // default display size width for device
 
-            mapOffset = (int) (screenHeight * -.25f) + 120;
+            mapOffset = (int) (screenHeight * -.5f);
+            Log.i("tv", "offset: " + mapOffset);
             initLeftDrawer();
             initViews();
             setListeners();
@@ -440,8 +446,9 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 loading_screen_layout.setVisibility(View.GONE);
                 content_frame_layout.setVisibility(View.VISIBLE);
                 mMap = googleMap;
-                mMap.setPadding(0, 0, 400, 0);
+                setMapPadding();
                 mMap.getUiSettings().setRotateGesturesEnabled(false);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.setMyLocationEnabled(true);
                 mMap.setOnMarkerClickListener(MapActivity.this);
                 mMap.setOnMyLocationChangeListener(MapActivity.this);
@@ -466,11 +473,13 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 if (location != null) {
                     LatLng ll = new LatLng(location.getLatitude(),
                             location.getLongitude());
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f), mapCallback);
                 }
                 mMap.setOnMapLongClickListener(MapActivity.this);
                 mMap.setOnMarkerClickListener(MapActivity.this);
                 mMap.setOnMapClickListener(MapActivity.this);
+                Log.i("ty", "mylocation button enabled: " + mMap.getUiSettings().isMyLocationButtonEnabled());
             }
         });
 
@@ -1185,14 +1194,18 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     }
 
     protected void animateCameraOffset() {
-        Point p = mMap.getProjection().toScreenLocation(latLng);
-        p.set(p.x, p.y - mapOffset);
-
-        CameraUpdate update = CameraUpdateFactory.newLatLng(mMap
-                .getProjection().fromScreenLocation(p));
         try {
-            mMap.animateCamera(update, animateSpeed, null);
+
+            Point p = mMap.getProjection().toScreenLocation(latLng);
+            p.set(p.x, p.y - mapOffset);
+
+            CameraUpdate update = CameraUpdateFactory.newLatLng(mMap
+                    .getProjection().fromScreenLocation(p));
+
+            mMap.animateCamera(update, animateSpeed, mapCallback);
         } catch (IllegalStateException e) {
+
+        } catch (NullPointerException e) {
 
         }
     }
@@ -1200,8 +1213,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     @Override
     public void onResume() {
         super.onResume();
-        loading_screen_layout.setVisibility(View.VISIBLE);
-        content_frame_layout.setVisibility(View.GONE);
+//        loading_screen_layout.setVisibility(View.VISIBLE);
+//        content_frame_layout.setVisibility(View.GONE);
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         try {
 
@@ -1230,7 +1243,6 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         editor.commit();
 
         isActive = true;
-        navigateToMyLocation = true;
     }
 
     protected void onSearchEditButtonClicked() {
@@ -1297,7 +1309,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     public CancelableCallback cameraCallBack = new CancelableCallback() {
         @Override
         public void onFinish() {
-
+            setMapPadding();
             animateCameraOffset();
 
             if (slidePanelLayout.getPanelState() != PanelState.EXPANDED
@@ -1310,6 +1322,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
         @Override
         public void onCancel() {
+            setMapPadding();
             if (slidePanelLayout.getPanelState() != PanelState.EXPANDED
                     || slidePanelLayout.getPanelState() == PanelState.HIDDEN) {
                 map_detail_layout.setVisibility(View.VISIBLE);
@@ -1374,7 +1387,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                             + " \nAccuracy within: "
                             + Math.ceil(location.getAccuracy()) + " meters");
             intent.putExtra("exit_on_sent", true);
-            startActivityForResult(intent, 1234);
+            startActivityForResult(intent, REQUEST_CODE);
 
             // Send out text message to someone who your location
         } else {
@@ -1404,6 +1417,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             // Populate the wordsList with the String values the recognition
             // engine thought it heard
@@ -1414,7 +1428,6 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 onSearchEditButtonClicked();
             }
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void addMarker(LatLng latLng, SimpleGeofence fence) {
@@ -1585,10 +1598,11 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     }
 
     public void animateToLocation(boolean panelExpanded) {
+        clearMapPadding();
         Point p = mMap.getProjection().toScreenLocation(latLng);
         CameraUpdate update;
         if (panelExpanded) {
-            p.set(p.x, p.y - mapOffset);
+            p.set(p.x, p.y + mapOffset);
             update = CameraUpdateFactory.newLatLng(mMap.getProjection()
                     .fromScreenLocation(p));
         } else {
@@ -2305,69 +2319,16 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
     }
 
-    //
-    // @Override
-    // public void onRemoveGeofencesByPendingIntentResult(int statusCode,
-    // PendingIntent pendingIntent) {
-    //
-    // // If removing the geofences was successful
-    // if (statusCode == LocationStatusCodes.SUCCESS) {
-    // o("SUCCESS removing geo fences" + statusCode);
-    // /*
-    // * Handle successful removal of geofences here. You can send out a
-    // * broadcast intent or update the UI. geofences into the Intent's
-    // * extended data.
-    // */
-    // } else {
-    // o("failure removing geo fences" + statusCode);
-    // // If adding the geocodes failed
-    // /*
-    // * Report errors here. You can log the error using Log.e() or update
-    // * the UI.
-    // */
-    // }
-    // /*
-    // * Disconnect the location client regardless of the request status, and
-    // * indicate that a request is no longer in progress
-    // */
-    // mInProgress = false;
-    // mLocationClient.disconnect();
-    // }
-
-    // @Override
-    // public void onRemoveGeofencesByRequestIdsResult(int statusCode,
-    // String[] geofenceRequestIds) {
-    // // If removing the geocodes was successful
-    // if (LocationStatusCodes.SUCCESS == statusCode) {
-    // /*
-    // * Handle successful removal of geofences here. You can send out a
-    // * broadcast intent or update the UI. geofences into the Intent's
-    // * extended data.
-    // */
-    // } else {
-    // // If removing the geofences failed
-    // /*
-    // * Report errors here. You can log the error using Log.e() or update
-    // * the UI.
-    // */
-    // }
-    // // Indicate that a request is no longer in progress
-    // mInProgress = false;
-    // // Disconnect the location client
-    // mLocationClient.disconnect();
-    // }
-
-    // //END MERGE
-
     @Override
     public void onMyLocationChange(Location _location) {
         // Log.i("ty","location changed!");
         location = _location;
         if (location != null && navigateToMyLocation) {
+            clearMapPadding();
             navigateToMyLocation = false;
             LatLng ll = new LatLng(location.getLatitude(),
                     location.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f), mapCallback);
 
             // cool animation but kinda slow.
             // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f));
@@ -2384,8 +2345,21 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
     }
 
+    CancelableCallback mapCallback = new CancelableCallback() {
+        @Override
+        public void onFinish() {
+            setMapPadding();
+        }
+
+        @Override
+        public void onCancel() {
+            setMapPadding();
+        }
+    };
+
     @Override
     public boolean onMyLocationButtonClick() {
+        clearMapPadding();
         if (location != null) {
             Point p = mMap.getProjection()
                     .toScreenLocation(
@@ -2395,11 +2369,9 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             if (panelExpanded) {
                 p.set(p.x, p.y - mapOffset);
             }
-
             mMap.animateCamera(CameraUpdateFactory.newLatLng(mMap
-                    .getProjection().fromScreenLocation(p)));
+                    .getProjection().fromScreenLocation(p)), mapCallback);
         }
-
         boolean returnValue =
                 (slidePanelLayout.getPanelState() == PanelState.ANCHORED || slidePanelLayout.getPanelState() == PanelState.EXPANDED) ? true : false;
         Log.i("ty", "Return value onMyLocationButtonClick  " + returnValue);
@@ -2410,7 +2382,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     public void onMapLoaded() {
 
         isMapLoaded = true;
-        navigateToMyLocation = true;
+//        navigateToMyLocation = true;
     }
 
     public boolean isTablet(Context context) {
@@ -2507,5 +2479,29 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 Toast.makeText(getApplicationContext(), "geofences is empty", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void setMapPadding() {
+        Point size = new Point();
+        Display display = getWindowManager().getDefaultDisplay();
+        display.getSize(size);
+        screenWidth = size.x;
+        screenHeight = size.y;
+        Log.i("ty", "height:" + screenHeight);
+//        mMap.setPadding(0, 1600, 0, 0);
+        mMap.setPadding(0, (int) (screenHeight * .63), 0, 0);
+    }
+
+    public void clearMapPadding() {
+        mMap.setPadding(0, 0, 0, 0);
+    }
+
+    public static int convertDpToPixels(Context context, int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
+
+    public static int convertPixelsToDp(Context context, float px) {
+        float dp = (float) ((px / context.getResources().getDisplayMetrics().density) + 0.5);
+        return (int) dp;
     }
 }
