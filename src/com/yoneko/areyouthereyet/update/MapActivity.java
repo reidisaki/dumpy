@@ -1603,8 +1603,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         CameraUpdate update;
         if (panelExpanded) {
             p.set(p.x, p.y + mapOffset);
-            update = CameraUpdateFactory.newLatLng(mMap.getProjection()
-                    .fromScreenLocation(p));
+            update = CameraUpdateFactory.newLatLngZoom(mMap.getProjection()
+                    .fromScreenLocation(p), 15.0f);
         } else {
             update = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);
         }
