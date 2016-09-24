@@ -21,92 +21,90 @@ import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofenceList;
 
 public class DrawerItemAdapter extends ArrayAdapter<SimpleGeofence> {
-	Context mContext;
-	int layoutResourceId;
-	List<SimpleGeofence> data = null;
-	Switch toggleSwitch;
-	 private ToggleSwitchClicked listener;
-	public DrawerItemAdapter(Context context, int resource) {
-		super(context, resource);
-	}
-	public DrawerItemAdapter(Context mContext, int layoutResourceId, List<SimpleGeofence> data) {
-		super(mContext, layoutResourceId, data);
+    Context mContext;
+    int layoutResourceId;
+    List<SimpleGeofence> data = null;
+    Switch toggleSwitch;
+    private ToggleSwitchClicked listener;
 
-		this.layoutResourceId = layoutResourceId;
-		this.mContext = mContext;
-		this.data = data;
-		this.listener = (ToggleSwitchClicked) mContext;
-	}
+    public DrawerItemAdapter(Context context, int resource) {
+        super(context, resource);
+    }
 
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
+    public DrawerItemAdapter(Context mContext, int layoutResourceId, List<SimpleGeofence> data) {
+        super(mContext, layoutResourceId, data);
 
-		if(convertView==null){
-			// inflate the layout
-			LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-			convertView = inflater.inflate(layoutResourceId, parent, false);
-		}
+        this.layoutResourceId = layoutResourceId;
+        this.mContext = mContext;
+        this.data = data;
+        this.listener = (ToggleSwitchClicked) mContext;
+    }
 
-		// object item based on the position
-		Log.i("Reid","data size: " + data.size() + " position: " + position);
-		final SimpleGeofence objectItem = data.get(position);
-		Log.i("Reid",objectItem.isActive() + " is active?" + " fenceType: " + objectItem.getFenceType().toString());
-		// get the TextView and then set the text (item name) and tag (item ID) values
-		TextView textViewItem = (TextView) convertView.findViewById(R.id.drawer_text);
-		textViewItem.setText(objectItem.getTitle() + " - " + (objectItem.getTransitionType() == 1 ? "enter" : "exit") ); // this could be 4 which is enter and exit
-		toggleSwitch = (Switch)convertView.findViewById(R.id.toggle_switch);
-		//setChecked calls  the onCheckedChangedListener every time  - http://stackoverflow.com/questions/25798089/why-is-that-when-i-am-scrolling-up-or-down-the-list-it-activates-a-switch-listen
-		toggleSwitch.setOnCheckedChangeListener(null);
-		toggleSwitch.setChecked(false);
-		if(objectItem.isActive()) {
-			Log.i("reid",objectItem.getTitle() + " is active");
-			toggleSwitch.setChecked(true);
-		}
-		
-		toggleSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if(isChecked) {
-					objectItem.setActive(true);
-				} else {
-					objectItem.setActive(false);
-				}
-				MapActivity.isDirty = true;
-				Log.i("test","position: " + position + " is set with this value:" + objectItem.getTitle() + " : " + objectItem.isActive());
-				data.set(position, objectItem);
-				MapActivity.storeJSON(new SimpleGeofenceList(data), mContext);	
-				listener.toggleClicked(objectItem, isChecked);
-			}
-		});
-		final CheckBox checkbox = (CheckBox)convertView.findViewById(R.id.drawer_check_box);
-		checkbox.setChecked(objectItem.isChecked());
-		checkbox.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(((CheckBox)v).isChecked())
-				{
-					v.setSelected(true);
-					objectItem.setChecked(true);
-				} else {
-					v.setSelected(false);
-					objectItem.setChecked(false);
-				}
-				Log.i("Reid","Setting new title: " + objectItem.getTitle());
-				data.set(position, objectItem);
-			}
-		});
-		if(objectItem.getTitle().equals(mContext.getResources().getString(R.string.clear_all_text))) {
-			checkbox.setVisibility(View.GONE);
-		} else {
-			checkbox.setVisibility(View.VISIBLE);
-		}
-		
-		return convertView;
-	}
-	public interface ToggleSwitchClicked {
-		public void toggleClicked(SimpleGeofence g, boolean isChecked);
-		
-	}	
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
+        if (convertView == null) {
+            // inflate the layout
+            LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
+            convertView = inflater.inflate(layoutResourceId, parent, false);
+        }
+
+        // object item based on the position
+        Log.i("Reid", "data size: " + data.size() + " position: " + position);
+        final SimpleGeofence objectItem = data.get(position);
+        Log.i("Reid", objectItem.isActive() + " is active?" + " fenceType: " + objectItem.getFenceType().toString());
+        // get the TextView and then set the text (item name) and tag (item ID) values
+        TextView textViewItem = (TextView) convertView.findViewById(R.id.drawer_text);
+        textViewItem
+                .setText(objectItem.getTitle() + " - " + (objectItem.getTransitionType() == 1 ? "enter" : "exit")); // this could be 4 which is enter and exit
+        toggleSwitch = (Switch) convertView.findViewById(R.id.toggle_switch);
+        //setChecked calls  the onCheckedChangedListener every time  - http://stackoverflow.com/questions/25798089/why-is-that-when-i-am-scrolling-up-or-down-the-list-it-activates-a-switch-listen
+        toggleSwitch.setOnCheckedChangeListener(null);
+        toggleSwitch.setChecked(false);
+        if (objectItem.isActive()) {
+            toggleSwitch.setChecked(true);
+        }
+
+        toggleSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    objectItem.setActive(true);
+                } else {
+                    objectItem.setActive(false);
+                }
+                MapActivity.isDirty = true;
+                data.set(position, objectItem);
+                MapActivity.storeJSON(new SimpleGeofenceList(data), mContext);
+                listener.toggleClicked(objectItem, isChecked);
+            }
+        });
+        final CheckBox checkbox = (CheckBox) convertView.findViewById(R.id.drawer_check_box);
+        checkbox.setChecked(objectItem.isChecked());
+        checkbox.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (((CheckBox) v).isChecked()) {
+                    v.setSelected(true);
+                    objectItem.setChecked(true);
+                } else {
+                    v.setSelected(false);
+                    objectItem.setChecked(false);
+                }
+                data.set(position, objectItem);
+            }
+        });
+        if (objectItem.getTitle() != null && objectItem.getTitle().equals(mContext.getResources().getString(R.string.clear_all_text))) {
+            checkbox.setVisibility(View.GONE);
+        } else {
+            checkbox.setVisibility(View.VISIBLE);
+        }
+
+        return convertView;
+    }
+
+    public interface ToggleSwitchClicked {
+        public void toggleClicked(SimpleGeofence g, boolean isChecked);
+    }
 }

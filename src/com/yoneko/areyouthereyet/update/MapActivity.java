@@ -1049,8 +1049,9 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                                 // set radius in meters make this configurable
                                 .fillColor(0x408A2BE2)
                                 .strokeColor(Color.MAGENTA).strokeWidth(5);
-
-                        newCircle = mMap.addCircle(circleOptions);
+                        if (mMap != null) {
+                            newCircle = mMap.addCircle(circleOptions);
+                        }
                     }
 
                     @Override
@@ -1772,7 +1773,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             for (int i = 0; i < drawerStringList.size(); i++) {
                 SimpleGeofence updateItem = drawerStringList.get(i);
                 // item exists update
-                if (updateItem.getTitle().equals(oldItem.getTitle())) {
+                if ((updateItem.getTitle() != null && oldItem.getTitle() != null) && updateItem.getTitle().equals(oldItem.getTitle())) {
                     drawerStringList.set(i, oldItem);
                 }
             }
