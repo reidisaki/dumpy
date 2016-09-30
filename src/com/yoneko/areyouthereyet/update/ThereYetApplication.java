@@ -8,6 +8,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.support.multidex.MultiDex;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -22,7 +23,7 @@ public class ThereYetApplication extends Application {
 
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-//        MultiDex.install(this);
+        MultiDex.install(this);
     }
 
     @Override
