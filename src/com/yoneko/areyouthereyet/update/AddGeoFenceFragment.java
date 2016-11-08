@@ -263,7 +263,9 @@ public class AddGeoFenceFragment extends DialogFragment {
 
                 if (hasFocus) {
                     Log.i("Reid", "View has focus");
-                    mListener.editTextClicked();
+                    if (mListener != null) {
+                        mListener.editTextClicked();
+                    }
                 }
             }
         };
