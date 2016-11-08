@@ -97,6 +97,7 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -251,7 +252,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Fabric.with(this, new Crashlytics());
-
+        MapsInitializer.initialize(getApplication());
         /*
          * error testing here useful but not used right now. Map<String, String>
 		 * errorParams = new HashMap<String, String>();
@@ -1462,6 +1463,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         }
         // Editing an existing geoFence
         usedAutoComplete = false;
+
         MarkerOptions mo = new MarkerOptions()
                 .position(latLng)
                 .title(title)
