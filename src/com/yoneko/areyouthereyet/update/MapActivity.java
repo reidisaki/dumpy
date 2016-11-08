@@ -1717,6 +1717,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             if (addresses == null || addresses.size() == 0) {
                 // Toast.makeText(getBaseContext(), "No Location found",
                 // Toast.LENGTH_SHORT).show();
+                return;
             }
             hideKeyboard();
             // Clears all the existing markers on the map
