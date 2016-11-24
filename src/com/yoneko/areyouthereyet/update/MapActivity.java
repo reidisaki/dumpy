@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Address;
@@ -252,6 +253,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Fabric.with(this, new Crashlytics());
+
         MapsInitializer.initialize(getApplication());
         /*
          * error testing here useful but not used right now. Map<String, String>
