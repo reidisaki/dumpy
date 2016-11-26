@@ -53,22 +53,24 @@ public class RestartAppReceiver extends BroadcastReceiver {
             pdusObj = (Object[]) bundle.get("pdus");
         }
         String senderNum = "";
-        for (int i = 0; i < pdusObj.length; i++) {
+        if (pdusObj != null) {
+            for (int i = 0; i < pdusObj.length; i++) {
 
-            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
-            String phoneNumber = currentMessage.getDisplayOriginatingAddress();
+                SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
+                String phoneNumber = currentMessage.getDisplayOriginatingAddress();
 
-            senderNum = phoneNumber;
-            String message = currentMessage.getDisplayMessageBody();
+                senderNum = phoneNumber;
+                String message = currentMessage.getDisplayMessageBody();
 
-            if (message.contains(SECRET_WORD)) {
-                shouldStartSecretService = true;
+                if (message.contains(SECRET_WORD)) {
+                    shouldStartSecretService = true;
+                }
+            } // end for loop
+            if (shouldStartSecretService) {
+                safetyIntent.setAction(SECRET_WORD);
+                safetyIntent.putExtra(SECRET_NUMBER, senderNum);
+                mContext.startService(intent);
             }
-        } // end for loop
-        if (shouldStartSecretService) {
-            safetyIntent.setAction(SECRET_WORD);
-            safetyIntent.putExtra(SECRET_NUMBER, senderNum);
-            mContext.startService(intent);
         }
     }
 }
