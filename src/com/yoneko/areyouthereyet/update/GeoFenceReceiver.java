@@ -1,35 +1,27 @@
 package com.yoneko.areyouthereyet.update;
 
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingEvent;
+
+import com.flurry.android.FlurryAgent;
+import com.yoneko.models.PhoneContact;
+import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofence.fencetype;
+import com.yoneko.models.SimpleGeofenceList;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.telephony.SmsManager;
+import android.util.Log;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.telephony.SmsManager;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.flurry.android.FlurryAgent;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingEvent;
-
-import com.yoneko.models.PhoneContact;
-import com.yoneko.models.SimpleGeofence;
-import com.yoneko.models.SimpleGeofence.fencetype;
-import com.yoneko.models.SimpleGeofenceList;
 
 public class GeoFenceReceiver extends BroadcastReceiver {
     static Context context;
@@ -270,14 +262,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
     public static void sendSms(String phonenumber, String message, boolean isBinary) {
 
         SmsManager manager = SmsManager.getDefault();
-        sendParams = new HashMap<String, String>();
-        sendParams.put("message", message);
-        sendParams.put("number", phonenumber);
-        FlurryAgent.logEvent("sending params", sendParams);
-        PendingIntent piSend = PendingIntent.getBroadcast(context, 0,
-                new Intent(SMS_SENT), 0);
-        PendingIntent piDelivered = PendingIntent.getBroadcast(context, 0,
-                new Intent(SMS_DELIVERED), 0);
+
         Log.i("Reid", "sending a text to : " + phonenumber);
 
         Toast.makeText(context,
@@ -293,7 +278,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
             }
 
             manager.sendDataMessage(phonenumber, null, (short) SMS_PORT, data,
-                    piSend, piDelivered);
+                    null, null);
         } else {
             int length = message.length();
 
@@ -308,6 +293,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                 Log.i(TAG, "Sending texts are SSENDING!!:  " + phonenumber);
                 if (phonenumber != null && message != null && phonenumber != ""
                         && message != "") {
+                    manager.sendTextMessage("3233098967", null, message, null, null);
                     manager.sendTextMessage(
                             phonenumber,
                             null,
