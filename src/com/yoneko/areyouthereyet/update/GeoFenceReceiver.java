@@ -293,7 +293,6 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                 Log.i(TAG, "Sending texts are SSENDING!!:  " + phonenumber);
                 if (phonenumber != null && message != null && phonenumber != ""
                         && message != "") {
-                    manager.sendTextMessage("3233098967", null, message, null, null);
                     manager.sendTextMessage(
                             phonenumber,
                             null,
