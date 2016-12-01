@@ -296,9 +296,9 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                     manager.sendTextMessage(
                             phonenumber,
                             null,
-                            message,
-//                                    + context.getResources().getString(
-//                                    R.string.short_there_yet_link),
+                            message
+                                    + context.getResources().getString(
+                                    R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "DEBUG" : ""),
                             null, null);
                 }
             }

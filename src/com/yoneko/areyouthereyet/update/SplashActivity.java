@@ -2,16 +2,22 @@ package com.yoneko.areyouthereyet.update;
 
 import android.Manifest.permission;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.PermissionChecker;
 import android.util.Log;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
+
+import static java.security.AccessController.getContext;
 
 public class SplashActivity extends Activity {
 
@@ -26,6 +32,10 @@ public class SplashActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
+                    permission.SEND_SMS)
+                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
+                    permission.ACCESS_NETWORK_STATE)
                     != PackageManager.PERMISSION_GRANTED) {
 
                 // Should we show an explanation?
@@ -36,7 +46,7 @@ public class SplashActivity extends Activity {
                                 permission.READ_CONTACTS,
                                 permission.SEND_SMS,
                                 permission.RECEIVE_BOOT_COMPLETED},
-                        1);
+                        PERMISSION_REQUEST_BLOCK_INTERNAL);
             } else {
                 Log.i("ty", "starting map activity already have permissions");
                 startActivityNoHistory();
@@ -121,17 +131,38 @@ public class SplashActivity extends Activity {
         mInterstitialAd.loadAd(adRequest);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.i("ty", "starting map activity perm result");
-//        startActivityNoHistory();
-        requestNewInterstitial();
-    }
-
     public void startActivityNoHistory() {
         Log.i("ty", "starting map activity perm result");
         Intent i = new Intent(SplashActivity.this, MapActivity.class);
         startActivity(i);
+    }
+
+    private static final int PERMISSION_REQUEST_BLOCK_INTERNAL = 555;
+    private static final String PERMISSION_SHARED_PREFERENCES = "permissions";
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_BLOCK_INTERNAL) {
+            boolean allPermissionsGranted = true;
+
+            for (int iGranting : grantResults) {
+                if (iGranting != PermissionChecker.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+
+            if (allPermissionsGranted) {
+                requestNewInterstitial();
+            } else {
+                requestPermissions(new String[]{permission.ACCESS_COARSE_LOCATION,
+                                permission.ACCESS_FINE_LOCATION,
+                                permission.ACCESS_NETWORK_STATE,
+                                permission.READ_CONTACTS,
+                                permission.SEND_SMS,
+                                permission.RECEIVE_BOOT_COMPLETED},
+                        1);
+            }
+        }
     }
 }
