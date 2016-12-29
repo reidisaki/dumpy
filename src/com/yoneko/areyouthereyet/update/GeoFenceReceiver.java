@@ -298,7 +298,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                             null,
                             message
                                     + context.getResources().getString(
-                                    R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "DEBUG" : ""),
+                                    R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""),
                             null, null);
                 }
             }

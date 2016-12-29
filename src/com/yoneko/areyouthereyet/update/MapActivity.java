@@ -254,6 +254,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     protected void onCreate(Bundle savedInstanceState) {
         Fabric.with(this, new Crashlytics());
 
+        Log.i("ty", "oncreate");
         MapsInitializer.initialize(getApplication());
         /*
          * error testing here useful but not used right now. Map<String, String>
@@ -426,10 +427,11 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             // default display size width for device
 
             mapOffset = (int) (screenHeight * -.5f);
-            Log.i("tv", "offset: " + mapOffset);
+            Log.i("ty", "offset: " + mapOffset);
             initLeftDrawer();
             initViews();
             setListeners();
+            Log.i("ty", "loaded and ready to go.");
 
             fm.beginTransaction().hide(addGeofenceFragment).commit();
 //		reRegisterGeoFences = true;
@@ -446,7 +448,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             @Override
             public void onMapReady(final GoogleMap googleMap) {
 
-                loading_screen_layout.setVisibility(View.GONE);
+//                loading_screen_layout.setVisibility(View.GONE);
                 content_frame_layout.setVisibility(View.VISIBLE);
                 mMap = googleMap;
                 setMapPadding();
@@ -480,7 +482,6 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 14.0f), mapCallback);
                 }
                 mMap.setOnMapLongClickListener(MapActivity.this);
-                mMap.setOnMarkerClickListener(MapActivity.this);
                 mMap.setOnMapClickListener(MapActivity.this);
                 Log.i("ty", "mylocation button enabled: " + mMap.getUiSettings().isMyLocationButtonEnabled());
             }
@@ -488,7 +489,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
         // Position LocationButton
         // Get the button view
-        int x = 1, y = 2;
+//        int x = 1, y = 2;
 //        View locationButton =
 //                ((View) findViewById(x).getParent()).findViewById(y);
 //        // and next place it, for exemple, on bottom right (as Google Mapsapp)
@@ -762,6 +763,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
     protected void onStart() {
         super.onStart();
+        Log.i("ty", "onStart");
         if (!mGoogleApiClient.isConnected() || !mGoogleApiClient.isConnecting()) {
             mGoogleApiClient.connect();
         }
@@ -1217,6 +1219,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     @Override
     public void onResume() {
         super.onResume();
+        Log.i("ty", "onResume");
 //        loading_screen_layout.setVisibility(View.VISIBLE);
 //        content_frame_layout.setVisibility(View.GONE);
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);

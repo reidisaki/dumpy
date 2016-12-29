@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.yoneko.areyouthereyet.update"
-          android:versionCode="53"
-          android:versionName="1.7.1">
+          android:versionCode="54"
+          android:versionName="1.7.2">
     <uses-sdk
             android:minSdkVersion="17"
             android:targetSdkVersion="25"/>
@@ -44,7 +44,7 @@
         />
         <meta-data
                 android:name="com.google.android.maps.v2.API_KEY"
-                android:value="AIzaSyDl2XggW6VDu4qcqbviZVrTNBCcagNr6k8"/>
+                android:value="AIzaSyDj_4UrurSHhiI83hxSq66GS_P1Hwano8g"/>
         <!-- android:launchMode="singleTask" -->
         <activity
                 android:name="com.yoneko.areyouthereyet.update.MapActivity"

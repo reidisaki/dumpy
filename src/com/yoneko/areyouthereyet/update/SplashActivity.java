@@ -28,6 +28,29 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_splash);
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.interstitial));
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                mInterstitialAd.show();
+            }
+
+            @Override
+            public void onAdFailedToLoad(final int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+                Intent i = new Intent(SplashActivity.this, MapActivity.class);
+                startActivity(i);
+            }
+
+            @Override
+            public void onAdClosed() {
+                Intent i = new Intent(SplashActivity.this, MapActivity.class);
+                startActivity(i);
+            }
+        });
         // Here, thisActivity is the current activity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
@@ -58,29 +81,6 @@ public class SplashActivity extends Activity {
             Log.i("ty", "starting map activity less than M");
             startActivityNoHistory();
         }
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.interstitial));
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                mInterstitialAd.show();
-            }
-
-            @Override
-            public void onAdFailedToLoad(final int errorCode) {
-                super.onAdFailedToLoad(errorCode);
-                Intent i = new Intent(SplashActivity.this, MapActivity.class);
-                startActivity(i);
-            }
-
-            @Override
-            public void onAdClosed() {
-                Intent i = new Intent(SplashActivity.this, MapActivity.class);
-                startActivity(i);
-            }
-        });
 
         //disable ads for now
 //        requestNewInterstitial();
