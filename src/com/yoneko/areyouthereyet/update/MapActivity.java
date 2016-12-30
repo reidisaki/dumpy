@@ -448,7 +448,6 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             @Override
             public void onMapReady(final GoogleMap googleMap) {
 
-//                loading_screen_layout.setVisibility(View.GONE);
                 content_frame_layout.setVisibility(View.VISIBLE);
                 mMap = googleMap;
                 setMapPadding();
@@ -1438,7 +1437,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     }
 
     public void addMarker(LatLng latLng, SimpleGeofence fence) {
-
+        loading_screen_layout.setVisibility(View.GONE);
         int radius;
         Geocoder geo = new Geocoder(getApplicationContext());
         try {
