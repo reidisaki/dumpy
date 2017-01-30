@@ -78,8 +78,9 @@ android {
             signingConfig signingConfigs.release
         }
         debug {
+//            resValue 'string', 'app_name', '"ThereYet"'
             resValue 'string', 'app_name', '"thereyet -debug"'
-            applicationIdSuffix ".debug"
+//            applicationIdSuffix ".debug"
         }
     }
     productFlavors {

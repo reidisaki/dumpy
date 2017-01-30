@@ -1363,7 +1363,11 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         o("Clicked marker");
         if (marker.equals(myLocationMarker)) {
             Uri uri = Uri.parse("smsto:");
-            Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+//            Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+
+// Verify the intent will resolve to at least one activity
+
             Geocoder geo = new Geocoder(getApplicationContext());
             String currentLocationText = "I'm currently here: ";
             List<Address> addressList;
@@ -1386,6 +1390,15 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
             // DEBUG STATEMENT - Reid Isaki
             intent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    currentLocationText + "\n\n http://maps.google.com/?q="
+                            + marker.getPosition().latitude + "%2c"
+                            + marker.getPosition().longitude
+                            + " \nAccuracy within: "
+                            + Math.ceil(location.getAccuracy()) + " meters");
+            intent.putExtra(Intent.EXTRA_SUBJECT, "My Location");
+
+            intent.putExtra(
                     "sms_body",
                     currentLocationText + "\n\n http://maps.google.com/?q="
                             + marker.getPosition().latitude + "%2c"
@@ -1393,7 +1406,10 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                             + " \nAccuracy within: "
                             + Math.ceil(location.getAccuracy()) + " meters");
             intent.putExtra("exit_on_sent", true);
-            startActivityForResult(intent, REQUEST_CODE);
+            intent.setType("text/plain");
+            startActivity(Intent.createChooser(intent, "Share location via"));
+
+//                startActivityForResult(intent, REQUEST_CODE);
 
             // Send out text message to someone who your location
         } else {
