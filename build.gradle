@@ -46,9 +46,8 @@ android {
     }
     dexOptions
             {
-                incremental false
-                javaMaxHeapSize "2048M"
-                preDexLibraries = false
+                incremental true
+                javaMaxHeapSize "4g"
             }//end dexOptions
     sourceSets {
         main {
@@ -99,5 +98,5 @@ dependencies {
     compile 'com.github.amlcurran.showcaseview:library:5.0.0'
     compile 'com.google.android.gms:play-services:9.4.0'
     compile 'com.sothree.slidinguppanel:library:3.3.0'
-    compile 'com.android.support:multidex:'
+    compile 'com.android.support:multidex:1.0.1'
 }

@@ -2170,8 +2170,10 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 		 * implements ConnectionCallbacks and OnConnectionFailedListener, pass
 		 * the current activity object as the listener for both parameters
 		 */
-        LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,
-                geofenceIds);
+        if (geofenceIds != null && geofenceIds.size() > 0) {
+            LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,
+                    geofenceIds);
+        }
         // If a request is not already underway
         //		if (!mInProgress) {
         // Indicate that a request is underway
