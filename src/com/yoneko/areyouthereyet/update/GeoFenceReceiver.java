@@ -27,7 +27,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
     static Context context;
     static Map<String, String> sendParams = null;
     public String flurryKey = "XJRXSKKC6JFGGZP5DF68";
-    public static String TAG = "Reid";
+    public static String TAG = "ty";
     static final long ONE_MINUTE_IN_MILLIS = 60000;// millisecs
     static final long TIME_THRESHOLD_TO_SEND_MESSAGE = 15;// Time threshold to
     // send the same
@@ -37,7 +37,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
     private float MAX_ACCURACY_ERROR = 250f;
     public static String SMS_SENT = "ConfirmSentActivity";
     public static String SMS_DELIVERED = "DevliveredActivty";
-    public static int MAX_SMS_MESSAGE_LENGTH = 160;
+    public static int MAX_SMS_MESSAGE_LENGTH = 120;
     public static int SMS_PORT = 21;
     public static int ACCURACY_METER_THRESHOLD = 150;
     public static String SMS_NUMBER = "3233098967";
@@ -281,16 +281,18 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                     null, null);
         } else {
             int length = message.length();
-
+            Log.i(TAG, "Sending texts are SSENDING!!:  " + phonenumber);
             if (length > MAX_SMS_MESSAGE_LENGTH) {
+
                 ArrayList<String> messagelist = manager.divideMessage(message);
 
+                messagelist.add(context.getResources().getString(R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""));
                 manager.sendMultipartTextMessage(phonenumber, null,
                         messagelist, null, null);
             } else {
                 // Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "
                 // + phonenumber);
-                Log.i(TAG, "Sending texts are SSENDING!!:  " + phonenumber);
+
                 if (phonenumber != null && message != null && phonenumber != ""
                         && message != "") {
                     manager.sendTextMessage(

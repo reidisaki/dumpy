@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.yoneko.areyouthereyet.update"
-          android:versionCode="58"
+          android:versionCode="60"
           android:name="android.support.multidex.MultiDexApplication"
-          android:versionName="1.7.5">
+          android:versionName="1.7.7">
     <uses-sdk
             android:minSdkVersion="17"
             android:targetSdkVersion="25"/>
