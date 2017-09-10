@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.yoneko.areyouthereyet.update"
-          android:versionCode="61"
+          android:versionCode="62"
           android:name="android.support.multidex.MultiDexApplication"
           android:versionName="1.7.8">
     <uses-sdk
