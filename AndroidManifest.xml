@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.yoneko.areyouthereyet.update"
-          android:versionCode="60"
+          android:versionCode="61"
           android:name="android.support.multidex.MultiDexApplication"
-          android:versionName="1.7.7">
+          android:versionName="1.7.8">
     <uses-sdk
             android:minSdkVersion="17"
             android:targetSdkVersion="25"/>
@@ -21,6 +22,7 @@
 
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!--<uses-permission android:name="com.yoneko.areyouthereyet.permission.MAPS_RECEIVE" />-->
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>

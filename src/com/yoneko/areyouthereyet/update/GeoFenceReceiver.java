@@ -263,7 +263,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
         SmsManager manager = SmsManager.getDefault();
 
-        Log.i("Reid", "sending a text to : " + phonenumber);
+        Log.i("ty", "sending a text to : " + phonenumber);
 
         Toast.makeText(context,
                 "SENDING A TEXT " + message + " phone number: " + phonenumber,
@@ -287,7 +287,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                 ArrayList<String> messagelist = manager.divideMessage(message);
 
                 messagelist.add(context.getResources().getString(R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""));
-                manager.sendMultipartTextMessage(phonenumber, null,
+                manager.sendMultipartTextMessage(phonenumber, phonenumber,
                         messagelist, null, null);
             } else {
                 // Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "

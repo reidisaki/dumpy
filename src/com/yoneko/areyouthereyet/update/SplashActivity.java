@@ -1,5 +1,7 @@
 package com.yoneko.areyouthereyet.update;
 
+import android.*;
+import android.Manifest;
 import android.Manifest.permission;
 import android.app.Activity;
 import android.content.Context;
@@ -9,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.util.Log;
@@ -19,7 +22,7 @@ import com.google.android.gms.ads.InterstitialAd;
 
 import static java.security.AccessController.getContext;
 
-public class SplashActivity extends Activity {
+public class SplashActivity extends Activity implements OnRequestPermissionsResultCallback {
 
     InterstitialAd mInterstitialAd;
 
@@ -53,13 +56,11 @@ public class SplashActivity extends Activity {
         });
         // Here, thisActivity is the current activity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
-                    permission.SEND_SMS)
-                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
-                    permission.ACCESS_NETWORK_STATE)
-                    != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
 
                 // Should we show an explanation?
 
@@ -68,6 +69,7 @@ public class SplashActivity extends Activity {
                                 permission.ACCESS_NETWORK_STATE,
                                 permission.READ_CONTACTS,
                                 permission.SEND_SMS,
+                                permission.READ_PHONE_STATE,
                                 permission.RECEIVE_BOOT_COMPLETED},
                         PERMISSION_REQUEST_BLOCK_INTERNAL);
             } else {
@@ -142,8 +144,8 @@ public class SplashActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        boolean allPermissionsGranted = true;
         if (requestCode == PERMISSION_REQUEST_BLOCK_INTERNAL) {
-            boolean allPermissionsGranted = true;
 
             for (int iGranting : grantResults) {
                 if (iGranting != PermissionChecker.PERMISSION_GRANTED) {
@@ -160,9 +162,13 @@ public class SplashActivity extends Activity {
                                 permission.ACCESS_NETWORK_STATE,
                                 permission.READ_CONTACTS,
                                 permission.SEND_SMS,
+                                permission.READ_PHONE_STATE,
                                 permission.RECEIVE_BOOT_COMPLETED},
-                        1);
+                        PERMISSION_REQUEST_BLOCK_INTERNAL);
             }
+        }
+        if (allPermissionsGranted) {
+            requestNewInterstitial();
         }
     }
 }
