@@ -11,7 +11,7 @@ import android.widget.Toast;
 import static com.yoneko.areyouthereyet.update.GeoFenceReceiver.context;
 
 public class RestartAppReceiver extends BroadcastReceiver {
-    public static final String SECRET_WORD = "reid";//"SMELLIA";
+    public static final String SECRET_WORD = "SMELLIA";
     public static final String SECRET_NUMBER = "secretNumber";
     private Intent safetyIntent;
     private Context mContext;
