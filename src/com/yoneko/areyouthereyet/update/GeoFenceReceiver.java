@@ -256,7 +256,13 @@ public class GeoFenceReceiver extends BroadcastReceiver {
 
     public static void sendSms(String phonenumber, String message, boolean isBinary, final Context ctxt) {
         context = ctxt;
-        sendSms(phonenumber, message, isBinary);
+        try {
+            sendSms(phonenumber,
+                    message,
+                    isBinary);
+        } catch (NullPointerException e) {
+            Toast.makeText(ctxt, "Phone or message is not available", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static void sendSms(String phonenumber, String message, boolean isBinary) {
@@ -287,8 +293,11 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                 ArrayList<String> messagelist = manager.divideMessage(message);
 
                 messagelist.add(context.getResources().getString(R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""));
-                manager.sendMultipartTextMessage(phonenumber, phonenumber,
-                        messagelist, null, null);
+                manager.sendMultipartTextMessage(phonenumber,
+                        phonenumber,
+                        messagelist,
+                        null,
+                        null);
             } else {
                 // Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "
                 // + phonenumber);
