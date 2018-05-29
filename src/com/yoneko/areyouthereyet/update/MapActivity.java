@@ -235,7 +235,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 //	private AdLayout adView;
 
     //admob
-    private AdView adView;
+//    private AdView adView;
 
     public void o(String s) {
         Log.i(tag, "output s: " + s);
@@ -252,6 +252,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
 
         Log.i("ty", "oncreate");
@@ -289,7 +290,6 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 Log.i("Reid1", "keep the app in front as normal");
             }
 
-            super.onCreate(savedInstanceState);
             setContentView(R.layout.fragment_map);
             sendBroadcast(new Intent("YouWillNeverKillMe"));
             mInProgress = false;
@@ -396,11 +396,11 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 //		adView.loadAd(adOptions);
 
             //admob
-            adView = (AdView) findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder()
-                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                    .addTestDevice("deviceid").build();
-            adView.loadAd(adRequest);
+//            adView = (AdView) findViewById(R.id.adView);
+//            AdRequest adRequest = new AdRequest.Builder()
+//                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+//                    .addTestDevice("deviceid").build();
+//            adView.loadAd(adRequest);
 
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
@@ -438,6 +438,8 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
             fm.beginTransaction().hide(addGeofenceFragment).commit();
 //		reRegisterGeoFences = true;
+        } else {
+            finish();
         }
     }
 
@@ -558,7 +560,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
                 initShowView();
                 editor.putBoolean("FIRSTRUN", false);
             }
-            adView.setVisibility(View.VISIBLE);
+//            adView.setVisibility(View.VISIBLE);
 //			if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 //				adView.setVisibility(View.VISIBLE);
 //			} else {
@@ -766,7 +768,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
     protected void onStart() {
         super.onStart();
         Log.i("ty", "onStart");
-        if (!mGoogleApiClient.isConnected() || !mGoogleApiClient.isConnecting()) {
+        if (mGoogleApiClient != null && (!mGoogleApiClient.isConnected() || !mGoogleApiClient.isConnecting())) {
             mGoogleApiClient.connect();
         }
         FlurryAgent.onStartSession(this, flurryKey);
@@ -1236,7 +1238,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             e.printStackTrace();
         }
 
-        adView.setVisibility(View.VISIBLE);
+//        adView.setVisibility(View.VISIBLE);
 //		if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 //			adView.setVisibility(View.VISIBLE);
 //		} else {
@@ -1349,9 +1351,9 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         isActive = false;
 
         // Destroy the AdView.
-        if (adView != null) {
-            adView.destroy();
-        }
+//        if (adView != null) {
+//            adView.destroy();
+//        }
 
         super.onDestroy();
     }
@@ -1836,7 +1838,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         // Disconnecting the client invalidates it.
         FlurryAgent.onEndSession(this);
         navigateToMyLocation = false;
-        if (mGoogleApiClient.isConnected()) {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
 

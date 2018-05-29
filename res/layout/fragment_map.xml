@@ -44,7 +44,11 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center">
-
+                    <com.startapp.android.publish.ads.banner.Banner
+                            android:id="@+id/startAppBanner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"/>
                     <!-- <com.amazon.device.ads.AdLayout
                         android:id="@+id/adView"
                         android:layout_width="320dp"
@@ -52,15 +56,15 @@
                         Amazon:adSize="320x50"
                         android:layout_gravity="top" /> -->
 
-                    <com.google.android.gms.ads.AdView
-                            xmlns:ads="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/adView"
-                            android:visibility="gone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="top"
-                            ads:adSize="BANNER"
-                            ads:adUnitId="@string/admob_id"/>
+                    <!--<com.google.android.gms.ads.AdView-->
+                    <!--xmlns:ads="http://schemas.android.com/apk/res-auto"-->
+                    <!--android:id="@+id/adView"-->
+                    <!--android:visibility="gone"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="top"-->
+                    <!--ads:adSize="BANNER"-->
+                    <!--ads:adUnitId="@string/admob_id"/>-->
                 </LinearLayout>
 
                 <FrameLayout
