@@ -1,6 +1,60 @@
 //showcase view background color : F02173AD
 package com.yoneko.areyouthereyet.update;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.CancelableCallback;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+
+import com.crashlytics.android.Crashlytics;
+import com.flurry.android.FlurryAgent;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
+import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
+import com.yoneko.areyouthereyet.update.DrawerItemAdapter.ToggleSwitchClicked;
+import com.yoneko.areyouthereyet.update.GeoFenceReceiver.onGeofenceTriggeredListener;
+import com.yoneko.models.PhoneContact;
+import com.yoneko.models.Prediction;
+import com.yoneko.models.SimpleGeofence;
+import com.yoneko.models.SimpleGeofence.fencetype;
+import com.yoneko.models.SimpleGeofenceList;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.Manifest.permission;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -13,7 +67,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Address;
@@ -31,7 +84,6 @@ import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.text.Editable;
@@ -68,65 +120,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.crashlytics.android.Crashlytics;
-import com.flurry.android.FlurryAgent;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
-
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.CancelableCallback;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
-import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.VisibleRegion;
-import com.google.android.gms.vision.Frame;
-import com.google.gson.Gson;
-
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
-import com.yoneko.areyouthereyet.update.AddGeoFenceFragment.onEditTextClicked;
-import com.yoneko.areyouthereyet.update.DrawerItemAdapter.ToggleSwitchClicked;
-import com.yoneko.areyouthereyet.update.GeoFenceReceiver.onGeofenceTriggeredListener;
-import com.yoneko.models.PhoneContact;
-import com.yoneko.models.Prediction;
-import com.yoneko.models.SimpleGeofence;
-import com.yoneko.models.SimpleGeofence.fencetype;
-import com.yoneko.models.SimpleGeofenceList;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -235,7 +228,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 //	private AdLayout adView;
 
     //admob
-//    private AdView adView;
+    private AdView adView;
 
     public void o(String s) {
         Log.i(tag, "output s: " + s);
@@ -252,7 +245,6 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
 
         Log.i("ty", "oncreate");
@@ -289,7 +281,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             } else {
                 Log.i("Reid1", "keep the app in front as normal");
             }
-
+            super.onCreate(savedInstanceState);
             setContentView(R.layout.fragment_map);
             sendBroadcast(new Intent("YouWillNeverKillMe"));
             mInProgress = false;
@@ -396,11 +388,11 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
 //		adView.loadAd(adOptions);
 
             //admob
-//            adView = (AdView) findViewById(R.id.adView);
-//            AdRequest adRequest = new AdRequest.Builder()
-//                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-//                    .addTestDevice("deviceid").build();
-//            adView.loadAd(adRequest);
+            adView = (AdView) findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                    .addTestDevice("deviceid").build();
+            adView.loadAd(adRequest);
 
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
@@ -1238,7 +1230,7 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
             e.printStackTrace();
         }
 
-//        adView.setVisibility(View.VISIBLE);
+        adView.setVisibility(View.VISIBLE);
 //		if (appOpenNumber % NUM_TIMES_TO_SHOW_ADD == 1) {
 //			adView.setVisibility(View.VISIBLE);
 //		} else {
@@ -1351,9 +1343,9 @@ public class MapActivity extends FragmentActivity implements OnMapLongClickListe
         isActive = false;
 
         // Destroy the AdView.
-//        if (adView != null) {
-//            adView.destroy();
-//        }
+        if (adView != null) {
+            adView.destroy();
+        }
 
         super.onDestroy();
     }

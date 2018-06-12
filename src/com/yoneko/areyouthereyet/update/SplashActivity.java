@@ -1,12 +1,17 @@
 package com.yoneko.areyouthereyet.update;
 
-import android.*;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+
+import com.ironsource.mediationsdk.IronSource;
+import com.ironsource.mediationsdk.logger.IronSourceError;
+import com.ironsource.mediationsdk.sdk.InterstitialListener;
+
 import android.Manifest;
 import android.Manifest.permission;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,26 +21,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
-
-import com.ironsource.mediationsdk.IronSource;
-import com.ironsource.mediationsdk.logger.IronSourceError;
-import com.ironsource.mediationsdk.sdk.InterstitialListener;
-import com.startapp.android.publish.ads.nativead.NativeAdDetails;
-import com.startapp.android.publish.ads.nativead.NativeAdPreferences;
-import com.startapp.android.publish.ads.nativead.StartAppNativeAd;
-import com.startapp.android.publish.adsCommon.Ad;
-import com.startapp.android.publish.adsCommon.StartAppAd;
-import com.startapp.android.publish.adsCommon.StartAppSDK;
-import com.startapp.android.publish.adsCommon.adListeners.AdEventListener;
-
-import java.util.ArrayList;
-
-import static java.security.AccessController.getContext;
 
 public class SplashActivity extends Activity implements OnRequestPermissionsResultCallback {
 
@@ -43,13 +28,13 @@ public class SplashActivity extends Activity implements OnRequestPermissionsResu
     /**
      * StartAppAd object declaration
      */
-    private StartAppAd startAppAd = new StartAppAd(this);
+//    private StartAppAd startAppAd = new StartAppAd(this);
 
     /**
      * StartApp Native Ad declaration
      */
-    private StartAppNativeAd startAppNativeAd = new StartAppNativeAd(this);
-    private NativeAdDetails nativeAd = null;
+//    private StartAppNativeAd startAppNativeAd = new StartAppNativeAd(this);
+//    private NativeAdDetails nativeAd = null;
     private ImageView imgFreeApp;
 
     @Override
@@ -59,7 +44,7 @@ public class SplashActivity extends Activity implements OnRequestPermissionsResu
         setContentView(R.layout.activity_splash);
 
 //        initIronSource();
-        initStartApp();
+//        initStartApp();
 
         // Here, thisActivity is the current activity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -88,7 +73,7 @@ public class SplashActivity extends Activity implements OnRequestPermissionsResu
             }
         } else {
             Log.i("ty", "starting map activity less than M");
-//            startActivityNoHistory();
+            startActivityNoHistory();
         }
 
         //disable ads for now
@@ -172,13 +157,13 @@ public class SplashActivity extends Activity implements OnRequestPermissionsResu
 //    });
 //
 //    interstitialAd.loadAd();
-//
-//
+
+
     private void requestNewInterstitial() {
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
                 .build();
-//        mInterstitialAd.loadAd(adRequest);
+        mInterstitialAd.loadAd(adRequest);
     }
 
     public void startActivityNoHistory() {
@@ -219,13 +204,42 @@ public class SplashActivity extends Activity implements OnRequestPermissionsResu
         }
         if (allPermissionsGranted) {
             requestNewInterstitial();
+            startActivityNoHistory();
         }
     }
 
     protected void onResume() {
         super.onResume();
-//        IronSource.onResume(this);
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.interstitial));
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdFailedToLoad(final int i) {
+                super.onAdFailedToLoad(i);
+                startActivityNoHistory();
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                mInterstitialAd.show();
+            }
+
+            @Override
+            public void onAdClosed() {
+                startActivityNoHistory();
+            }
+        });
+        requestNewInterstitial();
     }
+//        IronSource.onResume(this);
+
 
     protected void onPause() {
         super.onPause();
@@ -235,71 +249,69 @@ public class SplashActivity extends Activity implements OnRequestPermissionsResu
     /**
      * Native Ad Callback
      */
-    private AdEventListener nativeAdListener = new AdEventListener() {
+//    private AdEventListener nativeAdListener = new AdEventListener() {
+//
+//        @Override
+//        public void onReceiveAd(Ad ad) {
+//
+//            // Get the native ad
+//            ArrayList<NativeAdDetails> nativeAdsList = startAppNativeAd.getNativeAds();
+//            if (nativeAdsList.size() > 0) {
+//                nativeAd = nativeAdsList.get(0);
+//            }
+//
+//            // Verify that an ad was retrieved
+//            if (nativeAd != null) {
+//
+//                // When ad is received and displayed - we MUST send impression
+//                nativeAd.sendImpression(SplashActivity.this);
+//
+//                if (imgFreeApp != null) {
+//
+//                    // Set button as enabled
+//                    imgFreeApp.setEnabled(true);
+//
+//                    // Set ad's image
+//                    imgFreeApp.setImageBitmap(nativeAd.getImageBitmap());
+//
+//                    // Set ad's title
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void onFailedToReceiveAd(Ad ad) {
+//            int x = 9;
+//        }
+//    };
 
-        @Override
-        public void onReceiveAd(Ad ad) {
-
-            // Get the native ad
-            ArrayList<NativeAdDetails> nativeAdsList = startAppNativeAd.getNativeAds();
-            if (nativeAdsList.size() > 0) {
-                nativeAd = nativeAdsList.get(0);
-            }
-
-            // Verify that an ad was retrieved
-            if (nativeAd != null) {
-
-                // When ad is received and displayed - we MUST send impression
-                nativeAd.sendImpression(SplashActivity.this);
-
-                if (imgFreeApp != null) {
-
-                    // Set button as enabled
-                    imgFreeApp.setEnabled(true);
-
-                    // Set ad's image
-                    imgFreeApp.setImageBitmap(nativeAd.getImageBitmap());
-
-                    // Set ad's title
-                }
-            }
-        }
-
-        @Override
-        public void onFailedToReceiveAd(Ad ad) {
-            int x = 9;
-        }
-    };
-
-    @Override
-    public void onBackPressed() {
-        StartAppAd.onBackPressed(this);
-        super.onBackPressed();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        StartAppAd.onBackPressed(this);
+//        super.onBackPressed();
+//    }
 
     //    AdRegistration.enableLogging(true);
 //    AdRegistration.setAppKey("ebbbcbf8ca734a10aa32cffb9f2c4971");
-//    final InterstitialAd interstitialAd = new InterstitialAd(this);
-    private void initStartApp() {
-        StartAppSDK.init(this, "204578934", true); //TODO: Replace with your Application ID
-        /** Initialize Native Ad views **/
-        imgFreeApp = (ImageView) findViewById(R.id.imgFreeApp);
-
-        /**
-         * Load Native Ad with the following parameters:
-         * 1. Only 1 Ad
-         * 2. Download ad image automatically
-         * 3. Image size of 150x150px
-         */
-
-        Intent nextActivity = new Intent(this, MapActivity.class);
-        startActivity(nextActivity);
-        StartAppAd.showAd(this);
-//        startAppNativeAd.loadAd(
-//                new NativeAdPreferences()
-//                        .setAdsNumber(1)
-//                        .setAutoBitmapDownload(true)
-//                        .setPrimaryImageSize(2),
-//                nativeAdListener);
-    }
+    final InterstitialAd interstitialAd = new InterstitialAd(this);
+//    private void initStartApp() {
+//        StartAppSDK.init(this, "204578934", true); //TODO: Replace with your Application ID
+//        /** Initialize Native Ad views **/
+//        imgFreeApp = (ImageView) findViewById(R.id.imgFreeApp);
+//
+//        /**
+//         * Load Native Ad with the following parameters:
+//         * 1. Only 1 Ad
+//         * 2. Download ad image automatically
+//         * 3. Image size of 150x150px
+//         */
+//
+//        StartAppAd.showAd(this);
+////        startAppNativeAd.loadAd(
+////                new NativeAdPreferences()
+////                        .setAdsNumber(1)
+////                        .setAutoBitmapDownload(true)
+////                        .setPrimaryImageSize(2),
+////                nativeAdListener);
+//    }
 }
