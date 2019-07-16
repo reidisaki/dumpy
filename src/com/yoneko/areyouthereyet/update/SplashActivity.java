@@ -160,10 +160,11 @@ public class SplashActivity extends Activity implements OnRequestPermissionsResu
 
 
     private void requestNewInterstitial() {
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
-                .build();
-        mInterstitialAd.loadAd(adRequest);
+        startActivityNoHistory();
+//        AdRequest adRequest = new AdRequest.Builder()
+//                .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+//                .build();
+//        mInterstitialAd.loadAd(adRequest);
     }
 
     public void startActivityNoHistory() {

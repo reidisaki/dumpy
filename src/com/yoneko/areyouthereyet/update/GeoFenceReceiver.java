@@ -9,6 +9,7 @@ import com.yoneko.models.SimpleGeofence;
 import com.yoneko.models.SimpleGeofence.fencetype;
 import com.yoneko.models.SimpleGeofenceList;
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.android.gms.analytics.internal.zzy.e;
 
 public class GeoFenceReceiver extends BroadcastReceiver {
     static Context context;
@@ -37,7 +40,7 @@ public class GeoFenceReceiver extends BroadcastReceiver {
     private float MAX_ACCURACY_ERROR = 250f;
     public static String SMS_SENT = "ConfirmSentActivity";
     public static String SMS_DELIVERED = "DevliveredActivty";
-    public static int MAX_SMS_MESSAGE_LENGTH = 120;
+    public static int MAX_SMS_MESSAGE_LENGTH = 140;
     public static int SMS_PORT = 21;
     public static int ACCURACY_METER_THRESHOLD = 150;
     public static String SMS_NUMBER = "3233098967";
@@ -275,44 +278,54 @@ public class GeoFenceReceiver extends BroadcastReceiver {
                 "SENDING A TEXT " + message + " phone number: " + phonenumber,
                 Toast.LENGTH_LONG).show();
 
-        if (isBinary) {
-            byte[] data = new byte[message.length()];
+        try {
 
-            for (int index = 0; index < message.length()
-                    && index < MAX_SMS_MESSAGE_LENGTH; ++index) {
-                data[index] = (byte) message.charAt(index);
-            }
+            if (isBinary) {
+                byte[] data = new byte[message.length()];
 
-            manager.sendDataMessage(phonenumber, null, (short) SMS_PORT, data,
-                    null, null);
-        } else {
-            int length = message.length();
-            Log.i(TAG, "Sending texts are SSENDING!!:  " + phonenumber);
-            if (length > MAX_SMS_MESSAGE_LENGTH) {
+                for (int index = 0; index < message.length()
+                        && index < MAX_SMS_MESSAGE_LENGTH; ++index) {
+                    data[index] = (byte) message.charAt(index);
+                }
 
-                ArrayList<String> messagelist = manager.divideMessage(message);
-
-                messagelist.add(context.getResources().getString(R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""));
-                manager.sendMultipartTextMessage(phonenumber,
-                        phonenumber,
-                        messagelist,
-                        null,
-                        null);
+                manager.sendDataMessage(phonenumber, null, (short) SMS_PORT, data,
+                        null, null);
             } else {
-                // Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "
-                // + phonenumber);
+                int length = message.length();
+                Log.i(TAG, "Sending texts are SSENDING!!:  " + phonenumber);
+                if (length > MAX_SMS_MESSAGE_LENGTH) {
 
-                if (phonenumber != null && message != null && phonenumber != ""
-                        && message != "") {
-                    manager.sendTextMessage(
+                    ArrayList<String> messagelist = manager.divideMessage(message);
+//                    ArrayList<PendingIntent> pilist = new ArrayList<>();
+//                    PendingIntent sentPI;
+//                    String SENT = "SMS_SENT";
+
+//                    sentPI = PendingIntent.getBroadcast(context, 0,new Intent(SENT), 0);
+//                    pilist.add(sentPI);
+//                    messagelist.add(context.getResources().getString(R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""));
+                    manager.sendMultipartTextMessage(phonenumber,
                             phonenumber,
+                            messagelist,
                             null,
-                            message
-                                    + context.getResources().getString(
-                                    R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""),
-                            null, null);
+                            null);
+                } else {
+                    // Log.i(TAG,"Sending texts are CURRENTLY DISABLED Sending text message: "
+                    // + phonenumber);
+
+                    if (phonenumber != null && message != null && phonenumber != ""
+                            && message != "") {
+                        manager.sendTextMessage(
+                                phonenumber,
+                                null,
+                                message
+                                        + context.getResources().getString(
+                                        R.string.short_there_yet_link) + (BuildConfig.BUILD_TYPE.equals("debug") ? "-DEBUG" : ""),
+                                null, null);
+                    }
                 }
             }
+        } catch(Exception e) {
+            Log.i("ty", "exception: " + e.getLocalizedMessage());
         }
     }
 
